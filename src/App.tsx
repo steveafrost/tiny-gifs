@@ -1,7 +1,10 @@
 import type { CSSProperties } from 'react'
 import { FootprintComparison } from './components/FootprintComparison'
+import { GiphyExplorer } from './components/GiphyExplorer'
+import { InfoPage } from './components/InfoPages'
 import { InstallCta } from './components/InstallCta'
 import { PhoneTranscript } from './components/PhoneTranscript'
+import { SharingPathDemo } from './components/SharingPathDemo'
 import { ReactionCharacter, type ReactionName } from './components/ReactionCharacter'
 
 const reactions: ReactionName[] = ['lol', 'nope', 'omg', 'brb', 'perfect']
@@ -21,14 +24,18 @@ function ReactionRail() {
 }
 
 function Installation() {
-  const steps = [['↓', 'Download', 'the app'], ['⚙', 'Add #tiny-gifs', 'in Settings'], ['▪', 'Tap, copy,', 'paste']]
-  return <section className="installation section-rule" id="how-it-works" aria-labelledby="install-title"><h2 id="install-title">On your keyboard<br />in under a minute<span>.</span></h2><ol className="installation__steps">{steps.map(([icon, lineOne, lineTwo], index) => <li key={lineOne}><b>{index + 1}</b><div className="step-icon" aria-hidden="true">{icon}</div><strong>{lineOne}<br />{lineTwo}</strong></li>)}</ol><p>Display size can vary by messaging app.</p></section>
+  const steps = [['↓', 'Download', 'the app'], ['✦', 'Send in', 'Messages'], ['⌨', 'Add keyboard', '(optional)']]
+  return <section className="installation section-rule" id="setup" aria-labelledby="install-title"><h2 id="install-title">Start in Messages.<br />Go everywhere else<span>.</span></h2><ol className="installation__steps">{steps.map(([icon, lineOne, lineTwo], index) => <li key={lineOne}><b>{index + 1}</b><div className="step-icon" aria-hidden="true">{icon}</div><strong>{lineOne}<br />{lineTwo}</strong></li>)}</ol><p>Keyboard typing works without Full Access. Display size can vary by messaging app.</p></section>
 }
 
 function ClosingBand() {
   return <section className="closing"><div className="closing__burst" aria-hidden="true"><span /><i /><b /><em /></div><div><h2>Keep the reaction<span>.</span><br />Lose the interruption<span>.</span></h2><InstallCta className="button button--lime">Get the keyboard <Arrow /></InstallCta></div></section>
 }
 
-function Footer() { return <footer><a href="#top">Privacy</a><a href="#how-it-works">Support</a><p>Built tiny on purpose.</p></footer> }
+function Footer() { return <footer><a href="/privacy">Privacy</a><a href="/support">Support</a><p>Built tiny on purpose.</p></footer> }
 
-export default function App() { return <><Header /><main><Hero /><FootprintComparison /><ReactionRail /><Installation /><ClosingBand /></main><Footer /></> }
+export default function App() {
+  if (window.location.pathname === '/privacy') return <InfoPage page="privacy" />
+  if (window.location.pathname === '/support') return <InfoPage page="support" />
+  return <><Header /><main><Hero /><FootprintComparison /><ReactionRail /><GiphyExplorer /><SharingPathDemo /><Installation /><ClosingBand /></main><Footer /></>
+}
