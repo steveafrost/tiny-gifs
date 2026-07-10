@@ -11,7 +11,7 @@ npm run dev
 
 Run `npm run lint` and `npm run build` before handing off a change.
 
-The production build also prepares the Sites worker entrypoint at `dist/server/index.js` and copies `.openai/hosting.json` into the deployable output. The worker delegates static files to the platform asset binding and falls back to `index.html` for client-side routes.
+The production build writes browser assets to `dist/client`, prepares the Sites worker entrypoint at `dist/server/index.js`, and copies `.openai/hosting.json` into the deployable output. The worker delegates static files to the platform asset binding and falls back to `index.html` for client-side routes.
 
 ## Install destination
 
