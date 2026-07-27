@@ -42,10 +42,10 @@ export function InstallCta({ children, className = '' }: InstallCtaProps) {
         <button ref={closeButtonRef} className="install-sheet__close" type="button" onClick={() => setIsOpen(false)} aria-label="Close install information">×</button>
         <p className="install-sheet__label">#tiny-gifs</p>
         <h2 id="install-sheet-title">The beta invite is not live yet.</h2>
-        <p>#tiny-gifs comes through an iPhone app. Stickers are the fastest path in Messages; the keyboard is optional for supported apps elsewhere.</p>
+        <p>#tiny-gifs comes through an iPhone app. Its Messages GIF picker is the fastest path there; the keyboard is optional for supported apps elsewhere.</p>
         <ol>
           <li>Install the app when the invite opens.</li>
-          <li>Open #tiny-gifs in the Messages app drawer and tap a tiny sticker.</li>
+          <li>Open #tiny-gifs in the Messages app drawer, tap a tiny GIF, then tap Send.</li>
           <li>Add the keyboard in Settings only when you want the copy-and-paste path elsewhere.</li>
         </ol>
       </section>

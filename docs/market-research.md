@@ -2,6 +2,8 @@
 
 **Research snapshot:** July 10, 2026 (United States App Store and current Apple developer documentation)
 
+> Implementation decision: #tiny-gifs uses a custom Messages app-drawer GIF picker that inserts media attachments into the compose field. It does not ship a sticker pack, create `MSSticker` objects, or offer peelable stickers. Historical competitor references below retain their original terminology.
+
 ## Executive finding
 
 The broad idea has been done, but the specific promise is not yet owned.

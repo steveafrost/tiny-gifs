@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>destination</key>
+    <string>upload</string>
+    <key>method</key>
+    <string>app-store-connect</string>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>com.tinygifs.app</key>
+        <string>26464174-e803-46fb-b536-e460c7f9423b</string>
+        <key>com.tinygifs.app.keyboard</key>
+        <string>58d485b3-fc52-4a95-b5be-19483bffa9e2</string>
+        <key>com.tinygifs.app.messages</key>
+        <string>d4f3a2b7-60cb-4510-8ffa-ffb58d53aab5</string>
+    </dict>
+    <key>signingStyle</key>
+    <string>manual</string>
+    <key>teamID</key>
+    <string>4QJ25Y85MX</string>
+</dict>
+</plist>

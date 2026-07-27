@@ -7,7 +7,7 @@ type Path = 'messages' | 'keyboard'
 const pathCopy: Record<Path, { title: string; description: string }> = {
   messages: {
     title: 'Fastest in Messages.',
-    description: 'Tap a tiny sticker to drop it straight into the conversation. That is the seamless path.',
+    description: 'Tap a tiny GIF to add it to the Messages field, then tap Send. That is the seamless path.',
   },
   keyboard: {
     title: 'Keyboard everywhere else.',
@@ -25,7 +25,7 @@ export function SharingPathDemo() {
       <h2 id="sharing-path-title">{copy.title}</h2>
       <p>{copy.description}</p>
       <div className="path-tabs" role="tablist" aria-label="Sharing paths">
-        <button className={path === 'messages' ? 'is-selected' : ''} role="tab" aria-selected={path === 'messages'} onClick={() => setPath('messages')}>Messages stickers</button>
+        <button className={path === 'messages' ? 'is-selected' : ''} role="tab" aria-selected={path === 'messages'} onClick={() => setPath('messages')}>Messages GIF picker</button>
         <button className={path === 'keyboard' ? 'is-selected' : ''} role="tab" aria-selected={path === 'keyboard'} onClick={() => setPath('keyboard')}>Keyboard</button>
       </div>
       <p className="sharing-path__privacy">No account. No tracking. Your typing stays on your iPhone.</p>
@@ -50,7 +50,7 @@ function ReactionPicker({ selected, onSelect }: { selected: string; onSelect: (i
 function MessagesPanel({ selected }: { selected: string }) {
   return <div className="message-path">
     <div className="message-path__line"><span>Heading to lunch!</span></div>
-    <div className="message-path__sent"><ReactionCharacter kind={selected as typeof reactions[number]['id']} decorative compact /><span>Ready to tap Send</span></div>
+    <div className="message-path__sent"><ReactionCharacter kind={selected as typeof reactions[number]['id']} decorative compact /><span>Added — tap Send</span></div>
     <div className="message-path__input"><b>+</b><span>iMessage</span><i>↑</i></div>
   </div>
 }

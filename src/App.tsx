@@ -25,7 +25,7 @@ function ReactionRail() {
 
 function Installation() {
   const steps = [['↓', 'Download', 'the app'], ['✦', 'Send in', 'Messages'], ['⌨', 'Add keyboard', '(optional)']]
-  return <section className="installation section-rule" id="setup" aria-labelledby="install-title"><h2 id="install-title">Start in Messages.<br />Go everywhere else<span>.</span></h2><ol className="installation__steps">{steps.map(([icon, lineOne, lineTwo], index) => <li key={lineOne}><b>{index + 1}</b><div className="step-icon" aria-hidden="true">{icon}</div><strong>{lineOne}<br />{lineTwo}</strong></li>)}</ol><p>Keyboard typing works without Full Access. Display size can vary by messaging app.</p></section>
+  return <section className="installation section-rule" id="setup" aria-labelledby="install-title"><h2 id="install-title">Start in Messages.<br />Go everywhere else<span>.</span></h2><ol className="installation__steps">{steps.map(([icon, lineOne, lineTwo], index) => <li key={lineOne}><b>{index + 1}</b><div className="step-icon" aria-hidden="true">{icon}</div><strong>{lineOne}<br />{lineTwo}</strong></li>)}</ol><p>Messages adds GIFs to the message field; keyboard typing works without Full Access. Display size can vary by app.</p></section>
 }
 
 function ClosingBand() {
