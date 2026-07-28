@@ -4,10 +4,10 @@ import UniformTypeIdentifiers
 
 /// Builds a compact animated sticker whose file dimensions match its intended
 /// transcript size. `MSSticker` treats dynamically generated GIF pixels as
-/// points, so a 256 px canvas renders as a 256 pt message.
+/// points, so a 512 px canvas renders as a 512 pt message.
 enum TinyStickerRenderer {
-    static let canvasPixels: CGFloat = 256
-    static let maximumVisiblePixels: CGFloat = 256
+    static let canvasPixels: CGFloat = 512
+    static let maximumVisiblePixels: CGFloat = 512
     static let maximumFileBytes = 490_000
 
     private struct RenderAttempt {
@@ -27,7 +27,7 @@ enum TinyStickerRenderer {
             with: "-",
             options: .regularExpression
         )
-        let destination = cacheDirectory.appendingPathComponent("\(safeIdentifier)-emoji-v5.gif")
+        let destination = cacheDirectory.appendingPathComponent("\(safeIdentifier)-emoji-v6.gif")
         if let size = fileSize(at: destination), size <= maximumFileBytes {
             return destination
         }
@@ -41,12 +41,15 @@ enum TinyStickerRenderer {
             RenderAttempt(visiblePixels: maximumVisiblePixels, maximumFrames: 24),
             RenderAttempt(visiblePixels: maximumVisiblePixels, maximumFrames: 16),
             RenderAttempt(visiblePixels: maximumVisiblePixels, maximumFrames: 12),
-            RenderAttempt(visiblePixels: maximumVisiblePixels, maximumFrames: 8)
+            RenderAttempt(visiblePixels: maximumVisiblePixels, maximumFrames: 8),
+            RenderAttempt(visiblePixels: maximumVisiblePixels, maximumFrames: 6),
+            RenderAttempt(visiblePixels: maximumVisiblePixels, maximumFrames: 4),
+            RenderAttempt(visiblePixels: maximumVisiblePixels, maximumFrames: 2)
         ]
 
         for (attemptIndex, attempt) in attempts.enumerated() {
             let temporary = cacheDirectory.appendingPathComponent(
-                "\(safeIdentifier)-emoji-v5-\(attemptIndex).gif"
+                "\(safeIdentifier)-emoji-v6-\(attemptIndex).gif"
             )
             try? fileManager.removeItem(at: temporary)
             try writeGIF(
