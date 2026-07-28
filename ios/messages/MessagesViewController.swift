@@ -2,7 +2,7 @@ import Messages
 import UIKit
 import ImageIO
 
-/// A searchable Messages drawer that inserts emoji-scale animated GIF stickers.
+/// A searchable Messages drawer that sends full-animation GIF attachments.
 final class MessagesViewController: MSMessagesAppViewController, UISearchBarDelegate {
     private let searchBar = UISearchBar()
     private let statusLabel = UILabel()
@@ -21,7 +21,7 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
         searchBar.accessibilityIdentifier = "tiny-gifs.search"
         searchBar.translatesAutoresizingMaskIntoConstraints = false
 
-        statusLabel.text = "Tap a GIF to add it to your message"
+        statusLabel.text = "Tap a GIF to send it"
         statusLabel.font = .systemFont(ofSize: 11, weight: .semibold)
         statusLabel.textColor = .secondaryLabel
         statusLabel.lineBreakMode = .byTruncatingTail
@@ -36,7 +36,7 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
 
         addChild(picker)
         picker.view.translatesAutoresizingMaskIntoConstraints = false
-        picker.onSelect = { [weak self] item in self?.insert(item) }
+        picker.onSelect = { [weak self] item in self?.send(item) }
         picker.onStatusChange = { [weak self] status in self?.statusLabel.text = status }
 
         // Remove the template storyboard label before installing the real drawer.
@@ -72,29 +72,28 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
         picker.search(searchBar.text ?? "")
     }
 
-    private func insert(_ item: GIFPickerItem) {
+    private func send(_ item: GIFPickerItem) {
         guard let conversation = activeConversation else {
-            statusLabel.text = "Open a Messages conversation to add a GIF"
+            statusLabel.text = "Open a Messages conversation to send a GIF"
             return
         }
-        statusLabel.text = "Making it tiny…"
+        statusLabel.text = "Preparing GIF…"
         let sourceURL = item.url
         let itemID = item.id
-        let description = item.title.isEmpty ? "Tiny animated GIF" : item.title
         Task { [weak self, weak conversation] in
             do {
-                let stickerURL = try await Task.detached(priority: .userInitiated) {
-                    try TinyStickerRenderer.render(sourceURL: sourceURL, identifier: itemID)
+                let attachmentURL = try await Task.detached(priority: .userInitiated) {
+                    try TinyGIFAttachmentRenderer.render(sourceURL: sourceURL, identifier: itemID)
                 }.value
-                let sticker = try MSSticker(
-                    contentsOfFileURL: stickerURL,
-                    localizedDescription: description
-                )
                 guard let conversation else { return }
-                try await conversation.insert(sticker)
-                self?.statusLabel.text = "Added tiny GIF — tap Send"
+                try await TinyGIFMessageSender.send(
+                    attachmentURL,
+                    filename: "tiny-gifs-\(itemID).gif",
+                    conversation: conversation
+                )
+                self?.statusLabel.text = "Sent"
             } catch {
-                self?.statusLabel.text = "Couldn’t add that GIF"
+                self?.statusLabel.text = "Couldn’t send that GIF"
             }
         }
     }
@@ -215,7 +214,7 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
                     return
                 }
                 self.items.append(contentsOf: loaded)
-                self.onStatusChange?("Tap a tiny GIF to add it")
+                self.onStatusChange?("Tap a tiny GIF to send it")
                 self.collectionView.reloadData()
             } catch {
                 self.isLoadingPage = false
@@ -282,7 +281,7 @@ private final class GIFPickerCell: UICollectionViewCell {
     func configure(with item: GIFPickerItem) {
         imageView.image = AnimatedGIFImage.load(from: item.url)
         accessibilityIdentifier = "tiny-gifs.gif.\(item.id)"
-        accessibilityLabel = "Add \(item.title) GIF to message"
+        accessibilityLabel = "Send \(item.title) GIF"
     }
 }
 
