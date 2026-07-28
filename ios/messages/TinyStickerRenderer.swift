@@ -2,12 +2,12 @@ import ImageIO
 import UIKit
 import UniformTypeIdentifiers
 
-/// Builds a standards-sized 300 px sticker canvas while keeping the visible GIF
-/// no larger than 40 pt. The transparent padding prevents Messages from scaling
-/// the animation into a transcript-dominating media bubble.
+/// Builds a compact animated sticker whose file dimensions match its intended
+/// transcript size. `MSSticker` treats dynamically generated GIF pixels as
+/// points, so a 300 px padded canvas renders as a large 300 pt message.
 enum TinyStickerRenderer {
-    static let canvasPixels: CGFloat = 300
-    static let maximumVisiblePixels: CGFloat = 120
+    static let canvasPixels: CGFloat = 128
+    static let maximumVisiblePixels: CGFloat = 128
     static let maximumFileBytes = 490_000
 
     private struct RenderAttempt {
@@ -27,7 +27,7 @@ enum TinyStickerRenderer {
             with: "-",
             options: .regularExpression
         )
-        let destination = cacheDirectory.appendingPathComponent("\(safeIdentifier)-emoji-v1.gif")
+        let destination = cacheDirectory.appendingPathComponent("\(safeIdentifier)-emoji-v4.gif")
         if let size = fileSize(at: destination), size <= maximumFileBytes {
             return destination
         }
@@ -39,14 +39,14 @@ enum TinyStickerRenderer {
 
         let attempts = [
             RenderAttempt(visiblePixels: maximumVisiblePixels, maximumFrames: 24),
-            RenderAttempt(visiblePixels: 108, maximumFrames: 16),
+            RenderAttempt(visiblePixels: 112, maximumFrames: 16),
             RenderAttempt(visiblePixels: 96, maximumFrames: 12),
-            RenderAttempt(visiblePixels: 84, maximumFrames: 8)
+            RenderAttempt(visiblePixels: 80, maximumFrames: 8)
         ]
 
         for (attemptIndex, attempt) in attempts.enumerated() {
             let temporary = cacheDirectory.appendingPathComponent(
-                "\(safeIdentifier)-emoji-v1-\(attemptIndex).gif"
+                "\(safeIdentifier)-emoji-v4-\(attemptIndex).gif"
             )
             try? fileManager.removeItem(at: temporary)
             try writeGIF(
@@ -147,8 +147,12 @@ enum TinyStickerRenderer {
     }
 
     private static func frameDuration(source: CGImageSource, at index: Int) -> TimeInterval {
-        guard let properties = CGImageSourceCopyPropertiesAtIndex(source, index, nil) as? [CFString: Any],
-              let gif = properties[kCGImagePropertyGIFDictionary] as? [CFString: Any] else {
+        guard let properties = CGImageSourceCopyPropertiesAtIndex(
+            source,
+            index,
+            nil
+        ) as? [CFString: Any],
+        let gif = properties[kCGImagePropertyGIFDictionary] as? [CFString: Any] else {
             return 0.1
         }
         let unclamped = gif[kCGImagePropertyGIFUnclampedDelayTime] as? Double

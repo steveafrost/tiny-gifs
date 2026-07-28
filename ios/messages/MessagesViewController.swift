@@ -2,7 +2,7 @@ import Messages
 import UIKit
 import ImageIO
 
-/// A compact Messages drawer that inserts emoji-scale animated stickers.
+/// A searchable Messages drawer that inserts emoji-scale animated GIF stickers.
 final class MessagesViewController: MSMessagesAppViewController, UISearchBarDelegate {
     private let searchBar = UISearchBar()
     private let statusLabel = UILabel()
@@ -18,12 +18,14 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
         searchBar.autocapitalizationType = .none
         searchBar.searchBarStyle = .minimal
         searchBar.setBackgroundImage(UIImage(), for: .any, barMetrics: .default)
+        searchBar.accessibilityIdentifier = "tiny-gifs.search"
         searchBar.translatesAutoresizingMaskIntoConstraints = false
 
-        statusLabel.text = "Tap a tiny GIF to add it"
+        statusLabel.text = "Tap a GIF to add it to your message"
         statusLabel.font = .systemFont(ofSize: 11, weight: .semibold)
         statusLabel.textColor = .secondaryLabel
         statusLabel.lineBreakMode = .byTruncatingTail
+        statusLabel.accessibilityIdentifier = "tiny-gifs.status"
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
 
         attribution.text = "Powered By GIPHY"
@@ -84,7 +86,10 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
                 let stickerURL = try await Task.detached(priority: .userInitiated) {
                     try TinyStickerRenderer.render(sourceURL: sourceURL, identifier: itemID)
                 }.value
-                let sticker = try MSSticker(contentsOfFileURL: stickerURL, localizedDescription: description)
+                let sticker = try MSSticker(
+                    contentsOfFileURL: stickerURL,
+                    localizedDescription: description
+                )
                 guard let conversation else { return }
                 try await conversation.insert(sticker)
                 self?.statusLabel.text = "Added tiny GIF — tap Send"
@@ -128,6 +133,7 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
     override func viewDidLoad() {
         super.viewDidLoad()
         collectionView.backgroundColor = .clear
+        collectionView.accessibilityIdentifier = "tiny-gifs.grid"
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(GIFPickerCell.self, forCellWithReuseIdentifier: GIFPickerCell.reuseIdentifier)
@@ -275,6 +281,7 @@ private final class GIFPickerCell: UICollectionViewCell {
 
     func configure(with item: GIFPickerItem) {
         imageView.image = AnimatedGIFImage.load(from: item.url)
+        accessibilityIdentifier = "tiny-gifs.gif.\(item.id)"
         accessibilityLabel = "Add \(item.title) GIF to message"
     }
 }
