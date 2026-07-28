@@ -4,10 +4,10 @@ import UniformTypeIdentifiers
 
 /// Builds a compact animated sticker whose file dimensions match its intended
 /// transcript size. `MSSticker` treats dynamically generated GIF pixels as
-/// points, so a 300 px padded canvas renders as a large 300 pt message.
+/// points, so a 256 px canvas renders as a 256 pt message.
 enum TinyStickerRenderer {
-    static let canvasPixels: CGFloat = 128
-    static let maximumVisiblePixels: CGFloat = 128
+    static let canvasPixels: CGFloat = 256
+    static let maximumVisiblePixels: CGFloat = 256
     static let maximumFileBytes = 490_000
 
     private struct RenderAttempt {
@@ -27,7 +27,7 @@ enum TinyStickerRenderer {
             with: "-",
             options: .regularExpression
         )
-        let destination = cacheDirectory.appendingPathComponent("\(safeIdentifier)-emoji-v4.gif")
+        let destination = cacheDirectory.appendingPathComponent("\(safeIdentifier)-emoji-v5.gif")
         if let size = fileSize(at: destination), size <= maximumFileBytes {
             return destination
         }
@@ -39,14 +39,14 @@ enum TinyStickerRenderer {
 
         let attempts = [
             RenderAttempt(visiblePixels: maximumVisiblePixels, maximumFrames: 24),
-            RenderAttempt(visiblePixels: 112, maximumFrames: 16),
-            RenderAttempt(visiblePixels: 96, maximumFrames: 12),
-            RenderAttempt(visiblePixels: 80, maximumFrames: 8)
+            RenderAttempt(visiblePixels: maximumVisiblePixels, maximumFrames: 16),
+            RenderAttempt(visiblePixels: maximumVisiblePixels, maximumFrames: 12),
+            RenderAttempt(visiblePixels: maximumVisiblePixels, maximumFrames: 8)
         ]
 
         for (attemptIndex, attempt) in attempts.enumerated() {
             let temporary = cacheDirectory.appendingPathComponent(
-                "\(safeIdentifier)-emoji-v4-\(attemptIndex).gif"
+                "\(safeIdentifier)-emoji-v5-\(attemptIndex).gif"
             )
             try? fileManager.removeItem(at: temporary)
             try writeGIF(

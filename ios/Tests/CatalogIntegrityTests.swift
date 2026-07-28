@@ -42,8 +42,8 @@ final class CatalogIntegrityTests: XCTestCase {
         let properties = try XCTUnwrap(
             CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
         )
-        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 128)
-        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 128)
+        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 256)
+        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 256)
         XCTAssertEqual(
             CGImageSourceGetCount(source),
             min(CGImageSourceGetCount(original), 24)
