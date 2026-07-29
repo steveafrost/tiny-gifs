@@ -40,7 +40,7 @@ enum TinyGIFMessageSender {
 /// Resizes every frame of a selected GIF for delivery as a regular Messages attachment.
 /// Regular attachments are not constrained by the 500 KB `MSSticker` file-size limit.
 enum TinyGIFAttachmentRenderer {
-    static let canvasPixels: CGFloat = 512
+    static let canvasPixels: CGFloat = 384
 
     static func render(sourceURL: URL, identifier: String) throws -> URL {
         let fileManager = FileManager.default
@@ -55,7 +55,7 @@ enum TinyGIFAttachmentRenderer {
             options: .regularExpression
         )
         let destination = cacheDirectory.appendingPathComponent(
-            "\(safeIdentifier)-attachment-v7.gif"
+            "\(safeIdentifier)-attachment-v8.gif"
         )
         if fileManager.fileExists(atPath: destination.path) {
             return destination
@@ -67,12 +67,29 @@ enum TinyGIFAttachmentRenderer {
         }
 
         let temporary = cacheDirectory.appendingPathComponent(
-            "\(safeIdentifier)-attachment-v7-temporary.gif"
+            "\(safeIdentifier)-attachment-v8-\(UUID().uuidString)-temporary.gif"
         )
-        try? fileManager.removeItem(at: temporary)
+        defer { try? fileManager.removeItem(at: temporary) }
         try writeGIF(source: source, destination: temporary)
-        try? fileManager.removeItem(at: destination)
-        try fileManager.moveItem(at: temporary, to: destination)
+        return try claimDestination(
+            with: temporary,
+            at: destination,
+            fileManager: fileManager
+        )
+    }
+
+    static func claimDestination(
+        with temporary: URL,
+        at destination: URL,
+        fileManager: FileManager = .default
+    ) throws -> URL {
+        do {
+            try fileManager.linkItem(at: temporary, to: destination)
+        } catch {
+            guard fileManager.fileExists(atPath: destination.path) else {
+                throw error
+            }
+        }
         return destination
     }
 
@@ -145,7 +162,9 @@ enum TinyGIFAttachmentRenderer {
         }
         let unclamped = gif[kCGImagePropertyGIFUnclampedDelayTime] as? Double
         let clamped = gif[kCGImagePropertyGIFDelayTime] as? Double
-        return max(unclamped ?? clamped ?? 0.1, 0.02)
+        if let unclamped, unclamped > 0 { return unclamped }
+        if let clamped, clamped > 0 { return clamped }
+        return 0.1
     }
 }
 

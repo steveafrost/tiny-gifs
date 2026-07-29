@@ -15,6 +15,7 @@
 		1A00000000000000000000B21 /* GiphyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000024 /* GiphyService.swift */; };
 		1A00000000000000000000B22 /* GiphyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000024 /* GiphyService.swift */; };
 		1A00000000000000000000B23 /* TinyGIFAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000025 /* TinyGIFAttachmentRenderer.swift */; };
+		1A00000000000000000000B24 /* TinyGIFDrawerLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000026 /* TinyGIFDrawerLayout.swift */; };
 		1A00000000000000000000B3 /* ReactionArtwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000021 /* ReactionArtwork.swift */; };
 		1A00000000000000000000B4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000050 /* UIKit.framework */; };
 		1A00000000000000000000B5 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000051 /* SwiftUI.framework */; };
@@ -146,6 +147,7 @@
 		1A0000000000000000000023 /* TinyGIFsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TinyGIFsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A0000000000000000000024 /* GiphyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiphyService.swift; sourceTree = "<group>"; };
 		1A0000000000000000000025 /* TinyGIFAttachmentRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = messages/TinyGIFAttachmentRenderer.swift; sourceTree = SOURCE_ROOT; };
+		1A0000000000000000000026 /* TinyGIFDrawerLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = messages/TinyGIFDrawerLayout.swift; sourceTree = SOURCE_ROOT; };
 		1A0000000000000000000030 /* lol.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lol.png; sourceTree = "<group>"; };
 		1A0000000000000000000031 /* nope.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = nope.png; sourceTree = "<group>"; };
 		1A0000000000000000000032 /* omg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = omg.png; sourceTree = "<group>"; };
@@ -641,6 +643,7 @@
 				1A00000000000000000000BE /* ReactionCatalog.swift in Sources */,
 				1A00000000000000000000BF /* KeyboardState.swift in Sources */,
 				1A00000000000000000000B23 /* TinyGIFAttachmentRenderer.swift in Sources */,
+				1A00000000000000000000B24 /* TinyGIFDrawerLayout.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -702,7 +705,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 21;
 				DEVELOPMENT_TEAM = 4QJ25Y85MX;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -782,7 +785,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 21;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 4QJ25Y85MX;
 				ENABLE_NS_ASSERTIONS = NO;

@@ -8,6 +8,7 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
     private let statusLabel = UILabel()
     private let attribution = UILabel()
     private let picker = TinyGIFPickerViewController()
+    private var pickerHeightConstraint: NSLayoutConstraint?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,6 +48,8 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
         view.addSubview(picker.view)
         statusLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         attribution.setContentCompressionResistancePriority(.required, for: .horizontal)
+        let pickerHeightConstraint = picker.view.heightAnchor.constraint(equalToConstant: 1)
+        self.pickerHeightConstraint = pickerHeightConstraint
         NSLayoutConstraint.activate([
             searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
             searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
@@ -61,10 +64,35 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
             picker.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             picker.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             picker.view.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 2),
-            picker.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            picker.view.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor),
+            pickerHeightConstraint
         ])
         picker.didMove(toParent: self)
         picker.loadTrending()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let width = view.bounds.width
+        guard width > 0 else { return }
+        let pickerHeight = TinyGIFDrawerLayout.viewportHeight(containerWidth: width)
+        pickerHeightConstraint?.constant = pickerHeight
+        preferredContentSize = CGSize(
+            width: width,
+            height: view.safeAreaInsets.top + 70 + pickerHeight
+        )
+    }
+
+    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
+        requestPresentationStyle(.compact)
+        return true
+    }
+
+    override func didTransition(to presentationStyle: MSMessagesAppPresentationStyle) {
+        super.didTransition(to: presentationStyle)
+        if presentationStyle == .expanded, searchBar.isFirstResponder {
+            requestPresentationStyle(.compact)
+        }
     }
 
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
@@ -117,12 +145,14 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
     private var nextOffset = 0
     private var isLoadingPage = false
     private var canLoadMore = true
+    private var requestGeneration = TinyGIFRequestGeneration()
+    private var pageTask: Task<Void, Never>?
 
     init() {
         let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = 10
-        layout.minimumInteritemSpacing = 8
-        layout.sectionInset = UIEdgeInsets(top: 4, left: 10, bottom: 10, right: 10)
+        layout.minimumLineSpacing = TinyGIFDrawerLayout.lineSpacing
+        layout.minimumInteritemSpacing = TinyGIFDrawerLayout.interitemSpacing
+        layout.sectionInset = TinyGIFDrawerLayout.sectionInsets
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         super.init(nibName: nil, bundle: nil)
     }
@@ -132,6 +162,7 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
     override func viewDidLoad() {
         super.viewDidLoad()
         collectionView.backgroundColor = .clear
+        collectionView.alwaysBounceVertical = true
         collectionView.accessibilityIdentifier = "tiny-gifs.grid"
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -144,12 +175,11 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
             collectionView.topAnchor.constraint(equalTo: view.topAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-        loadTrending()
     }
 
     func loadTrending() {
         guard GiphyService.isConfigured else {
-            showUnavailable(message: "GIPHY needs a production API key")
+            beginUnavailable(message: "GIPHY needs a production API key")
             return
         }
         beginLoading(query: nil, status: "Loading trending GIFs…")
@@ -159,19 +189,32 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
         let cleaned = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleaned.isEmpty else { loadTrending(); return }
         guard GiphyService.isConfigured else {
-            showUnavailable(message: "GIPHY needs a production API key")
+            beginUnavailable(message: "GIPHY needs a production API key")
             return
         }
         beginLoading(query: cleaned, status: "Searching GIPHY…")
     }
 
     private func beginLoading(query: String?, status: String) {
+        pageTask?.cancel()
+        pageTask = nil
+        _ = requestGeneration.begin()
         activeQuery = query
         nextOffset = 0
         canLoadMore = true
         isLoadingPage = false
         showLoading(message: status)
         loadNextPage()
+    }
+
+    private func beginUnavailable(message: String) {
+        pageTask?.cancel()
+        pageTask = nil
+        _ = requestGeneration.begin()
+        isLoadingPage = false
+        nextOffset = 0
+        canLoadMore = false
+        showUnavailable(message: message)
     }
 
     private func showLoading(message: String) {
@@ -189,9 +232,10 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
     private func loadNextPage() {
         guard !isLoadingPage, canLoadMore, GiphyService.isConfigured else { return }
         isLoadingPage = true
+        let request = requestGeneration.current
         let query = activeQuery
         let offset = nextOffset
-        Task { [weak self] in
+        pageTask = Task { [weak self] in
             guard let self else { return }
             do {
                 let gifs: [GiphyGIF]
@@ -200,12 +244,19 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
                 } else {
                     gifs = try await GiphyService.trending(limit: self.pageSize, offset: offset)
                 }
+                guard !Task.isCancelled,
+                      self.requestGeneration.isCurrent(request) else { return }
                 var loaded: [GIFPickerItem] = []
                 for gif in gifs {
+                    guard !Task.isCancelled,
+                          self.requestGeneration.isCurrent(request) else { return }
                     if let url = try? await GiphyService.localGIFURL(for: gif) {
                         loaded.append(GIFPickerItem(id: gif.id, title: gif.title, url: url))
                     }
                 }
+                guard !Task.isCancelled,
+                      self.requestGeneration.isCurrent(request) else { return }
+                self.pageTask = nil
                 self.isLoadingPage = false
                 self.nextOffset += gifs.count
                 self.canLoadMore = gifs.count == self.pageSize
@@ -217,6 +268,9 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
                 self.onStatusChange?("Tap a tiny GIF to send it")
                 self.collectionView.reloadData()
             } catch {
+                guard !Task.isCancelled,
+                      self.requestGeneration.isCurrent(request) else { return }
+                self.pageTask = nil
                 self.isLoadingPage = false
                 if self.items.isEmpty { self.showUnavailable(message: "GIPHY is unavailable — try again") }
             }
@@ -241,10 +295,7 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let horizontalInsets: CGFloat = 20
-        let interitemSpacing: CGFloat = 16
-        let width = floor((collectionView.bounds.width - horizontalInsets - interitemSpacing) / 3)
-        return CGSize(width: max(80, width), height: max(72, width * 0.78))
+        TinyGIFDrawerLayout.itemSize(containerWidth: collectionView.bounds.width)
     }
 }
 
