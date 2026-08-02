@@ -8,7 +8,6 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
     private let statusLabel = UILabel()
     private let attribution = UILabel()
     private let picker = TinyGIFPickerViewController()
-    private var pickerHeightConstraint: NSLayoutConstraint?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,8 +47,6 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
         view.addSubview(picker.view)
         statusLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         attribution.setContentCompressionResistancePriority(.required, for: .horizontal)
-        let pickerHeightConstraint = picker.view.heightAnchor.constraint(equalToConstant: 1)
-        self.pickerHeightConstraint = pickerHeightConstraint
         NSLayoutConstraint.activate([
             searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
             searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
@@ -64,35 +61,15 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
             picker.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             picker.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             picker.view.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 2),
-            picker.view.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor),
-            pickerHeightConstraint
+            picker.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         picker.didMove(toParent: self)
         picker.loadTrending()
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        let width = view.bounds.width
-        guard width > 0 else { return }
-        let pickerHeight = TinyGIFDrawerLayout.viewportHeight(containerWidth: width)
-        pickerHeightConstraint?.constant = pickerHeight
-        preferredContentSize = CGSize(
-            width: width,
-            height: view.safeAreaInsets.top + 70 + pickerHeight
-        )
-    }
-
-    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
-        requestPresentationStyle(.compact)
-        return true
-    }
-
-    override func didTransition(to presentationStyle: MSMessagesAppPresentationStyle) {
-        super.didTransition(to: presentationStyle)
-        if presentationStyle == .expanded, searchBar.isFirstResponder {
-            requestPresentationStyle(.compact)
-        }
+    override func willBecomeActive(with conversation: MSConversation) {
+        super.willBecomeActive(with: conversation)
+        requestPresentationStyle(TinyGIFDrawerLayout.presentationStyle)
     }
 
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {

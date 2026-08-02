@@ -29,18 +29,8 @@ final class CatalogIntegrityTests: XCTestCase {
         XCTAssertEqual(KeyboardReactionAction.selecting(.tinyClap, hasFullAccess: true), .copyLocalGIF(.tinyClap))
     }
 
-    func testMessagesDrawerViewportShowsOneAndHalfRowsAtEveryWidth() {
-        for width: CGFloat in [320, 393, 430] {
-            let itemSize = TinyGIFDrawerLayout.itemSize(containerWidth: width)
-            let viewportHeight = TinyGIFDrawerLayout.viewportHeight(containerWidth: width)
-            let visibleRows = (
-                viewportHeight
-                    - TinyGIFDrawerLayout.sectionInsets.top
-                    - TinyGIFDrawerLayout.lineSpacing
-            ) / itemSize.height
-
-            XCTAssertEqual(visibleRows, 1.5, accuracy: 0.001)
-        }
+    func testMessagesDrawerRequestsExpandedPresentationWithoutAPartialRowLimit() {
+        XCTAssertEqual(TinyGIFDrawerLayout.presentationStyle, .expanded)
     }
 
     func testMessagesRequestGenerationRejectsAnOlderPage() {

@@ -1,7 +1,8 @@
+import Messages
 import UIKit
 
 enum TinyGIFDrawerLayout {
-    static let visibleRows: CGFloat = 1.5
+    static let presentationStyle: MSMessagesAppPresentationStyle = .expanded
     static let columnCount: CGFloat = 3
     static let lineSpacing: CGFloat = 10
     static let interitemSpacing: CGFloat = 8
@@ -17,10 +18,6 @@ enum TinyGIFDrawerLayout {
         return CGSize(width: max(80, width), height: max(72, width * 0.78))
     }
 
-    static func viewportHeight(containerWidth: CGFloat) -> CGFloat {
-        let rowHeight = itemSize(containerWidth: containerWidth).height
-        return sectionInsets.top + lineSpacing + (rowHeight * visibleRows)
-    }
 }
 
 struct TinyGIFRequestGeneration {
