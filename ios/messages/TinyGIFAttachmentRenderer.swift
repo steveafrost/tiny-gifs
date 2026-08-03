@@ -41,7 +41,7 @@ enum TinyGIFMessageSender {
 /// Regular attachments are not constrained by the 500 KB `MSSticker` file-size limit.
 enum TinyGIFAttachmentRenderer {
     /// A fixed, small square keeps every delivered GIF at a predictable footprint in Messages.
-    static let canvasPixels: CGFloat = 192
+    static let canvasPixels: CGFloat = 250
 
     static func render(sourceURL: URL, identifier: String) throws -> URL {
         let fileManager = FileManager.default
@@ -56,7 +56,7 @@ enum TinyGIFAttachmentRenderer {
             options: .regularExpression
         )
         let destination = cacheDirectory.appendingPathComponent(
-            "\(safeIdentifier)-attachment-v9.gif"
+            "\(safeIdentifier)-attachment-v10.gif"
         )
         if fileManager.fileExists(atPath: destination.path) {
             return destination
@@ -68,7 +68,7 @@ enum TinyGIFAttachmentRenderer {
         }
 
         let temporary = cacheDirectory.appendingPathComponent(
-            "\(safeIdentifier)-attachment-v9-\(UUID().uuidString)-temporary.gif"
+            "\(safeIdentifier)-attachment-v10-\(UUID().uuidString)-temporary.gif"
         )
         defer { try? fileManager.removeItem(at: temporary) }
         try writeGIF(source: source, destination: temporary)
@@ -130,17 +130,23 @@ enum TinyGIFAttachmentRenderer {
         }
     }
 
-    private static func renderFrame(_ frame: CGImage) -> CGImage? {
-        let sourceSize = CGSize(width: frame.width, height: frame.height)
+    static func normalizedContentRect(for sourceSize: CGSize) -> CGRect {
+        precondition(sourceSize.width > 0 && sourceSize.height > 0, "GIF frames must have a size")
         let scale = min(canvasPixels / sourceSize.width, canvasPixels / sourceSize.height)
         let drawSize = CGSize(
             width: max(1, floor(sourceSize.width * scale)),
             height: max(1, floor(sourceSize.height * scale))
         )
-        let drawOrigin = CGPoint(
+        return CGRect(
             x: floor((canvasPixels - drawSize.width) / 2),
-            y: floor((canvasPixels - drawSize.height) / 2)
+            y: floor((canvasPixels - drawSize.height) / 2),
+            width: drawSize.width,
+            height: drawSize.height
         )
+    }
+
+    private static func renderFrame(_ frame: CGImage) -> CGImage? {
+        let contentRect = normalizedContentRect(for: CGSize(width: frame.width, height: frame.height))
         let format = UIGraphicsImageRendererFormat()
         format.opaque = false
         format.scale = 1
@@ -148,7 +154,7 @@ enum TinyGIFAttachmentRenderer {
             size: CGSize(width: canvasPixels, height: canvasPixels),
             format: format
         ).image { _ in
-            UIImage(cgImage: frame).draw(in: CGRect(origin: drawOrigin, size: drawSize))
+            UIImage(cgImage: frame).draw(in: contentRect)
         }.cgImage
     }
 
