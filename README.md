@@ -52,6 +52,17 @@ GIPHY provides the full searchable GIF library in the Messages extension, keyboa
 
 The keyboard only performs GIPHY search or media download with Full Access. Without it, text input and bundled reactions are still available.
 
+### TestFlight release
+
+The production key is stored in the macOS Keychain as `tiny-gifs-giphy-api-key`; it is never committed. Run the release preflight before archiving:
+
+```bash
+scripts/test-release-testflight.sh
+scripts/release-testflight.sh <next-build-number> --upload
+```
+
+The release script validates the key against GIPHY, injects it only through a private temporary build configuration, and verifies that the containing app plus both embedded extensions have the requested build number and a resolved key before upload. Because GIPHY search runs from the iOS client, its API key is embedded in the shipped app; protect it with GIPHY's applicable app/domain restrictions and rotate it if it is abused.
+
 The eight owned starter reactions are `lol`, `nope`, `omg`, `brb`, `perfect`, `yes`, `yikes`, and `tiny clap`. Their deterministic vector sources live in `ios/Shared/ArtworkSources`; matching 300×300 PNG and GIF exports live in `ios/Shared/Resources/GIFs` and are included in the native targets. The test suite enforces the 500 KB per-file cap and PNG dimensions.
 
 The checked-in GIFs are deliberately static fallback exports because this repository has no reproducible animation encoder. That limitation and the source asset provenance are documented in [docs/validation/gif-assets.md](docs/validation/gif-assets.md).
