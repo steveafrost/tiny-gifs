@@ -18,10 +18,8 @@ enum TinyGIFDrawerLayout {
         return CGSize(width: max(80, width), height: max(72, width * 0.78))
     }
 
-    static func presentationStyleAfterSend(
-        succeeded: Bool
-    ) -> MSMessagesAppPresentationStyle? {
-        succeeded ? .compact : nil
+    static func shouldDismissToKeyboardAfterSend(succeeded: Bool) -> Bool {
+        succeeded
     }
 
 }

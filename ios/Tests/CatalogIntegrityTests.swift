@@ -33,9 +33,9 @@ final class CatalogIntegrityTests: XCTestCase {
         XCTAssertEqual(TinyGIFDrawerLayout.presentationStyle, .expanded)
     }
 
-    func testMessagesDrawerCollapsesAfterASuccessfulGIFSend() {
-        XCTAssertEqual(TinyGIFDrawerLayout.presentationStyleAfterSend(succeeded: true), .compact)
-        XCTAssertNil(TinyGIFDrawerLayout.presentationStyleAfterSend(succeeded: false))
+    func testMessagesDrawerDismissesToTheKeyboardAfterASuccessfulGIFSend() {
+        XCTAssertTrue(TinyGIFDrawerLayout.shouldDismissToKeyboardAfterSend(succeeded: true))
+        XCTAssertFalse(TinyGIFDrawerLayout.shouldDismissToKeyboardAfterSend(succeeded: false))
     }
 
     func testMessagesRequestGenerationRejectsAnOlderPage() {

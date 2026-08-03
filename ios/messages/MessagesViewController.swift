@@ -97,8 +97,8 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
                     conversation: conversation
                 )
                 self?.statusLabel.text = "Sent"
-                if let presentationStyle = TinyGIFDrawerLayout.presentationStyleAfterSend(succeeded: true) {
-                    self?.requestPresentationStyle(presentationStyle)
+                if TinyGIFDrawerLayout.shouldDismissToKeyboardAfterSend(succeeded: true) {
+                    self?.dismiss()
                 }
             } catch {
                 self?.statusLabel.text = "Couldn’t send that GIF"
