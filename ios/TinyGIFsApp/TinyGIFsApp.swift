@@ -37,11 +37,11 @@ private struct KeyboardInstallerView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("#tiny-gifs")
                 .font(.system(size: 23, weight: .black, design: .rounded))
-            Text("GIFs wherever\nyou type.")
+            Text("Tiny GIFs\nfor chat.")
                 .font(.system(size: 42, weight: .black, design: .rounded))
                 .lineSpacing(-6)
                 .foregroundStyle(.black)
-            Text("Install the keyboard once. Then search and paste tiny GIPHY GIFs from any app.")
+            Text("Install the keyboard once. Then search and paste tiny GIPHY GIFs in supported chat apps.")
                 .font(.title3.weight(.medium))
                 .foregroundStyle(Color.black.opacity(0.72))
                 .fixedSize(horizontal: false, vertical: true)

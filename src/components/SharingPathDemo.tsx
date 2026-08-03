@@ -10,8 +10,8 @@ const pathCopy: Record<Path, { title: string; description: string }> = {
     description: 'Tap a tiny GIF to add it to the Messages field, then tap Send. That is the seamless path.',
   },
   keyboard: {
-    title: 'Keyboard everywhere else.',
-    description: 'Type normally offline. With optional Full Access, search GIPHY, tap a tiny GIF to copy it, then paste.',
+    title: 'Keyboard for supported chats.',
+    description: 'Type normally offline. With optional Full Access, search GIPHY, tap a tiny GIF to copy it, then paste it into a supported chat field.',
   },
 }
 

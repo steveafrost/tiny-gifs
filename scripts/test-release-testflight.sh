@@ -9,6 +9,12 @@ if [[ ! -x "$release_script" ]]; then
   exit 1
 fi
 
+# The archive verifier must reject a keyboard that cannot request Full Access.
+if ! grep -Fq 'Print :NSExtension:NSExtensionAttributes:RequestsOpenAccess' "$release_script"; then
+  echo "release archive verification does not inspect RequestsOpenAccess" >&2
+  exit 1
+fi
+
 # A TestFlight release must never silently proceed without a production GIPHY key.
 if GIPHY_API_KEY='' TINY_GIFS_GIPHY_KEYCHAIN_SERVICE='missing-test-key' "$release_script" 23 --validate; then
   echo "release validation unexpectedly accepted a missing GIPHY key" >&2

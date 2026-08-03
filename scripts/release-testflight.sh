@@ -124,7 +124,14 @@ for plist in "${expected_plists[@]}"; do
     exit 1
   fi
 done
-echo "Verified build $build_number and resolved GIPHY configuration in app and extensions."
+
+keyboard_plist="$app/PlugIns/TinyGIFsKeyboard.appex/Info.plist"
+requests_open_access="$(/usr/libexec/PlistBuddy -c 'Print :NSExtension:NSExtensionAttributes:RequestsOpenAccess' "$keyboard_plist" 2>/dev/null || true)"
+if [[ "$requests_open_access" != "true" ]]; then
+  echo "Archive keyboard extension is not configured to request Full Access." >&2
+  exit 1
+fi
+echo "Verified build $build_number, resolved GIPHY configuration, and keyboard Open Access in app and extensions."
 
 if [[ "$mode" == "--upload" ]]; then
   if ! xcodebuild \
