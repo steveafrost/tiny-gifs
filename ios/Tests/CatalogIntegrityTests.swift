@@ -47,7 +47,7 @@ final class CatalogIntegrityTests: XCTestCase {
         XCTAssertTrue(requests.isCurrent(searchPage))
     }
 
-    func testMessagesRendererPreservesEveryAnimationFrame() throws {
+    func testMessagesRendererUsesAConsistentHalfSizeAttachmentCanvas() throws {
         let sourceURL = try animatedGIF(frameCount: 30)
         defer { try? FileManager.default.removeItem(at: sourceURL) }
         let original = try XCTUnwrap(CGImageSourceCreateWithURL(sourceURL as CFURL, nil))
@@ -59,9 +59,23 @@ final class CatalogIntegrityTests: XCTestCase {
         let properties = try XCTUnwrap(
             CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
         )
-        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 384)
-        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 384)
+        XCTAssertEqual(TinyGIFAttachmentRenderer.canvasPixels, 192)
+        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 192)
+        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 192)
         XCTAssertEqual(CGImageSourceGetCount(source), CGImageSourceGetCount(original))
+    }
+
+    func testMessagesRendererUsesANewCacheVersionForTheHalfSizeCanvas() throws {
+        let sourceURL = try animatedGIF(frameCount: 1)
+        defer { try? FileManager.default.removeItem(at: sourceURL) }
+
+        let renderedURL = try TinyGIFAttachmentRenderer.render(
+            sourceURL: sourceURL,
+            identifier: "unit-test-cache-version-\(UUID().uuidString)"
+        )
+        defer { try? FileManager.default.removeItem(at: renderedURL) }
+
+        XCTAssertTrue(renderedURL.lastPathComponent.contains("attachment-v9.gif"))
     }
 
     func testMessagesRendererPreservesVariedPerFrameDelays() throws {

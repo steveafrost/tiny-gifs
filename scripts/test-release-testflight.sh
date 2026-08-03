@@ -22,7 +22,10 @@ if GIPHY_API_KEY='' TINY_GIFS_GIPHY_KEYCHAIN_SERVICE='missing-test-key' "$releas
 fi
 
 # This host stores the production key in Keychain. Validate the real release path
-# without printing or persisting the secret.
-"$release_script" 23 --validate
+# at the version currently configured for every app/extension target, without
+# printing or persisting the secret.
+current_build="$(/usr/bin/grep -m1 -E 'CURRENT_PROJECT_VERSION = [0-9]+;' "$root/ios/TinyGIFs.xcodeproj/project.pbxproj" | /usr/bin/grep -Eo '[0-9]+')"
+test -n "$current_build"
+"$release_script" "$current_build" --validate
 
 echo "release TestFlight preflight passed"
