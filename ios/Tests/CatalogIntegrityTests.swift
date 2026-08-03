@@ -33,6 +33,11 @@ final class CatalogIntegrityTests: XCTestCase {
         XCTAssertEqual(TinyGIFDrawerLayout.presentationStyle, .expanded)
     }
 
+    func testMessagesDrawerCollapsesAfterASuccessfulGIFSend() {
+        XCTAssertEqual(TinyGIFDrawerLayout.presentationStyleAfterSend(succeeded: true), .compact)
+        XCTAssertNil(TinyGIFDrawerLayout.presentationStyleAfterSend(succeeded: false))
+    }
+
     func testMessagesRequestGenerationRejectsAnOlderPage() {
         var requests = TinyGIFRequestGeneration()
         let trendingPage = requests.begin()
