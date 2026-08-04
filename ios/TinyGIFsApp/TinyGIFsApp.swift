@@ -13,8 +13,8 @@ struct TinyGIFsApp: App {
     }
 }
 
-/// iOS requires a containing app to distribute a custom keyboard. This screen
-/// deliberately stays focused on installing and understanding that keyboard.
+/// iOS requires a containing app to distribute the Messages extension and the
+/// optional keyboard. This screen explains the real sharing paths clearly.
 private struct KeyboardInstallerView: View {
     @Environment(\.openURL) private var openURL
 
@@ -37,11 +37,11 @@ private struct KeyboardInstallerView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("#tiny-gifs")
                 .font(.system(size: 23, weight: .black, design: .rounded))
-            Text("Tiny GIFs\nfor chat.")
+            Text("Big feeling.\nTiny footprint.")
                 .font(.system(size: 42, weight: .black, design: .rounded))
                 .lineSpacing(-6)
                 .foregroundStyle(.black)
-            Text("Install the keyboard once. Then search and paste tiny GIPHY GIFs in supported chat apps.")
+            Text("Your fastest path is in Messages: search GIPHY, add a GIF to the message field, then send it without taking over the thread.")
                 .font(.title3.weight(.medium))
                 .foregroundStyle(Color.black.opacity(0.72))
                 .fixedSize(horizontal: false, vertical: true)
@@ -50,28 +50,28 @@ private struct KeyboardInstallerView: View {
 
     private var installSteps: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Install the keyboard")
+            Text("Start in Messages")
                 .font(.title2.weight(.black))
                 .foregroundStyle(.black)
 
-            InstallStep(number: "1", title: "Open Settings", detail: "Then go to General → Keyboard → Keyboards.")
-            InstallStep(number: "2", title: "Add #tiny-gifs", detail: "Choose Add New Keyboard… and select #tiny-gifs.")
-            InstallStep(number: "3", title: "Turn on Full Access", detail: "This unlocks GIPHY search and copies the GIF you choose. Typing always stays private.")
+            InstallStep(number: "1", title: "Open Messages", detail: "Start or open a conversation, then open the app drawer.")
+            InstallStep(number: "2", title: "Choose #tiny-gifs", detail: "Browse trending GIFs or search GIPHY for the right reaction.")
+            InstallStep(number: "3", title: "Add, then Send", detail: "Tap a GIF to add it to the message field, then tap Send normally.")
 
-            Button("Open Settings") {
+            Button("Open Settings for the optional keyboard") {
                 openURL(URL(string: UIApplication.openSettingsURLString)!)
             }
             .buttonStyle(TinyPrimaryButton())
-            .accessibilityHint("Opens iOS Settings. Continue to General, Keyboard, and Keyboards to add #tiny-gifs.")
+            .accessibilityHint("Opens iOS Settings. Continue to General, Keyboard, and Keyboards to add #tiny-gifs for supported apps outside Messages.")
         }
     }
 
     private var giphyExplainer: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("GIPHY is in the keyboard", systemImage: "magnifyingglass")
+            Label("Take Tiny GIFs beyond Messages", systemImage: "keyboard")
                 .font(.headline.weight(.black))
                 .foregroundStyle(.black)
-            Text("Tap the #tiny-gifs keyboard’s search button, find a GIF, then paste it into the app you’re using. The companion app does not need to stay open.")
+            Text("The keyboard is optional for supported chat apps. It types without Full Access; turn on Full Access when you want to search GIPHY, copy a GIF, and paste it into a conversation.")
                 .foregroundStyle(Color.black.opacity(0.76))
                 .fixedSize(horizontal: false, vertical: true)
             Text("Powered By GIPHY")
@@ -125,11 +125,11 @@ private struct KeyboardPreview: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 13) {
             HStack {
-                Label("#tiny-gifs Keyboard", systemImage: "keyboard.fill")
+                Label("#tiny-gifs in Messages", systemImage: "message.fill")
                     .font(.headline.weight(.black))
                     .foregroundStyle(.black)
                 Spacer()
-                Text("LIVE GIPHY SEARCH")
+                Text("GIPHY SEARCH")
                     .font(.caption2.weight(.black))
                     .foregroundStyle(.black)
                     .padding(.horizontal, 8)
@@ -146,7 +146,7 @@ private struct KeyboardPreview: View {
                         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.black.opacity(0.72), lineWidth: 1))
                 }
             }
-            Text("Search GIPHY from the GIF key after enabling Full Access.")
+            Text("In Messages, search GIPHY, tap a GIF, and it lands in the message field ready to send.")
                 .font(.footnote.weight(.medium))
                 .foregroundStyle(Color.black.opacity(0.72))
         }

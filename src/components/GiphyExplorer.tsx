@@ -50,14 +50,13 @@ export function GiphyExplorer() {
 
   return <section className="giphy-explorer section-rule" id="library" aria-labelledby="library-title">
     <div className="giphy-explorer__intro">
-      <p className="eyebrow">A full library, kept tiny</p>
-      <h2 id="library-title">Every reaction.<br />Emoji-sized<span>.</span></h2>
-      <p>Search the complete GIPHY library in the app, then send a compact loop that belongs in the conversation.</p>
+      <h2 id="library-title">The GIF library.<br />Right in Messages<span>.</span></h2>
+      <p>Search GIPHY from the app drawer, pick the feeling, and add a compact animated attachment to your message field.</p>
       <label className="giphy-search"><span className="visually-hidden">Search GIPHY</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search GIPHY" /><b>⌕</b></label>
       <small>Powered By GIPHY</small>
     </div>
     <div className="giphy-explorer__results" aria-live="polite">
-      {!apiKey && <div className="giphy-explorer__empty"><strong>Live GIPHY search is ready.</strong><p>Add <code>VITE_GIPHY_API_KEY</code> when deploying this site to explore the full library here.</p></div>}
+      {!apiKey && <div className="giphy-explorer__empty"><strong>GIPHY search belongs in the app.</strong><p>This site’s live explorer appears when its GIPHY key is configured. In Tiny GIFs, search is available from the Messages drawer.</p></div>}
       {apiKey && status === 'loading' && <div className="giphy-explorer__empty">Finding tiny loops…</div>}
       {apiKey && status === 'error' && <div className="giphy-explorer__empty">GIPHY is taking a beat. Try again.</div>}
       {apiKey && status !== 'loading' && status !== 'error' && gifs.map((gif) => <button className={`giphy-gif ${selected === gif.id ? 'is-selected' : ''}`} key={gif.id} onClick={() => setSelected(gif.id)} aria-pressed={selected === gif.id} title={gif.title}><img src={gif.tinyUrl} alt={gif.title} /><span>{selected === gif.id ? 'Picked' : 'Pick'}</span></button>)}

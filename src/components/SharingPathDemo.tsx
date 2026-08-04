@@ -6,12 +6,12 @@ type Path = 'messages' | 'keyboard'
 
 const pathCopy: Record<Path, { title: string; description: string }> = {
   messages: {
-    title: 'Fastest in Messages.',
-    description: 'Tap a tiny GIF to add it to the Messages field, then tap Send. That is the seamless path.',
+    title: 'Made for Messages.',
+    description: 'Open the drawer, search GIPHY or browse what is trending, tap a tiny GIF, then tap Send. No copy-and-paste detour.',
   },
   keyboard: {
-    title: 'Keyboard for supported chats.',
-    description: 'Type normally offline. With optional Full Access, search GIPHY, tap a tiny GIF to copy it, then paste it into a supported chat field.',
+    title: 'Optional keyboard elsewhere.',
+    description: 'Type normally with no Full Access. Turn it on when you want to search GIPHY, copy a GIF, and paste into a supported chat.',
   },
 }
 
@@ -26,7 +26,7 @@ export function SharingPathDemo() {
       <p>{copy.description}</p>
       <div className="path-tabs" role="tablist" aria-label="Sharing paths">
         <button className={path === 'messages' ? 'is-selected' : ''} role="tab" aria-selected={path === 'messages'} onClick={() => setPath('messages')}>Messages GIF picker</button>
-        <button className={path === 'keyboard' ? 'is-selected' : ''} role="tab" aria-selected={path === 'keyboard'} onClick={() => setPath('keyboard')}>Keyboard</button>
+        <button className={path === 'keyboard' ? 'is-selected' : ''} role="tab" aria-selected={path === 'keyboard'} onClick={() => setPath('keyboard')}>Optional keyboard</button>
       </div>
       <p className="sharing-path__privacy">No account. No tracking. Your typing stays on your iPhone.</p>
     </div>

@@ -12,11 +12,11 @@ const reactions: ReactionName[] = ['lol', 'nope', 'omg', 'brb', 'perfect']
 function Arrow() { return <svg viewBox="0 0 28 20" aria-hidden="true"><path d="M1 10h23M16 2l8 8-8 8" fill="none" stroke="currentColor" strokeWidth="2.5" /></svg> }
 
 function Header() {
-  return <header className="site-header" id="top"><a className="brand" href="#top">#tiny-gifs</a><nav aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#why-tiny">Why tiny</a></nav><InstallCta className="button button--lime button--header">Get the keyboard</InstallCta></header>
+  return <header className="site-header" id="top"><a className="brand" href="#top">#tiny-gifs</a><nav aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#why-tiny">Why tiny</a></nav><InstallCta className="button button--lime button--header">Get Tiny GIFs</InstallCta></header>
 }
 
 function Hero() {
-  return <section className="hero"><div className="hero__copy"><h1>Big reaction<span>.</span><br />Tiny footprint<span>.</span></h1><p>A whole GIF keyboard built for the size of a large emoji. All the motion, none of the wall-of-GIF.</p><div className="hero__actions"><InstallCta className="button button--lime">Get #tiny-gifs <Arrow /></InstallCta><a className="button button--outline" href="#why-tiny">See it in action <span className="play" aria-hidden="true" /></a></div></div><PhoneTranscript /></section>
+  return <section className="hero"><div className="hero__copy"><h1>Big reaction<span>.</span><br />Tiny footprint<span>.</span></h1><p>Search GIPHY right in Messages, then send an animated GIF that feels like a big emoji—not a wall of media.</p><div className="hero__actions"><InstallCta className="button button--lime">Get #tiny-gifs <Arrow /></InstallCta><a className="button button--outline" href="#how-it-works">See the Messages flow <span className="play" aria-hidden="true" /></a></div></div><PhoneTranscript /></section>
 }
 
 function ReactionRail() {
@@ -24,12 +24,12 @@ function ReactionRail() {
 }
 
 function Installation() {
-  const steps = [['↓', 'Download', 'the app'], ['✦', 'Send in', 'Messages'], ['⌨', 'Add keyboard', '(optional)']]
-  return <section className="installation section-rule" id="setup" aria-labelledby="install-title"><h2 id="install-title">Start in Messages.<br />Go everywhere else<span>.</span></h2><ol className="installation__steps">{steps.map(([icon, lineOne, lineTwo], index) => <li key={lineOne}><b>{index + 1}</b><div className="step-icon" aria-hidden="true">{icon}</div><strong>{lineOne}<br />{lineTwo}</strong></li>)}</ol><p>Messages adds GIFs to the message field; keyboard typing works without Full Access. Display size can vary by app.</p></section>
+  const steps = [['↓', 'Install', '#tiny-gifs'], ['✦', 'Open the', 'Messages drawer'], ['⌨', 'Add keyboard', '(optional)']]
+  return <section className="installation section-rule" id="setup" aria-labelledby="install-title"><h2 id="install-title">Start in Messages.<br />Go further if you want<span>.</span></h2><ol className="installation__steps">{steps.map(([icon, lineOne, lineTwo], index) => <li key={lineOne}><b>{index + 1}</b><div className="step-icon" aria-hidden="true">{icon}</div><strong>{lineOne}<br />{lineTwo}</strong></li>)}</ol><p>In Messages, tap a GIF to add it to the field, then Send. The optional keyboard copies GIFs for supported apps; final display size varies by app.</p></section>
 }
 
 function ClosingBand() {
-  return <section className="closing"><div className="closing__burst" aria-hidden="true"><span /><i /><b /><em /></div><div><h2>Keep the reaction<span>.</span><br />Lose the interruption<span>.</span></h2><InstallCta className="button button--lime">Get the keyboard <Arrow /></InstallCta></div></section>
+  return <section className="closing"><div className="closing__burst" aria-hidden="true"><span /><i /><b /><em /></div><div><h2>Keep the reaction<span>.</span><br />Lose the interruption<span>.</span></h2><InstallCta className="button button--lime">Get Tiny GIFs <Arrow /></InstallCta></div></section>
 }
 
 function Footer() { return <footer><a href="/privacy">Privacy</a><a href="/support">Support</a><p>Built tiny on purpose.</p></footer> }

@@ -8,7 +8,7 @@ function ChatLines({ count = 2 }: { count?: number }) {
 export function FootprintComparison() {
   const [comparison, setComparison] = useState(50)
   return <section className="comparison section-rule" id="why-tiny" aria-labelledby="comparison-title">
-    <div className="comparison__title"><h2 id="comparison-title">Same energy.<br />84% less chat<span>.</span></h2></div>
+    <div className="comparison__title"><h2 id="comparison-title">Same energy.<br />Less interruption<span>.</span></h2></div>
     <div className="comparison__demo">
       <div className="comparison__labels"><span>Before (big GIF)</span><span>After (#tiny-gifs)</span></div>
       <div className="comparison__panes">
