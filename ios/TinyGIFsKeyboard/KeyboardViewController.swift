@@ -86,9 +86,11 @@ final class KeyboardViewController: UIInputViewController {
     private func select(_ reaction: Reaction) {
         switch KeyboardReactionAction.selecting(reaction, hasFullAccess: hasFullAccess) {
         case .copyLocalGIF(let reaction):
-            guard let url = ReactionCatalog.resourceURL(for: reaction, fileExtension: "gif"), let data = try? Data(contentsOf: url) else { statusLabel.text = "Local GIF unavailable"; return }
-            UIPasteboard.general.setData(data, forPasteboardType: "com.compuserve.gif")
-            statusLabel.text = "Copied — paste in the conversation ✓"
+            guard let url = ReactionCatalog.resourceURL(for: reaction, fileExtension: "gif") else {
+                statusLabel.text = "Local GIF unavailable"
+                return
+            }
+            copyNormalizedGIF(sourceURL: url, identifier: reaction.id)
         case .explainFullAccess:
             statusLabel.text = "Turn on Full Access to copy. Typing stays local."
         }
@@ -134,13 +136,37 @@ final class KeyboardViewController: UIInputViewController {
         guard hasFullAccess else { return }
         statusLabel.text = "Preparing GIF…"
         Task { [weak self] in
-            guard let self else { return }
             do {
-                let url = try await GiphyService.localGIFURL(for: gif)
-                let data = try Data(contentsOf: url)
-                await MainActor.run { UIPasteboard.general.setData(data, forPasteboardType: "com.compuserve.gif"); self.statusLabel.text = "Copied — paste in the conversation ✓" }
+                let sourceURL = try await GiphyService.localGIFURL(for: gif)
+                self?.copyNormalizedGIF(
+                    sourceURL: sourceURL,
+                    identifier: gif.id,
+                    alreadyPreparing: true
+                )
             } catch {
-                await MainActor.run { self.statusLabel.text = "Couldn’t copy that GIF" }
+                await MainActor.run { self?.statusLabel.text = "Couldn’t copy that GIF" }
+            }
+        }
+    }
+
+    private func copyNormalizedGIF(
+        sourceURL: URL,
+        identifier: String,
+        alreadyPreparing: Bool = false
+    ) {
+        if !alreadyPreparing { statusLabel.text = "Preparing GIF…" }
+        Task { [weak self] in
+            do {
+                let normalizedURL = try await Task.detached(priority: .userInitiated) {
+                    try TinyGIFAttachmentRenderer.render(sourceURL: sourceURL, identifier: identifier)
+                }.value
+                let data = try Data(contentsOf: normalizedURL)
+                await MainActor.run {
+                    UIPasteboard.general.setData(data, forPasteboardType: "com.compuserve.gif")
+                    self?.statusLabel.text = "Copied — paste in the conversation ✓"
+                }
+            } catch {
+                await MainActor.run { self?.statusLabel.text = "Couldn’t copy that GIF" }
             }
         }
     }

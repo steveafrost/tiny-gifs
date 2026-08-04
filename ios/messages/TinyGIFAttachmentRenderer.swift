@@ -41,7 +41,7 @@ enum TinyGIFMessageSender {
 /// Regular attachments are not constrained by the 500 KB `MSSticker` file-size limit.
 enum TinyGIFAttachmentRenderer {
     /// A fixed, small square keeps every delivered GIF at a predictable footprint in Messages.
-    static let canvasPixels: CGFloat = 250
+    static let canvasPixels: CGFloat = 192
 
     static func render(sourceURL: URL, identifier: String) throws -> URL {
         let fileManager = FileManager.default
@@ -56,7 +56,7 @@ enum TinyGIFAttachmentRenderer {
             options: .regularExpression
         )
         let destination = cacheDirectory.appendingPathComponent(
-            "\(safeIdentifier)-attachment-v10.gif"
+            "\(safeIdentifier)-attachment-v11.gif"
         )
         if fileManager.fileExists(atPath: destination.path) {
             return destination
@@ -68,7 +68,7 @@ enum TinyGIFAttachmentRenderer {
         }
 
         let temporary = cacheDirectory.appendingPathComponent(
-            "\(safeIdentifier)-attachment-v10-\(UUID().uuidString)-temporary.gif"
+            "\(safeIdentifier)-attachment-v11-\(UUID().uuidString)-temporary.gif"
         )
         defer { try? fileManager.removeItem(at: temporary) }
         try writeGIF(source: source, destination: temporary)

@@ -47,7 +47,7 @@ final class CatalogIntegrityTests: XCTestCase {
         XCTAssertTrue(requests.isCurrent(searchPage))
     }
 
-    func testMessagesRendererUsesAConsistent250PixelAttachmentCanvas() throws {
+    func testMessagesRendererUsesAConsistentHalfSizeAttachmentCanvas() throws {
         let sourceURL = try animatedGIF(frameCount: 30)
         defer { try? FileManager.default.removeItem(at: sourceURL) }
         let original = try XCTUnwrap(CGImageSourceCreateWithURL(sourceURL as CFURL, nil))
@@ -59,13 +59,13 @@ final class CatalogIntegrityTests: XCTestCase {
         let properties = try XCTUnwrap(
             CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
         )
-        XCTAssertEqual(TinyGIFAttachmentRenderer.canvasPixels, 250)
-        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 250)
-        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 250)
+        XCTAssertEqual(TinyGIFAttachmentRenderer.canvasPixels, 192)
+        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 192)
+        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 192)
         XCTAssertEqual(CGImageSourceGetCount(source), CGImageSourceGetCount(original))
     }
 
-    func testMessagesRendererUsesANewCacheVersionForThe250PixelCanvas() throws {
+    func testMessagesRendererUsesANewCacheVersionForTheHalfSizeCanvas() throws {
         let sourceURL = try animatedGIF(frameCount: 1)
         defer { try? FileManager.default.removeItem(at: sourceURL) }
 
@@ -75,14 +75,14 @@ final class CatalogIntegrityTests: XCTestCase {
         )
         defer { try? FileManager.default.removeItem(at: renderedURL) }
 
-        XCTAssertTrue(renderedURL.lastPathComponent.contains("attachment-v10.gif"))
+        XCTAssertTrue(renderedURL.lastPathComponent.contains("attachment-v11.gif"))
     }
 
-    func testMessagesRendererLetterboxesSquareWideAndTallGIFsInside250PixelContainers() throws {
+    func testMessagesRendererLetterboxesSquareWideAndTallGIFsInsideHalfSizeContainers() throws {
         let cases: [(source: CGSize, expected: CGSize)] = [
-            (CGSize(width: 200, height: 200), CGSize(width: 250, height: 250)),
-            (CGSize(width: 400, height: 200), CGSize(width: 250, height: 125)),
-            (CGSize(width: 200, height: 400), CGSize(width: 125, height: 250))
+            (CGSize(width: 200, height: 200), CGSize(width: 192, height: 192)),
+            (CGSize(width: 400, height: 200), CGSize(width: 192, height: 96)),
+            (CGSize(width: 200, height: 400), CGSize(width: 96, height: 192))
         ]
 
         for testCase in cases {
@@ -100,12 +100,12 @@ final class CatalogIntegrityTests: XCTestCase {
             )
             let content = TinyGIFAttachmentRenderer.normalizedContentRect(for: testCase.source)
 
-            XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 250)
-            XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 250)
+            XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 192)
+            XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 192)
             XCTAssertEqual(content.size, testCase.expected)
             XCTAssertEqual(content.width / content.height, testCase.source.width / testCase.source.height, accuracy: 0.001)
-            XCTAssertEqual(content.midX, 125, accuracy: 0.5)
-            XCTAssertEqual(content.midY, 125, accuracy: 0.5)
+            XCTAssertEqual(content.midX, 96, accuracy: 0.5)
+            XCTAssertEqual(content.midY, 96, accuracy: 0.5)
         }
     }
 
@@ -238,8 +238,8 @@ final class CatalogIntegrityTests: XCTestCase {
         let properties = try XCTUnwrap(
             CGImageSourceCopyPropertiesAtIndex(rendered, 0, nil) as? [CFString: Any]
         )
-        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 250)
-        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 250)
+        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 192)
+        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 192)
     }
 
     private func animatedGIF(
