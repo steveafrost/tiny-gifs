@@ -47,7 +47,7 @@ final class CatalogIntegrityTests: XCTestCase {
         XCTAssertTrue(requests.isCurrent(searchPage))
     }
 
-    func testMessagesRendererUsesACompact128PixelStickerCanvas() throws {
+    func testMessagesRendererUsesA320PixelStickerCanvasThatIsTwoAndAHalfTimesLarger() throws {
         let sourceURL = try animatedGIF(frameCount: 30)
         defer { try? FileManager.default.removeItem(at: sourceURL) }
         let original = try XCTUnwrap(CGImageSourceCreateWithURL(sourceURL as CFURL, nil))
@@ -59,9 +59,9 @@ final class CatalogIntegrityTests: XCTestCase {
         let properties = try XCTUnwrap(
             CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
         )
-        XCTAssertEqual(TinyGIFAttachmentRenderer.canvasPixels, 128)
-        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 128)
-        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 128)
+        XCTAssertEqual(TinyGIFAttachmentRenderer.canvasPixels, 128 * 2.5)
+        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 320)
+        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 320)
         XCTAssertLessThanOrEqual(CGImageSourceGetCount(source), CGImageSourceGetCount(original))
         XCTAssertLessThanOrEqual(try dataSize(renderedURL), TinyGIFAttachmentRenderer.maximumFileBytes)
         XCTAssertNoThrow(try MSSticker(contentsOfFileURL: renderedURL, localizedDescription: "Tiny GIF"))
@@ -77,14 +77,14 @@ final class CatalogIntegrityTests: XCTestCase {
         )
         defer { try? FileManager.default.removeItem(at: renderedURL) }
 
-        XCTAssertTrue(renderedURL.lastPathComponent.contains("sticker-v12.gif"))
+        XCTAssertTrue(renderedURL.lastPathComponent.contains("sticker-v13.gif"))
     }
 
     func testMessagesRendererLetterboxesSquareWideAndTallGIFsInsideCompactStickerContainers() throws {
         let cases: [(source: CGSize, expected: CGSize)] = [
-            (CGSize(width: 200, height: 200), CGSize(width: 128, height: 128)),
-            (CGSize(width: 400, height: 200), CGSize(width: 128, height: 64)),
-            (CGSize(width: 200, height: 400), CGSize(width: 64, height: 128))
+            (CGSize(width: 200, height: 200), CGSize(width: 320, height: 320)),
+            (CGSize(width: 400, height: 200), CGSize(width: 320, height: 160)),
+            (CGSize(width: 200, height: 400), CGSize(width: 160, height: 320))
         ]
 
         for testCase in cases {
@@ -102,12 +102,12 @@ final class CatalogIntegrityTests: XCTestCase {
             )
             let content = TinyGIFAttachmentRenderer.normalizedContentRect(for: testCase.source)
 
-            XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 128)
-            XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 128)
+            XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 320)
+            XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 320)
             XCTAssertEqual(content.size, testCase.expected)
             XCTAssertEqual(content.width / content.height, testCase.source.width / testCase.source.height, accuracy: 0.001)
-            XCTAssertEqual(content.midX, 64, accuracy: 0.5)
-            XCTAssertEqual(content.midY, 64, accuracy: 0.5)
+            XCTAssertEqual(content.midX, 160, accuracy: 0.5)
+            XCTAssertEqual(content.midY, 160, accuracy: 0.5)
         }
     }
 
@@ -144,6 +144,27 @@ final class CatalogIntegrityTests: XCTestCase {
         }
     }
 
+    func testMessagesRendererKeepsAComplexGIFAnimatedWithinStickerBudget() throws {
+        let sourceURL = try complexAnimatedGIF(frameCount: 18)
+        defer { try? FileManager.default.removeItem(at: sourceURL) }
+        let renderedURL = try TinyGIFAttachmentRenderer.render(
+            sourceURL: sourceURL,
+            identifier: "unit-test-complex-\(UUID().uuidString)"
+        )
+        defer { try? FileManager.default.removeItem(at: renderedURL) }
+
+        let rendered = try XCTUnwrap(CGImageSourceCreateWithURL(renderedURL as CFURL, nil))
+        let properties = try XCTUnwrap(
+            CGImageSourceCopyPropertiesAtIndex(rendered, 0, nil) as? [CFString: Any]
+        )
+
+        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 320)
+        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 320)
+        XCTAssertGreaterThan(CGImageSourceGetCount(rendered), 1)
+        XCTAssertLessThanOrEqual(try dataSize(renderedURL), TinyGIFAttachmentRenderer.maximumFileBytes)
+        XCTAssertNoThrow(try MSSticker(contentsOfFileURL: renderedURL, localizedDescription: "Complex GIF"))
+    }
+
     func testMessagesRendererConcurrentCallsUseOneValidCachedWinner() async throws {
         let sourceURL = try animatedGIF(frameCount: 12)
         defer { try? FileManager.default.removeItem(at: sourceURL) }
@@ -175,7 +196,8 @@ final class CatalogIntegrityTests: XCTestCase {
         let rendered = try XCTUnwrap(
             CGImageSourceCreateWithURL(renderedURL as CFURL, nil)
         )
-        XCTAssertEqual(CGImageSourceGetCount(rendered), 12)
+        XCTAssertGreaterThan(CGImageSourceGetCount(rendered), 1)
+        XCTAssertLessThanOrEqual(CGImageSourceGetCount(rendered), 12)
     }
 
     func testMessagesRendererAtomicClaimNeverDeletesAnExistingWinner() throws {
@@ -204,7 +226,7 @@ final class CatalogIntegrityTests: XCTestCase {
     @MainActor
     func testMessagesSelectionInsertsACompactSticker() async throws {
         let conversation = RecordingTinyGIFConversation()
-        let stickerURL = try animatedGIF(frameCount: 1, size: CGSize(width: 128, height: 128))
+        let stickerURL = try animatedGIF(frameCount: 1, size: CGSize(width: 320, height: 320))
         defer { try? FileManager.default.removeItem(at: stickerURL) }
 
         try await TinyGIFMessageSender.insert(
@@ -241,8 +263,8 @@ final class CatalogIntegrityTests: XCTestCase {
         let properties = try XCTUnwrap(
             CGImageSourceCopyPropertiesAtIndex(rendered, 0, nil) as? [CFString: Any]
         )
-        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 128)
-        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 128)
+        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 320)
+        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 320)
         XCTAssertLessThanOrEqual(try dataSize(attachmentURL), TinyGIFAttachmentRenderer.maximumFileBytes)
     }
 
@@ -292,6 +314,55 @@ final class CatalogIntegrityTests: XCTestCase {
 
     private func animatedGIF(frameDelays: [TimeInterval]) throws -> URL {
         try animatedGIF(frameCount: frameDelays.count, frameDelays: frameDelays)
+    }
+
+    private func complexAnimatedGIF(frameCount: Int) throws -> URL {
+        let size = CGSize(width: 320, height: 320)
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("tiny-gifs-complex-test-\(UUID().uuidString).gif")
+        let destination = try XCTUnwrap(
+            CGImageDestinationCreateWithURL(
+                url as CFURL,
+                UTType.gif.identifier as CFString,
+                frameCount,
+                nil
+            )
+        )
+        CGImageDestinationSetProperties(destination, [
+            kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFLoopCount: 0]
+        ] as CFDictionary)
+
+        let gridCount = 20
+        let cellSize = size.width / CGFloat(gridCount)
+        for frameIndex in 0..<frameCount {
+            let image = UIGraphicsImageRenderer(size: size).image { context in
+                for row in 0..<gridCount {
+                    for column in 0..<gridCount {
+                        let seed = (row * 37 + column * 19 + frameIndex * 13) % 256
+                        UIColor(
+                            hue: CGFloat(seed) / 256,
+                            saturation: 0.55 + CGFloat((row + frameIndex) % 4) * 0.1,
+                            brightness: 0.55 + CGFloat((column + frameIndex) % 4) * 0.1,
+                            alpha: 1
+                        ).setFill()
+                        context.fill(CGRect(
+                            x: CGFloat(column) * cellSize,
+                            y: CGFloat(row) * cellSize,
+                            width: cellSize,
+                            height: cellSize
+                        ))
+                    }
+                }
+            }
+            CGImageDestinationAddImage(destination, try XCTUnwrap(image.cgImage), [
+                kCGImagePropertyGIFDictionary: [
+                    kCGImagePropertyGIFDelayTime: 0.04,
+                    kCGImagePropertyGIFUnclampedDelayTime: 0.04
+                ]
+            ] as CFDictionary)
+        }
+        XCTAssertTrue(CGImageDestinationFinalize(destination))
+        return url
     }
 
     private func frameDelays(at url: URL) throws -> [TimeInterval] {

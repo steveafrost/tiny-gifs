@@ -131,7 +131,12 @@ if [[ "$requests_open_access" != "true" ]]; then
   echo "Archive keyboard extension is not configured to request Full Access." >&2
   exit 1
 fi
-echo "Verified build $build_number, resolved GIPHY configuration, and keyboard Open Access in app and extensions."
+uses_non_exempt_encryption="$(/usr/libexec/PlistBuddy -c 'Print :ITSAppUsesNonExemptEncryption' "$app/Info.plist" 2>/dev/null || true)"
+if [[ "$uses_non_exempt_encryption" != "false" ]]; then
+  echo "Archive does not declare that Tiny GIFs uses no non-exempt encryption." >&2
+  exit 1
+fi
+echo "Verified build $build_number, resolved GIPHY configuration, export compliance, and keyboard Open Access in app and extensions."
 
 if [[ "$mode" == "--upload" ]]; then
   if ! xcodebuild \
