@@ -85,18 +85,19 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
         statusLabel.text = "Preparing GIF…"
         let sourceURL = item.url
         let itemID = item.id
+        let description = item.title.isEmpty ? "Tiny animated GIF" : item.title
         Task { [weak self, weak conversation] in
             do {
                 let attachmentURL = try await Task.detached(priority: .userInitiated) {
                     try TinyGIFAttachmentRenderer.render(sourceURL: sourceURL, identifier: itemID)
                 }.value
                 guard let conversation else { return }
-                try await TinyGIFMessageSender.send(
-                    attachmentURL,
-                    filename: "tiny-gifs-\(itemID).gif",
+                try await TinyGIFMessageSender.insert(
+                    stickerURL: attachmentURL,
+                    localizedDescription: description,
                     conversation: conversation
                 )
-                self?.statusLabel.text = "Sent"
+                self?.statusLabel.text = "Added tiny GIF — tap Send"
                 if TinyGIFDrawerLayout.shouldDismissToKeyboardAfterSend(succeeded: true) {
                     self?.dismiss()
                 }

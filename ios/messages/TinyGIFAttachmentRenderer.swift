@@ -5,9 +5,8 @@ import UniformTypeIdentifiers
 
 @MainActor
 protocol TinyGIFConversationSending: AnyObject {
-    func sendAttachment(
-        _ URL: URL,
-        withAlternateFilename filename: String?,
+    func insert(
+        _ sticker: MSSticker,
         completionHandler: (@Sendable (Error?) -> Void)?
     )
 }
@@ -16,17 +15,18 @@ extension MSConversation: TinyGIFConversationSending {}
 
 @MainActor
 enum TinyGIFMessageSender {
-    static func send(
-        _ attachmentURL: URL,
-        filename: String,
+    static func insert(
+        stickerURL: URL,
+        localizedDescription: String,
         conversation: TinyGIFConversationSending
     ) async throws {
+        let sticker = try MSSticker(
+            contentsOfFileURL: stickerURL,
+            localizedDescription: localizedDescription
+        )
         try await withCheckedThrowingContinuation {
             (continuation: CheckedContinuation<Void, Error>) in
-            conversation.sendAttachment(
-                attachmentURL,
-                withAlternateFilename: filename
-            ) { error in
+            conversation.insert(sticker) { error in
                 if let error {
                     continuation.resume(throwing: error)
                 } else {
@@ -37,11 +37,17 @@ enum TinyGIFMessageSender {
     }
 }
 
-/// Resizes every frame of a selected GIF for delivery as a regular Messages attachment.
-/// Regular attachments are not constrained by the 500 KB `MSSticker` file-size limit.
+/// Builds a compact animated sticker whose file dimensions control its Messages
+/// transcript footprint. Regular attachments render as large media bubbles even
+/// when their pixel dimensions are small, so outgoing GIFs must use `MSSticker`.
 enum TinyGIFAttachmentRenderer {
-    /// A fixed, small square keeps every delivered GIF at a predictable footprint in Messages.
-    static let canvasPixels: CGFloat = 192
+    static let canvasPixels: CGFloat = 128
+    static let maximumFileBytes = 490_000
+
+    private struct RenderAttempt {
+        let visiblePixels: CGFloat
+        let maximumFrames: Int
+    }
 
     static func render(sourceURL: URL, identifier: String) throws -> URL {
         let fileManager = FileManager.default
@@ -56,9 +62,9 @@ enum TinyGIFAttachmentRenderer {
             options: .regularExpression
         )
         let destination = cacheDirectory.appendingPathComponent(
-            "\(safeIdentifier)-attachment-v11.gif"
+            "\(safeIdentifier)-sticker-v12.gif"
         )
-        if fileManager.fileExists(atPath: destination.path) {
+        if let size = fileSize(at: destination), size <= maximumFileBytes {
             return destination
         }
 
@@ -67,16 +73,35 @@ enum TinyGIFAttachmentRenderer {
             throw TinyGIFAttachmentRendererError.unreadableSource
         }
 
-        let temporary = cacheDirectory.appendingPathComponent(
-            "\(safeIdentifier)-attachment-v11-\(UUID().uuidString)-temporary.gif"
-        )
-        defer { try? fileManager.removeItem(at: temporary) }
-        try writeGIF(source: source, destination: temporary)
-        return try claimDestination(
-            with: temporary,
-            at: destination,
-            fileManager: fileManager
-        )
+        let attempts = [
+            RenderAttempt(visiblePixels: 128, maximumFrames: 24),
+            RenderAttempt(visiblePixels: 112, maximumFrames: 16),
+            RenderAttempt(visiblePixels: 96, maximumFrames: 12),
+            RenderAttempt(visiblePixels: 80, maximumFrames: 8)
+        ]
+
+        for (attemptIndex, attempt) in attempts.enumerated() {
+            let temporary = cacheDirectory.appendingPathComponent(
+                "\(safeIdentifier)-sticker-v12-\(attemptIndex)-\(UUID().uuidString)-temporary.gif"
+            )
+            defer { try? fileManager.removeItem(at: temporary) }
+            try writeGIF(
+                source: source,
+                destination: temporary,
+                visiblePixels: attempt.visiblePixels,
+                maximumFrames: attempt.maximumFrames
+            )
+            guard let size = fileSize(at: temporary), size <= maximumFileBytes else {
+                continue
+            }
+            return try claimDestination(
+                with: temporary,
+                at: destination,
+                fileManager: fileManager
+            )
+        }
+
+        throw TinyGIFAttachmentRendererError.fileTooLarge
     }
 
     static func claimDestination(
@@ -94,12 +119,21 @@ enum TinyGIFAttachmentRenderer {
         return destination
     }
 
-    private static func writeGIF(source: CGImageSource, destination: URL) throws {
-        let frameCount = CGImageSourceGetCount(source)
+    private static func writeGIF(
+        source: CGImageSource,
+        destination: URL,
+        visiblePixels: CGFloat,
+        maximumFrames: Int
+    ) throws {
+        let sourceFrameCount = CGImageSourceGetCount(source)
+        let frameIndices = sampledFrameIndices(
+            frameCount: sourceFrameCount,
+            maximumFrames: maximumFrames
+        )
         guard let output = CGImageDestinationCreateWithURL(
             destination as CFURL,
             UTType.gif.identifier as CFString,
-            frameCount,
+            frameIndices.count,
             nil
         ) else {
             throw TinyGIFAttachmentRendererError.cannotCreateDestination
@@ -111,12 +145,17 @@ enum TinyGIFAttachmentRenderer {
             ]
         ] as CFDictionary)
 
-        for index in 0..<frameCount {
-            guard let sourceFrame = CGImageSourceCreateImageAtIndex(source, index, nil),
-                  let renderedFrame = renderFrame(sourceFrame) else {
+        for (outputIndex, sourceIndex) in frameIndices.enumerated() {
+            guard let sourceFrame = CGImageSourceCreateImageAtIndex(source, sourceIndex, nil),
+                  let renderedFrame = renderFrame(sourceFrame, visiblePixels: visiblePixels) else {
                 throw TinyGIFAttachmentRendererError.unreadableFrame
             }
-            let duration = frameDuration(source: source, at: index)
+            let nextSourceIndex = outputIndex + 1 < frameIndices.count
+                ? frameIndices[outputIndex + 1]
+                : sourceFrameCount
+            let duration = (sourceIndex..<nextSourceIndex).reduce(0.0) {
+                $0 + frameDuration(source: source, at: $1)
+            }
             CGImageDestinationAddImage(output, renderedFrame, [
                 kCGImagePropertyGIFDictionary: [
                     kCGImagePropertyGIFDelayTime: duration,
@@ -130,9 +169,12 @@ enum TinyGIFAttachmentRenderer {
         }
     }
 
-    static func normalizedContentRect(for sourceSize: CGSize) -> CGRect {
+    static func normalizedContentRect(
+        for sourceSize: CGSize,
+        visiblePixels: CGFloat = canvasPixels
+    ) -> CGRect {
         precondition(sourceSize.width > 0 && sourceSize.height > 0, "GIF frames must have a size")
-        let scale = min(canvasPixels / sourceSize.width, canvasPixels / sourceSize.height)
+        let scale = min(visiblePixels / sourceSize.width, visiblePixels / sourceSize.height)
         let drawSize = CGSize(
             width: max(1, floor(sourceSize.width * scale)),
             height: max(1, floor(sourceSize.height * scale))
@@ -145,8 +187,11 @@ enum TinyGIFAttachmentRenderer {
         )
     }
 
-    private static func renderFrame(_ frame: CGImage) -> CGImage? {
-        let contentRect = normalizedContentRect(for: CGSize(width: frame.width, height: frame.height))
+    private static func renderFrame(_ frame: CGImage, visiblePixels: CGFloat) -> CGImage? {
+        let contentRect = normalizedContentRect(
+            for: CGSize(width: frame.width, height: frame.height),
+            visiblePixels: visiblePixels
+        )
         let format = UIGraphicsImageRendererFormat()
         format.opaque = false
         format.scale = 1
@@ -156,6 +201,13 @@ enum TinyGIFAttachmentRenderer {
         ).image { _ in
             UIImage(cgImage: frame).draw(in: contentRect)
         }.cgImage
+    }
+
+    private static func sampledFrameIndices(frameCount: Int, maximumFrames: Int) -> [Int] {
+        guard frameCount > maximumFrames else { return Array(0..<frameCount) }
+        return (0..<maximumFrames).map { index in
+            Int(floor(Double(index * frameCount) / Double(maximumFrames)))
+        }
     }
 
     private static func frameDuration(source: CGImageSource, at index: Int) -> TimeInterval {
@@ -173,6 +225,10 @@ enum TinyGIFAttachmentRenderer {
         if let clamped, clamped > 0 { return clamped }
         return 0.1
     }
+
+    private static func fileSize(at url: URL) -> Int? {
+        try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize
+    }
 }
 
 enum TinyGIFAttachmentRendererError: Error {
@@ -180,4 +236,5 @@ enum TinyGIFAttachmentRendererError: Error {
     case unreadableFrame
     case cannotCreateDestination
     case cannotFinalize
+    case fileTooLarge
 }
