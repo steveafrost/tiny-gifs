@@ -2,12 +2,13 @@ import Messages
 import UIKit
 import ImageIO
 
-/// A searchable Messages drawer that sends full-animation GIF attachments.
+/// A searchable Messages drawer that sends normalized animated GIF stickers.
 final class MessagesViewController: MSMessagesAppViewController, UISearchBarDelegate {
     private let searchBar = UISearchBar()
     private let statusLabel = UILabel()
     private let attribution = UILabel()
     private let picker = TinyGIFPickerViewController()
+    private var sendState = TinyGIFSendState()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -78,7 +79,9 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
     }
 
     private func send(_ item: GIFPickerItem) {
+        guard sendState.begin() else { return }
         guard let conversation = activeConversation else {
+            sendState.finish()
             statusLabel.text = "Open a Messages conversation to send a GIF"
             return
         }
@@ -86,22 +89,23 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
         let sourceURL = item.url
         let itemID = item.id
         let description = item.title.isEmpty ? "Tiny animated GIF" : item.title
-        Task { [weak self, weak conversation] in
+        Task { [weak self, conversation] in
             do {
                 let attachmentURL = try await Task.detached(priority: .userInitiated) {
                     try TinyGIFAttachmentRenderer.render(sourceURL: sourceURL, identifier: itemID)
                 }.value
-                guard let conversation else { return }
-                try await TinyGIFMessageSender.insert(
+                try await TinyGIFMessageSender.send(
                     stickerURL: attachmentURL,
                     localizedDescription: description,
                     conversation: conversation
                 )
-                self?.statusLabel.text = "Added tiny GIF — tap Send"
+                self?.sendState.finish()
+                self?.statusLabel.text = "Sent tiny GIF"
                 if TinyGIFDrawerLayout.shouldDismissToKeyboardAfterSend(succeeded: true) {
                     self?.dismiss()
                 }
             } catch {
+                self?.sendState.finish()
                 self?.statusLabel.text = "Couldn’t send that GIF"
             }
         }

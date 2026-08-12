@@ -28,7 +28,7 @@ When this value is absent or invalid, the CTA opens an accessible sheet that exp
 Open [ios/TinyGIFs.xcodeproj](ios/TinyGIFs.xcodeproj) in Xcode 26.5. The `TinyGIFs` scheme includes these targets:
 
 - `TinyGIFs` — iOS 17+ SwiftUI containing app that exists to install and explain the custom keyboard. It clearly distinguishes keyboard GIPHY search from the companion app and explains Full Access.
-- `TinyGIFsMessages` — custom Messages app-drawer GIF picker. It browses and searches GIPHY, renders the selected animation as a compact `MSSticker`, adds it to the Messages field, and leaves the final Send action to the user.
+- `messages` — custom Messages app-drawer GIF picker. It browses and searches GIPHY, normalizes the selected animation to a 192×192 `MSSticker`, and sends it immediately after the user's tap.
 - `TinyGIFsKeyboard` — `UIInputViewController` with letter input, delete, space, return, next-keyboard/globe action, bundled fallback reactions, and Full Access GIPHY search + GIF pasteboard copying.
 - `TinyGIFsTests` — catalog, media budget/dimension, and keyboard Full Access decision tests.
 
@@ -71,7 +71,7 @@ The checked-in GIFs are deliberately static fallback exports because this reposi
 
 The completed simulator evidence and remaining release checks are also recorded in [docs/validation/native-verification.md](docs/validation/native-verification.md).
 
-- Open the #tiny-gifs Messages app-drawer extension and confirm each GIF is added to the compose field and can be sent normally.
+- Open the #tiny-gifs Messages app-drawer extension and confirm each GIF is sent immediately, the drawer closes only after a successful send, and it stays open with a useful error after a failed send.
 - Add the keyboard from Settings and confirm typing, delete, space, return, and globe behavior in a normal text field.
 - Configure a production GIPHY key and confirm that search returns results in the Messages extension, keyboard, and website; confirm the required GIPHY attribution is visible.
 - Confirm that enabling Full Access allows GIPHY and local GIF pasteboard copy and that the copy feedback is clear; without Full Access, typing and bundled reactions must remain usable.

@@ -41,7 +41,7 @@ private struct KeyboardInstallerView: View {
                 .font(.system(size: 42, weight: .black, design: .rounded))
                 .lineSpacing(-6)
                 .foregroundStyle(.black)
-            Text("Your fastest path is in Messages: search GIPHY, add a GIF to the message field, then send it without taking over the thread.")
+            Text("Your fastest path is in Messages: search GIPHY, then tap a GIF to send it immediately without taking over the thread.")
                 .font(.title3.weight(.medium))
                 .foregroundStyle(Color.black.opacity(0.72))
                 .fixedSize(horizontal: false, vertical: true)
@@ -56,7 +56,7 @@ private struct KeyboardInstallerView: View {
 
             InstallStep(number: "1", title: "Open Messages", detail: "Start or open a conversation, then open the app drawer.")
             InstallStep(number: "2", title: "Choose #tiny-gifs", detail: "Browse trending GIFs or search GIPHY for the right reaction.")
-            InstallStep(number: "3", title: "Add, then Send", detail: "Tap a GIF to add it to the message field, then tap Send normally.")
+            InstallStep(number: "3", title: "Tap to Send", detail: "Tap a GIF once to send the compact reaction immediately.")
 
             Button("Open Settings for the optional keyboard") {
                 openURL(URL(string: UIApplication.openSettingsURLString)!)
@@ -140,13 +140,15 @@ private struct KeyboardPreview: View {
                 ForEach(keys, id: \.self) { key in
                     Text(key)
                         .font(.caption.weight(.black))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                         .foregroundStyle(.black)
                         .frame(maxWidth: .infinity, minHeight: 31)
                         .background(key == "GIF" ? Color.lime : .white, in: RoundedRectangle(cornerRadius: 8))
                         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.black.opacity(0.72), lineWidth: 1))
                 }
             }
-            Text("In Messages, search GIPHY, tap a GIF, and it lands in the message field ready to send.")
+            Text("In Messages, search GIPHY, then tap a GIF to send the compact reaction immediately.")
                 .font(.footnote.weight(.medium))
                 .foregroundStyle(Color.black.opacity(0.72))
         }

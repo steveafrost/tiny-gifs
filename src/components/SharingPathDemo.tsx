@@ -7,7 +7,7 @@ type Path = 'messages' | 'keyboard'
 const pathCopy: Record<Path, { title: string; description: string }> = {
   messages: {
     title: 'Made for Messages.',
-    description: 'Open the drawer, search GIPHY or browse what is trending, tap a tiny GIF, then tap Send. No copy-and-paste detour.',
+    description: 'Open the drawer, search GIPHY or browse what is trending, then tap a tiny GIF to send it immediately. No copy-and-paste detour.',
   },
   keyboard: {
     title: 'Optional keyboard elsewhere.',
@@ -50,7 +50,7 @@ function ReactionPicker({ selected, onSelect }: { selected: string; onSelect: (i
 function MessagesPanel({ selected }: { selected: string }) {
   return <div className="message-path">
     <div className="message-path__line"><span>Heading to lunch!</span></div>
-    <div className="message-path__sent"><ReactionCharacter kind={selected as typeof reactions[number]['id']} decorative compact /><span>Added — tap Send</span></div>
+    <div className="message-path__sent"><ReactionCharacter kind={selected as typeof reactions[number]['id']} decorative compact /><span>Sent tiny GIF</span></div>
     <div className="message-path__input"><b>+</b><span>iMessage</span><i>↑</i></div>
   </div>
 }

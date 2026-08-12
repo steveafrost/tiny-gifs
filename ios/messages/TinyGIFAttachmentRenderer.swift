@@ -5,7 +5,7 @@ import UniformTypeIdentifiers
 
 @MainActor
 protocol TinyGIFConversationSending: AnyObject {
-    func insert(
+    func send(
         _ sticker: MSSticker,
         completionHandler: (@Sendable (Error?) -> Void)?
     )
@@ -15,7 +15,7 @@ extension MSConversation: TinyGIFConversationSending {}
 
 @MainActor
 enum TinyGIFMessageSender {
-    static func insert(
+    static func send(
         stickerURL: URL,
         localizedDescription: String,
         conversation: TinyGIFConversationSending
@@ -26,7 +26,7 @@ enum TinyGIFMessageSender {
         )
         try await withCheckedThrowingContinuation {
             (continuation: CheckedContinuation<Void, Error>) in
-            conversation.insert(sticker) { error in
+            conversation.send(sticker) { error in
                 if let error {
                     continuation.resume(throwing: error)
                 } else {
@@ -41,7 +41,7 @@ enum TinyGIFMessageSender {
 /// transcript footprint. Regular attachments render as large media bubbles even
 /// when their pixel dimensions are small, so outgoing GIFs must use `MSSticker`.
 enum TinyGIFAttachmentRenderer {
-    static let canvasPixels: CGFloat = 320
+    static let canvasPixels: CGFloat = 192
     static let maximumFileBytes = 490_000
 
     private struct RenderAttempt {
@@ -62,7 +62,7 @@ enum TinyGIFAttachmentRenderer {
             options: .regularExpression
         )
         let destination = cacheDirectory.appendingPathComponent(
-            "\(safeIdentifier)-sticker-v13.gif"
+            "\(safeIdentifier)-sticker-v14.gif"
         )
         if let size = fileSize(at: destination), size <= maximumFileBytes {
             return destination
@@ -74,16 +74,16 @@ enum TinyGIFAttachmentRenderer {
         }
 
         let attempts = [
-            RenderAttempt(visiblePixels: 320, maximumFrames: 10),
-            RenderAttempt(visiblePixels: 320, maximumFrames: 8),
-            RenderAttempt(visiblePixels: 320, maximumFrames: 6),
-            RenderAttempt(visiblePixels: 320, maximumFrames: 4),
-            RenderAttempt(visiblePixels: 320, maximumFrames: 2)
+            RenderAttempt(visiblePixels: canvasPixels, maximumFrames: 10),
+            RenderAttempt(visiblePixels: canvasPixels, maximumFrames: 8),
+            RenderAttempt(visiblePixels: canvasPixels, maximumFrames: 6),
+            RenderAttempt(visiblePixels: canvasPixels, maximumFrames: 4),
+            RenderAttempt(visiblePixels: canvasPixels, maximumFrames: 2)
         ]
 
         for (attemptIndex, attempt) in attempts.enumerated() {
             let temporary = cacheDirectory.appendingPathComponent(
-                "\(safeIdentifier)-sticker-v13-\(attemptIndex)-\(UUID().uuidString)-temporary.gif"
+                "\(safeIdentifier)-sticker-v14-\(attemptIndex)-\(UUID().uuidString)-temporary.gif"
             )
             defer { try? fileManager.removeItem(at: temporary) }
             try writeGIF(

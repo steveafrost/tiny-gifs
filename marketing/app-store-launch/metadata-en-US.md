@@ -14,7 +14,7 @@
 
 ### Current description
 
-> #tiny-gifs is a compact GIF reaction app built for the size of a large emoji. Start in Messages for the fastest sharing path: choose a tiny animated reaction, add it to your message, and send. Add the optional keyboard for supported chat apps: it types normally without Full Access, and with Full Access it can search GIPHY and copy a GIF for you to paste into a supported chat field. The keyboard never records, stores, or transmits what you type.
+> #tiny-gifs is a compact GIF reaction app built for the size of a large emoji. Start in Messages for the fastest sharing path: choose a tiny animated reaction and send it with one tap. Add the optional keyboard for supported chat apps: it types normally without Full Access, and with Full Access it can search GIPHY and copy a GIF for you to paste into a supported chat field. The keyboard never records, stores, or transmits what you type.
 
 ## Proposed metadata for owner approval
 

@@ -36,3 +36,17 @@ struct TinyGIFRequestGeneration {
         request == current
     }
 }
+
+struct TinyGIFSendState {
+    private(set) var isSending = false
+
+    mutating func begin() -> Bool {
+        guard !isSending else { return false }
+        isSending = true
+        return true
+    }
+
+    mutating func finish() {
+        isSending = false
+    }
+}

@@ -1,6 +1,6 @@
 # #tiny-gifs product plan
 
-Last updated: 2026-07-10
+Last updated: 2026-08-11
 
 ## Outcome
 
@@ -19,8 +19,8 @@ Ship a real iPhone product behind the existing website: an installable host app,
 
 - Ships inside the containing iOS app.
 - Presents GIPHY search results in a custom #images-style GIF grid, with bundled GIFs as an offline fallback.
-- Tap adds the selected GIF attachment to the Messages compose field; the user then taps Send.
-- Does not create `MSSticker` objects, expose a system Stickers surface, or support peeling onto bubbles.
+- A deliberate tap normalizes the selected GIF to a consistent 192×192 canvas, sends it immediately as an `MSSticker`, then collapses the drawer only after the send succeeds.
+- A failed send leaves the drawer expanded and presents a retryable error. The extension does not expose a system Stickers surface or support peeling onto bubbles.
 - This is the default website story because it minimizes setup and avoids keyboard paste friction.
 
 ### 3. `#tiny-gifs` custom keyboard — cross-app path
@@ -67,7 +67,7 @@ ios/
   TinyGIFs.xcodeproj/
   TinyGIFsApp/
   TinyGIFsKeyboard/
-  TinyGIFsMessages/
+  messages/
   Shared/
   Tests/
 src/
@@ -80,7 +80,7 @@ Shared catalog metadata lives in Swift source for the native targets and in a sm
 
 1. Scaffold the Xcode project and shared design/catalog layer.
 2. Build the focused host-app installer, keyboard setup instructions, Full Access explanation, and privacy copy.
-3. Build the Messages extension and validate GIF attachment insertion into the compose field.
+3. Build the Messages extension and validate immediate compact-sticker sending, success-only drawer dismissal, and failure recovery.
 4. Build the compliant keyboard extension, including fallback text keys, next-keyboard behavior, Full Access detection, copy feedback, and offline operation.
 5. Integrate the two-path product story into the existing website without changing its accepted visual system.
 6. Add unit tests for catalog integrity, asset limits, and copy-state logic; add web lint/build coverage.
@@ -108,7 +108,7 @@ Shared catalog metadata lives in Swift source for the native targets and in a sm
 
 - [Apple App Review Guidelines, section 4.4.1](https://developer.apple.com/app-store/review/guidelines/)
 - [Apple Custom Keyboard Programming Guide](https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/CustomKeyboard.html)
-- [Inserting attachments in Messages](https://developer.apple.com/documentation/messages/msconversation/insertattachment%28_%3Awithalternatefilename%3Acompletionhandler%3A%29)
+- [Sending stickers in Messages](https://developer.apple.com/documentation/messages/msconversation/send(_:completionhandler:)-3vje4)
 - [Apple Messages framework](https://developer.apple.com/documentation/messages/)
 - [iMessage apps](https://developer.apple.com/imessage/)
 - [GIPHY API documentation](https://developers.giphy.com/docs/api/)

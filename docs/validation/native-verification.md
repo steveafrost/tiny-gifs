@@ -1,23 +1,26 @@
 # Native verification record
 
-## Completed locally
+## Current automated verification
 
-- Xcode 26.5 compiled the `TinyGIFs` scheme, including the containing app, `TinyGIFsMessages`, and `TinyGIFsKeyboard`, for the iOS Simulator SDK with code signing disabled.
-- `TinyGIFsTests` passed on an iPhone 17 Pro simulator (iOS 26.5). The suite validates the exact eight-item catalog, PNG/GIF file budget, 300×300 PNG dimensions, and the Full Access copy decision.
-- The containing app was installed and launched on that simulator. The first-run onboarding rendered successfully.
+- The `TinyGIFs` scheme builds the containing app, the `messages` app-drawer extension, and `TinyGIFsKeyboard` for iOS 17 or later.
+- `TinyGIFsTests` validates the eight-item fallback catalog, media budgets, keyboard Full Access decisions, drawer presentation behavior, immediate sticker sending, and the normalized Messages/keyboard output.
+- Every outgoing GIF is normalized to a 192×192 animated canvas with a 500 KB maximum. Renderer cache filenames use the `sticker-v14` generation so older sizes cannot be reused.
+- The Messages drawer requests expanded presentation while browsing and searching. After a deliberate GIF tap, it sends an `MSSticker` immediately, dismisses only after the send completion succeeds, and remains open with an error if rendering or sending fails.
 
-## Build 17 Messages extension verification
+## Historical simulator evidence
 
-- Build 17 uses a custom three-column, searchable GIPHY drawer rather than a static sticker pack. It visibly attributes results to GIPHY and inserts a selected animation with `MSConversation.insert(_ sticker:)`.
-- On an iPhone 17 Pro simulator running iOS 26.5, the drawer loaded animated trending results, the exact query `happy` returned animated matching results, and a selected GIF staged in the compose field with the expected `Added tiny GIF — tap Send` status.
-- The earlier 300×300 animated sticker reached `Delivered` but appeared as a transcript-dominating square. The renderer was therefore reduced to 64×64 and then increased at the user's request to the final 128×128 size.
-- The renderer now emits a 128×128 animated GIF—twice the previously tested 64×64 correction—without a padded 300-pixel canvas. The test suite verifies the output dimensions, preserved frame count, sub-500 KB size, and successful `MSSticker` construction.
-- Final 128×128 live proof succeeded in the simulator-only `+1 (888) 555-1212` conversation. The selected `happy` result reached `Delivered`; its visible transcript footprint measured 113×126 framebuffer pixels, approximately 38×42 points at the simulator's reported 3× scale, within the 128×128-pixel (approximately 43-point) sticker canvas.
-- Two direct framebuffer captures taken 1.2 seconds apart changed 7,160 pixels within the sent sticker region, proving the delivered GIF continued animating. Evidence: [delivered frame A](build17-messages-128-sent-frame-a.png) and [delivered frame B](build17-messages-128-sent-frame-b.png).
-- The prior touch-input and PlugInKit-registration blockers were recovered by restarting the UDID-scoped simulator mirror and performing one non-destructive simulator reboot after reinstall. Build 17 has not been archived, uploaded, or released.
+- Build 17 established that the custom three-column GIPHY drawer could load trending results, search for `happy`, send an animated sticker, and preserve animation in a simulator conversation.
+- The original 300×300 output dominated the transcript. Follow-up simulator evidence validated substantially smaller output and proved the delivered GIF continued animating.
+- Those captures are retained as historical evidence only: [delivered frame A](build17-messages-128-sent-frame-a.png) and [delivered frame B](build17-messages-128-sent-frame-b.png). They do not represent the current 192×192 renderer or current build number.
 
-## Device-only release checks
+## Physical-device release checks
 
-Before release, repeat the build 17 Messages flow on a physical iPhone and confirm the sender and recipient footprint. Add the keyboard in Settings, verify ordinary typed-character input plus delete, space, return, and globe behavior, then verify that optional Full Access permits GIPHY search and selected GIF pasteboard copy. Confirm that the keyboard remains useful without Full Access.
+Before App Store submission, install the current TestFlight build on a physical iPhone and verify:
 
-Also test actual sender and recipient footprint in Messages and at least two supported third-party chat apps. Those apps choose their own attachment rendering, so the large-emoji-scale goal is not a universal display-size guarantee. Secure fields and apps that reject third-party keyboards must continue to fall back to the system keyboard.
+1. Messages remains expanded while browsing and searching GIPHY.
+2. Tapping a bundled or GIPHY GIF sends exactly once, uses the expected compact footprint, continues animating for sender and recipient, and collapses the drawer only after success.
+3. A failed send leaves the drawer open and displays a retryable error.
+4. The keyboard types, deletes, inserts spaces/returns, and advances to the next keyboard without Full Access.
+5. With Full Access, GIPHY search works and both bundled and remote GIFs copy to the pasteboard at the same normalized footprint.
+6. At least two supported third-party chat apps accept pasted GIFs. Those apps control final rendering, so large-emoji scale remains a per-host target rather than a universal display guarantee.
+7. Secure fields and apps that reject third-party keyboards fall back to the system keyboard.

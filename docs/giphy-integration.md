@@ -15,6 +15,6 @@ The keyboard’s GIPHY requests and GIF pasteboard copy require Full Access. The
 - The app requests only `g`-rated GIFs using GIPHY's `messaging_non_clips` bundle and compact image renditions. Results are fetched in pages as someone searches or scrolls, rather than trying to download GIPHY's catalog onto the device.
 - Search results display the required `Powered By GIPHY` attribution in every surface.
 - A keyboard search term is sent to GIPHY only after the user enables Full Access and explicitly submits a search. Typed text and conversation content are never sent.
-- The Messages extension downloads a selected media file to its cache before inserting it as a GIF attachment in the Messages compose field. The keyboard does the same before copying its GIF to the system pasteboard.
+- The Messages extension downloads the selected media file, normalizes it to a 192×192 animated `MSSticker`, and sends it after the user's tap. The keyboard normalizes the selected GIF before copying it to the system pasteboard.
 
 Review GIPHY’s current API documentation and branding/attribution requirements before a production submission.

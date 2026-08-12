@@ -13,33 +13,22 @@
 		1A00000000000000000000B2 /* ReactionCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000020 /* ReactionCatalog.swift */; };
 		1A00000000000000000000B20 /* GiphyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000024 /* GiphyService.swift */; };
 		1A00000000000000000000B21 /* GiphyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000024 /* GiphyService.swift */; };
-		1A00000000000000000000B22 /* GiphyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000024 /* GiphyService.swift */; };
 		1A00000000000000000000B23 /* TinyGIFAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000025 /* TinyGIFAttachmentRenderer.swift */; };
 		1A00000000000000000000B24 /* TinyGIFDrawerLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000026 /* TinyGIFDrawerLayout.swift */; };
+		1A00000000000000000000B25 /* Messages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000052 /* Messages.framework */; };
 		1A00000000000000000000B3 /* ReactionArtwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000021 /* ReactionArtwork.swift */; };
+		1A00000000000000000000B30 /* TinyGIFAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000025 /* TinyGIFAttachmentRenderer.swift */; };
 		1A00000000000000000000B4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000050 /* UIKit.framework */; };
 		1A00000000000000000000B5 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000051 /* SwiftUI.framework */; };
 		1A00000000000000000000B6 /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000013 /* KeyboardViewController.swift */; };
 		1A00000000000000000000B7 /* KeyboardState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000014 /* KeyboardState.swift */; };
 		1A00000000000000000000B8 /* ReactionCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000020 /* ReactionCatalog.swift */; };
-		1A00000000000000000000B30 /* TinyGIFAttachmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000025 /* TinyGIFAttachmentRenderer.swift */; };
 		1A00000000000000000000B9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000050 /* UIKit.framework */; };
-		1A00000000000000000000B25 /* Messages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000052 /* Messages.framework */; };
-		1A00000000000000000000BA /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000017 /* MessagesViewController.swift */; };
-		1A00000000000000000000BB /* ReactionCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000020 /* ReactionCatalog.swift */; };
-		1A00000000000000000000BC /* Messages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000052 /* Messages.framework */; };
 		1A00000000000000000000BD /* CatalogIntegrityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000022 /* CatalogIntegrityTests.swift */; };
 		1A00000000000000000000BE /* ReactionCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000020 /* ReactionCatalog.swift */; };
 		1A00000000000000000000BF /* KeyboardState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000014 /* KeyboardState.swift */; };
 		1A00000000000000000000E1 /* TinyGIFsKeyboard.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000016 /* TinyGIFsKeyboard.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		1A00000000000000000000E2 /* TinyGIFsMessages.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000019 /* TinyGIFsMessages.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1A00000000000000000000F0 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000053 /* XCTest.framework */; };
-		1A00000000000000000000I1 /* iMessageIcon-54x40.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000F1 /* iMessageIcon-54x40.png */; };
-		1A00000000000000000000I2 /* iMessageIcon-81x60.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000F2 /* iMessageIcon-81x60.png */; };
-		1A00000000000000000000I3 /* iMessageIcon-64x48.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000F3 /* iMessageIcon-64x48.png */; };
-		1A00000000000000000000I4 /* iMessageIcon-96x72.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000F4 /* iMessageIcon-96x72.png */; };
-		1A00000000000000000000I5 /* iMessageIcon-120x90.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000F5 /* iMessageIcon-120x90.png */; };
-		1A00000000000000000000I6 /* iMessageIcon-180x135.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000F6 /* iMessageIcon-180x135.png */; };
 		1A00000000000000000000IC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000I0 /* Assets.xcassets */; };
 		1A00000000000000000000K0 /* lol.gif in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000040 /* lol.gif */; };
 		1A00000000000000000000K1 /* nope.gif in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000041 /* nope.gif */; };
@@ -49,16 +38,6 @@
 		1A00000000000000000000K5 /* yes.gif in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000045 /* yes.gif */; };
 		1A00000000000000000000K6 /* yikes.gif in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000046 /* yikes.gif */; };
 		1A00000000000000000000K7 /* tiny-clap.gif in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000047 /* tiny-clap.gif */; };
-		1A00000000000000000000M0 /* lol.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000030 /* lol.png */; };
-		1A00000000000000000000M1 /* nope.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000031 /* nope.png */; };
-		1A00000000000000000000M2 /* omg.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000032 /* omg.png */; };
-		1A00000000000000000000M3 /* brb.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000033 /* brb.png */; };
-		1A00000000000000000000M4 /* perfect.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000034 /* perfect.png */; };
-		1A00000000000000000000M5 /* yes.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000035 /* yes.png */; };
-		1A00000000000000000000M6 /* yikes.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000036 /* yikes.png */; };
-		1A00000000000000000000M7 /* tiny-clap.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000037 /* tiny-clap.png */; };
-		1A00000000000000000000MI /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000M8 /* Assets.xcassets */; };
-		1A00000000000000000000MS /* Stickers.xcstickers in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000M9 /* Stickers.xcstickers */; };
 		1A00000000000000000000R0 /* lol.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000030 /* lol.png */; };
 		1A00000000000000000000R1 /* nope.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000031 /* nope.png */; };
 		1A00000000000000000000R2 /* omg.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000032 /* omg.png */; };
@@ -100,13 +79,6 @@
 			remoteGlobalIDString = 1A00000000000000000000A1;
 			remoteInfo = TinyGIFsKeyboard;
 		};
-		1A00000000000000000000P2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 1A0000000000000000000000 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 1A00000000000000000000A2;
-			remoteInfo = TinyGIFsMessages;
-		};
 		1A00000000000000000000P3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1A0000000000000000000000 /* Project object */;
@@ -140,9 +112,6 @@
 		1A0000000000000000000014 /* KeyboardState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardState.swift; sourceTree = "<group>"; };
 		1A0000000000000000000015 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1A0000000000000000000016 /* TinyGIFsKeyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TinyGIFsKeyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		1A0000000000000000000017 /* MessagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesViewController.swift; sourceTree = "<group>"; };
-		1A0000000000000000000018 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		1A0000000000000000000019 /* TinyGIFsMessages.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TinyGIFsMessages.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A0000000000000000000020 /* ReactionCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionCatalog.swift; sourceTree = "<group>"; };
 		1A0000000000000000000021 /* ReactionArtwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionArtwork.swift; sourceTree = "<group>"; };
 		1A0000000000000000000022 /* CatalogIntegrityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogIntegrityTests.swift; sourceTree = "<group>"; };
@@ -170,15 +139,7 @@
 		1A0000000000000000000051 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		1A0000000000000000000052 /* Messages.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Messages.framework; path = System/Library/Frameworks/Messages.framework; sourceTree = SDKROOT; };
 		1A0000000000000000000053 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
-		1A00000000000000000000F1 /* iMessageIcon-54x40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "iMessageIcon-54x40.png"; sourceTree = "<group>"; };
-		1A00000000000000000000F2 /* iMessageIcon-81x60.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "iMessageIcon-81x60.png"; sourceTree = "<group>"; };
-		1A00000000000000000000F3 /* iMessageIcon-64x48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "iMessageIcon-64x48.png"; sourceTree = "<group>"; };
-		1A00000000000000000000F4 /* iMessageIcon-96x72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "iMessageIcon-96x72.png"; sourceTree = "<group>"; };
-		1A00000000000000000000F5 /* iMessageIcon-120x90.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "iMessageIcon-120x90.png"; sourceTree = "<group>"; };
-		1A00000000000000000000F6 /* iMessageIcon-180x135.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "iMessageIcon-180x135.png"; sourceTree = "<group>"; };
 		1A00000000000000000000I0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		1A00000000000000000000M8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		1A00000000000000000000M9 /* Stickers.xcstickers */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Stickers.xcstickers; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -229,14 +190,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		1A0000000000000000000081 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				1A00000000000000000000BC /* Messages.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		1A0000000000000000000091 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -253,7 +206,6 @@
 			children = (
 				1A0000000000000000000003 /* TinyGIFsApp */,
 				1A0000000000000000000004 /* TinyGIFsKeyboard */,
-				1A0000000000000000000005 /* TinyGIFsMessages */,
 				1A0000000000000000000006 /* Shared */,
 				1A0000000000000000000008 /* Tests */,
 				061EFE623001FD2F00B2D691 /* messages */,
@@ -267,7 +219,6 @@
 			children = (
 				1A0000000000000000000012 /* TinyGIFs.app */,
 				1A0000000000000000000016 /* TinyGIFsKeyboard.appex */,
-				1A0000000000000000000019 /* TinyGIFsMessages.appex */,
 				1A0000000000000000000023 /* TinyGIFsTests.xctest */,
 				061EFE603001FD2F00B2D691 /* messages.appex */,
 			);
@@ -292,23 +243,6 @@
 				1A0000000000000000000015 /* Info.plist */,
 			);
 			path = TinyGIFsKeyboard;
-			sourceTree = "<group>";
-		};
-		1A0000000000000000000005 /* TinyGIFsMessages */ = {
-			isa = PBXGroup;
-			children = (
-				1A0000000000000000000017 /* MessagesViewController.swift */,
-				1A0000000000000000000018 /* Info.plist */,
-				1A00000000000000000000M8 /* Assets.xcassets */,
-				1A00000000000000000000M9 /* Stickers.xcstickers */,
-				1A00000000000000000000F1 /* iMessageIcon-54x40.png */,
-				1A00000000000000000000F2 /* iMessageIcon-81x60.png */,
-				1A00000000000000000000F3 /* iMessageIcon-64x48.png */,
-				1A00000000000000000000F4 /* iMessageIcon-96x72.png */,
-				1A00000000000000000000F5 /* iMessageIcon-120x90.png */,
-				1A00000000000000000000F6 /* iMessageIcon-180x135.png */,
-			);
-			path = TinyGIFsMessages;
 			sourceTree = "<group>";
 		};
 		1A0000000000000000000006 /* Shared */ = {
@@ -384,8 +318,6 @@
 				061EFE623001FD2F00B2D691 /* messages */,
 			);
 			name = messages;
-			packageProductDependencies = (
-			);
 			productName = messages;
 			productReference = 061EFE603001FD2F00B2D691 /* messages.appex */;
 			productType = "com.apple.product-type.app-extension.messages";
@@ -425,23 +357,6 @@
 			name = TinyGIFsKeyboard;
 			productName = TinyGIFsKeyboard;
 			productReference = 1A0000000000000000000016 /* TinyGIFsKeyboard.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
-		1A00000000000000000000A2 /* TinyGIFsMessages */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 1A00000000000000000000L3 /* Build configuration list for PBXNativeTarget "TinyGIFsMessages" */;
-			buildPhases = (
-				1A0000000000000000000080 /* Sources */,
-				1A0000000000000000000081 /* Frameworks */,
-				1A0000000000000000000082 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = TinyGIFsMessages;
-			productName = TinyGIFsMessages;
-			productReference = 1A0000000000000000000019 /* TinyGIFsMessages.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		1A00000000000000000000A3 /* TinyGIFsTests */ = {
@@ -504,7 +419,6 @@
 			targets = (
 				1A00000000000000000000A0 /* TinyGIFs */,
 				1A00000000000000000000A1 /* TinyGIFsKeyboard */,
-				1A00000000000000000000A2 /* TinyGIFsMessages */,
 				1A00000000000000000000A3 /* TinyGIFsTests */,
 				061EFE5F3001FD2F00B2D691 /* messages */,
 			);
@@ -547,29 +461,6 @@
 				1A00000000000000000000K5 /* yes.gif in Resources */,
 				1A00000000000000000000K6 /* yikes.gif in Resources */,
 				1A00000000000000000000K7 /* tiny-clap.gif in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		1A0000000000000000000082 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				1A00000000000000000000M0 /* lol.png in Resources */,
-				1A00000000000000000000M1 /* nope.png in Resources */,
-				1A00000000000000000000M2 /* omg.png in Resources */,
-				1A00000000000000000000M3 /* brb.png in Resources */,
-				1A00000000000000000000M4 /* perfect.png in Resources */,
-				1A00000000000000000000M5 /* yes.png in Resources */,
-				1A00000000000000000000M6 /* yikes.png in Resources */,
-				1A00000000000000000000M7 /* tiny-clap.png in Resources */,
-				1A00000000000000000000MI /* Assets.xcassets in Resources */,
-				1A00000000000000000000MS /* Stickers.xcstickers in Resources */,
-				1A00000000000000000000I1 /* iMessageIcon-54x40.png in Resources */,
-				1A00000000000000000000I2 /* iMessageIcon-81x60.png in Resources */,
-				1A00000000000000000000I3 /* iMessageIcon-64x48.png in Resources */,
-				1A00000000000000000000I4 /* iMessageIcon-96x72.png in Resources */,
-				1A00000000000000000000I5 /* iMessageIcon-120x90.png in Resources */,
-				1A00000000000000000000I6 /* iMessageIcon-180x135.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -629,16 +520,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		1A0000000000000000000080 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				1A00000000000000000000BA /* MessagesViewController.swift in Sources */,
-				1A00000000000000000000BB /* ReactionCatalog.swift in Sources */,
-				1A00000000000000000000B22 /* GiphyService.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		1A0000000000000000000090 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -663,11 +544,6 @@
 			isa = PBXTargetDependency;
 			target = 1A00000000000000000000A1 /* TinyGIFsKeyboard */;
 			targetProxy = 1A00000000000000000000P1 /* PBXContainerItemProxy */;
-		};
-		1A00000000000000000000D2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 1A00000000000000000000A2 /* TinyGIFsMessages */;
-			targetProxy = 1A00000000000000000000P2 /* PBXContainerItemProxy */;
 		};
 		1A00000000000000000000D3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -709,7 +585,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 32;
+				CURRENT_PROJECT_VERSION = 33;
 				DEVELOPMENT_TEAM = 4QJ25Y85MX;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -789,7 +665,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 32;
+				CURRENT_PROJECT_VERSION = 33;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 4QJ25Y85MX;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -866,8 +742,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 33;
 				DEVELOPMENT_TEAM = 4QJ25Y85MX;
-				CURRENT_PROJECT_VERSION = 32;
 				GIPHY_API_KEY = "";
 				INFOPLIST_FILE = TinyGIFsApp/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tinygifs.app;
@@ -882,8 +758,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 33;
 				DEVELOPMENT_TEAM = 4QJ25Y85MX;
-				CURRENT_PROJECT_VERSION = 32;
 				GIPHY_API_KEY = "";
 				INFOPLIST_FILE = TinyGIFsApp/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tinygifs.app;
@@ -898,8 +774,8 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 33;
 				DEVELOPMENT_TEAM = 4QJ25Y85MX;
-				CURRENT_PROJECT_VERSION = 32;
 				GIPHY_API_KEY = "";
 				INFOPLIST_FILE = TinyGIFsKeyboard/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tinygifs.app.keyboard;
@@ -914,44 +790,12 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 33;
 				DEVELOPMENT_TEAM = 4QJ25Y85MX;
-				CURRENT_PROJECT_VERSION = 32;
 				GIPHY_API_KEY = "";
 				INFOPLIST_FILE = TinyGIFsKeyboard/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tinygifs.app.keyboard;
 				PRODUCT_NAME = TinyGIFsKeyboard;
-				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Release;
-		};
-		1A00000000000000000000C6 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 4QJ25Y85MX;
-				CURRENT_PROJECT_VERSION = 32;
-				GIPHY_API_KEY = "";
-				INFOPLIST_FILE = TinyGIFsMessages/Info.plist;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tinygifs.app.messages;
-				PRODUCT_NAME = TinyGIFsMessages;
-				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
-		1A00000000000000000000C7 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 4QJ25Y85MX;
-				CURRENT_PROJECT_VERSION = 32;
-				GIPHY_API_KEY = "";
-				INFOPLIST_FILE = TinyGIFsMessages/Info.plist;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tinygifs.app.messages;
-				PRODUCT_NAME = TinyGIFsMessages;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -1020,15 +864,6 @@
 			buildConfigurations = (
 				1A00000000000000000000C4 /* Debug */,
 				1A00000000000000000000C5 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		1A00000000000000000000L3 /* Build configuration list for PBXNativeTarget "TinyGIFsMessages" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				1A00000000000000000000C6 /* Debug */,
-				1A00000000000000000000C7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

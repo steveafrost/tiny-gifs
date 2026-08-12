@@ -1,0 +1,34 @@
+name: iOS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify launch and release claims
+        run: scripts/test-launch-claims.sh
+      - name: Select an available iPhone simulator
+        id: destination
+        run: |
+          set -euo pipefail
+          destination="$(xcodebuild -showdestinations -project ios/TinyGIFs.xcodeproj -scheme TinyGIFs | sed -n 's/.*platform:iOS Simulator.*name:\([^,}]*\).*/\1/p' | sed 's/^ *//;s/ *$//' | head -1)"
+          test -n "$destination"
+          printf 'name=%s\n' "$destination" >> "$GITHUB_OUTPUT"
+      - name: Run native tests
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project ios/TinyGIFs.xcodeproj \
+            -scheme TinyGIFs \
+            -destination "platform=iOS Simulator,name=${{ steps.destination.outputs.name }}" \
+            -derivedDataPath "$RUNNER_TEMP/tiny-gifs-derived" \
+            CODE_SIGNING_ALLOWED=NO \
+            test

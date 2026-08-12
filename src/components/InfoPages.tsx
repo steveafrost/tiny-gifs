@@ -28,7 +28,7 @@ function PrivacyContent() {
 function SupportContent() {
   return <div className="info-page__content">
     <h2>Start with Messages</h2>
-    <ol><li>Install #tiny-gifs on your iPhone.</li><li>Open a Messages conversation and tap the app drawer.</li><li>Choose #tiny-gifs, tap a GIF to add it to the message field, then tap Send.</li></ol>
+    <ol><li>Install #tiny-gifs on your iPhone.</li><li>Open a Messages conversation and tap the app drawer.</li><li>Choose #tiny-gifs, then tap a GIF to send it immediately.</li></ol>
     <h2>Use the optional keyboard</h2>
     <ol><li>Go to Settings → General → Keyboard → Keyboards → Add New Keyboard.</li><li>Add #tiny-gifs. It types without Full Access.</li><li>Turn on Full Access to search GIPHY, tap a GIF to copy it, then paste it into a supported chat field.</li></ol>
     <p>Messaging apps control final attachment rendering. The compact GIF assets are designed for large-emoji scale, but exact display size varies by app.</p>

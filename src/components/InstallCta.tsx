@@ -45,7 +45,7 @@ export function InstallCta({ children, className = '' }: InstallCtaProps) {
         <p>#tiny-gifs comes through an iPhone app. Its GIPHY-powered Messages drawer is the primary path; the keyboard is optional for supported apps elsewhere.</p>
         <ol>
           <li>Install the app from its App Store or beta link.</li>
-          <li>Open #tiny-gifs in the Messages app drawer, choose a GIF, then tap Send.</li>
+          <li>Open #tiny-gifs in the Messages app drawer, then tap a GIF to send it immediately.</li>
           <li>Add the keyboard in Settings only when you want the copy-and-paste path elsewhere.</li>
         </ol>
       </section>

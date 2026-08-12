@@ -31,7 +31,7 @@ If GIPHY only processes a request transiently and does not retain it, document t
 ```text
 #tiny-gifs provides two sharing paths:
 
-1. Messages: Open a Messages conversation, open the app drawer, select #tiny-gifs, browse or search GIPHY, tap a GIF to add it to the message field, then use Messages’ normal Send action.
+1. Messages: Open a Messages conversation, open the app drawer, select #tiny-gifs, browse or search GIPHY, then tap a GIF to send it immediately.
 2. Optional keyboard: Add #tiny-gifs under Settings > General > Keyboard > Keyboards. Typing and the bundled reaction grid work without Full Access. Full Access is required to search GIPHY or copy a GIF to the pasteboard for use in a supported chat field.
 
 No account or demo credentials are required.

@@ -25,7 +25,7 @@ function ReactionRail() {
 
 function Installation() {
   const steps = [['↓', 'Install', '#tiny-gifs'], ['✦', 'Open the', 'Messages drawer'], ['⌨', 'Add keyboard', '(optional)']]
-  return <section className="installation section-rule" id="setup" aria-labelledby="install-title"><h2 id="install-title">Start in Messages.<br />Go further if you want<span>.</span></h2><ol className="installation__steps">{steps.map(([icon, lineOne, lineTwo], index) => <li key={lineOne}><b>{index + 1}</b><div className="step-icon" aria-hidden="true">{icon}</div><strong>{lineOne}<br />{lineTwo}</strong></li>)}</ol><p>In Messages, tap a GIF to add it to the field, then Send. The optional keyboard copies GIFs for supported apps; final display size varies by app.</p></section>
+  return <section className="installation section-rule" id="setup" aria-labelledby="install-title"><h2 id="install-title">Start in Messages.<br />Go further if you want<span>.</span></h2><ol className="installation__steps">{steps.map(([icon, lineOne, lineTwo], index) => <li key={lineOne}><b>{index + 1}</b><div className="step-icon" aria-hidden="true">{icon}</div><strong>{lineOne}<br />{lineTwo}</strong></li>)}</ol><p>In Messages, tap a GIF to send it immediately. The optional keyboard copies GIFs for supported apps; final display size varies by app.</p></section>
 }
 
 function ClosingBand() {

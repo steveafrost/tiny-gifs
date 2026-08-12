@@ -38,6 +38,16 @@ final class CatalogIntegrityTests: XCTestCase {
         XCTAssertFalse(TinyGIFDrawerLayout.shouldDismissToKeyboardAfterSend(succeeded: false))
     }
 
+    func testMessagesDrawerPreventsDuplicateSendsAndAllowsRetryAfterFailure() {
+        var sendState = TinyGIFSendState()
+
+        XCTAssertTrue(sendState.begin())
+        XCTAssertFalse(sendState.begin())
+
+        sendState.finish()
+        XCTAssertTrue(sendState.begin())
+    }
+
     func testMessagesRequestGenerationRejectsAnOlderPage() {
         var requests = TinyGIFRequestGeneration()
         let trendingPage = requests.begin()
@@ -47,7 +57,7 @@ final class CatalogIntegrityTests: XCTestCase {
         XCTAssertTrue(requests.isCurrent(searchPage))
     }
 
-    func testMessagesRendererUsesA320PixelStickerCanvasThatIsTwoAndAHalfTimesLarger() throws {
+    func testMessagesRendererUsesA192PixelStickerCanvasForAConsistentSmallFootprint() throws {
         let sourceURL = try animatedGIF(frameCount: 30)
         defer { try? FileManager.default.removeItem(at: sourceURL) }
         let original = try XCTUnwrap(CGImageSourceCreateWithURL(sourceURL as CFURL, nil))
@@ -59,15 +69,15 @@ final class CatalogIntegrityTests: XCTestCase {
         let properties = try XCTUnwrap(
             CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
         )
-        XCTAssertEqual(TinyGIFAttachmentRenderer.canvasPixels, 128 * 2.5)
-        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 320)
-        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 320)
+        XCTAssertEqual(TinyGIFAttachmentRenderer.canvasPixels, 192)
+        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 192)
+        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 192)
         XCTAssertLessThanOrEqual(CGImageSourceGetCount(source), CGImageSourceGetCount(original))
         XCTAssertLessThanOrEqual(try dataSize(renderedURL), TinyGIFAttachmentRenderer.maximumFileBytes)
         XCTAssertNoThrow(try MSSticker(contentsOfFileURL: renderedURL, localizedDescription: "Tiny GIF"))
     }
 
-    func testMessagesRendererUsesANewCacheVersionForTheCompactStickerCanvas() throws {
+    func testMessagesRendererUsesANewCacheVersionForThe192PixelStickerCanvas() throws {
         let sourceURL = try animatedGIF(frameCount: 1)
         defer { try? FileManager.default.removeItem(at: sourceURL) }
 
@@ -77,14 +87,14 @@ final class CatalogIntegrityTests: XCTestCase {
         )
         defer { try? FileManager.default.removeItem(at: renderedURL) }
 
-        XCTAssertTrue(renderedURL.lastPathComponent.contains("sticker-v13.gif"))
+        XCTAssertTrue(renderedURL.lastPathComponent.contains("sticker-v14.gif"))
     }
 
     func testMessagesRendererLetterboxesSquareWideAndTallGIFsInsideCompactStickerContainers() throws {
         let cases: [(source: CGSize, expected: CGSize)] = [
-            (CGSize(width: 200, height: 200), CGSize(width: 320, height: 320)),
-            (CGSize(width: 400, height: 200), CGSize(width: 320, height: 160)),
-            (CGSize(width: 200, height: 400), CGSize(width: 160, height: 320))
+            (CGSize(width: 200, height: 200), CGSize(width: 192, height: 192)),
+            (CGSize(width: 400, height: 200), CGSize(width: 192, height: 96)),
+            (CGSize(width: 200, height: 400), CGSize(width: 96, height: 192))
         ]
 
         for testCase in cases {
@@ -102,12 +112,12 @@ final class CatalogIntegrityTests: XCTestCase {
             )
             let content = TinyGIFAttachmentRenderer.normalizedContentRect(for: testCase.source)
 
-            XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 320)
-            XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 320)
+            XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 192)
+            XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 192)
             XCTAssertEqual(content.size, testCase.expected)
             XCTAssertEqual(content.width / content.height, testCase.source.width / testCase.source.height, accuracy: 0.001)
-            XCTAssertEqual(content.midX, 160, accuracy: 0.5)
-            XCTAssertEqual(content.midY, 160, accuracy: 0.5)
+            XCTAssertEqual(content.midX, 96, accuracy: 0.5)
+            XCTAssertEqual(content.midY, 96, accuracy: 0.5)
         }
     }
 
@@ -158,8 +168,8 @@ final class CatalogIntegrityTests: XCTestCase {
             CGImageSourceCopyPropertiesAtIndex(rendered, 0, nil) as? [CFString: Any]
         )
 
-        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 320)
-        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 320)
+        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 192)
+        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 192)
         XCTAssertGreaterThan(CGImageSourceGetCount(rendered), 1)
         XCTAssertLessThanOrEqual(try dataSize(renderedURL), TinyGIFAttachmentRenderer.maximumFileBytes)
         XCTAssertNoThrow(try MSSticker(contentsOfFileURL: renderedURL, localizedDescription: "Complex GIF"))
@@ -224,24 +234,24 @@ final class CatalogIntegrityTests: XCTestCase {
     }
 
     @MainActor
-    func testMessagesSelectionInsertsACompactSticker() async throws {
+    func testMessagesSelectionSendsACompactStickerImmediately() async throws {
         let conversation = RecordingTinyGIFConversation()
-        let stickerURL = try animatedGIF(frameCount: 1, size: CGSize(width: 320, height: 320))
+        let stickerURL = try animatedGIF(frameCount: 1, size: CGSize(width: 192, height: 192))
         defer { try? FileManager.default.removeItem(at: stickerURL) }
 
-        try await TinyGIFMessageSender.insert(
+        try await TinyGIFMessageSender.send(
             stickerURL: stickerURL,
             localizedDescription: "Example GIF",
             conversation: conversation
         )
 
-        XCTAssertEqual(conversation.insertedSticker?.imageFileURL, stickerURL)
-        XCTAssertEqual(conversation.insertedSticker?.localizedDescription, "Example GIF")
-        XCTAssertEqual(conversation.insertCount, 1)
+        XCTAssertEqual(conversation.sentSticker?.imageFileURL, stickerURL)
+        XCTAssertEqual(conversation.sentSticker?.localizedDescription, "Example GIF")
+        XCTAssertEqual(conversation.sendCount, 1)
     }
 
     @MainActor
-    func testMessagesSendPathInsertsTheNormalizedStickerInsteadOfTheDrawerSource() async throws {
+    func testMessagesSendPathSendsTheNormalizedStickerInsteadOfTheDrawerSource() async throws {
         let sourceURL = try animatedGIF(frameCount: 1, size: CGSize(width: 400, height: 200))
         defer { try? FileManager.default.removeItem(at: sourceURL) }
         let attachmentURL = try TinyGIFAttachmentRenderer.render(
@@ -251,20 +261,20 @@ final class CatalogIntegrityTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: attachmentURL) }
         let conversation = RecordingTinyGIFConversation()
 
-        try await TinyGIFMessageSender.insert(
+        try await TinyGIFMessageSender.send(
             stickerURL: attachmentURL,
             localizedDescription: "Example GIF",
             conversation: conversation
         )
 
-        XCTAssertEqual(conversation.insertedSticker?.imageFileURL, attachmentURL)
-        XCTAssertNotEqual(conversation.insertedSticker?.imageFileURL, sourceURL)
+        XCTAssertEqual(conversation.sentSticker?.imageFileURL, attachmentURL)
+        XCTAssertNotEqual(conversation.sentSticker?.imageFileURL, sourceURL)
         let rendered = try XCTUnwrap(CGImageSourceCreateWithURL(attachmentURL as CFURL, nil))
         let properties = try XCTUnwrap(
             CGImageSourceCopyPropertiesAtIndex(rendered, 0, nil) as? [CFString: Any]
         )
-        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 320)
-        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 320)
+        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 192)
+        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 192)
         XCTAssertLessThanOrEqual(try dataSize(attachmentURL), TinyGIFAttachmentRenderer.maximumFileBytes)
     }
 
@@ -388,15 +398,15 @@ final class CatalogIntegrityTests: XCTestCase {
 
 @MainActor
 private final class RecordingTinyGIFConversation: TinyGIFConversationSending {
-    private(set) var insertedSticker: MSSticker?
-    private(set) var insertCount = 0
+    private(set) var sentSticker: MSSticker?
+    private(set) var sendCount = 0
 
-    func insert(
+    func send(
         _ sticker: MSSticker,
         completionHandler: (@Sendable (Error?) -> Void)?
     ) {
-        insertedSticker = sticker
-        insertCount += 1
+        sentSticker = sticker
+        sendCount += 1
         completionHandler?(nil)
     }
 }
