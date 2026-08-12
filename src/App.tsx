@@ -3,7 +3,7 @@ import { FootprintComparison } from './components/FootprintComparison'
 import { GiphyExplorer } from './components/GiphyExplorer'
 import { InfoPage } from './components/InfoPages'
 import { InstallCta } from './components/InstallCta'
-import { PhoneTranscript } from './components/PhoneTranscript'
+import { MessagesExperience } from './components/MessagesExperience'
 import { SharingPathDemo } from './components/SharingPathDemo'
 import { ReactionCharacter, type ReactionName } from './components/ReactionCharacter'
 
@@ -16,7 +16,11 @@ function Header() {
 }
 
 function Hero() {
-  return <section className="hero"><div className="hero__copy"><h1>Big reaction<span>.</span><br />Tiny footprint<span>.</span></h1><p>Search GIPHY right in Messages, then send an animated GIF that feels like a big emoji—not a wall of media.</p><div className="hero__actions"><InstallCta className="button button--lime">Get #tiny-gifs <Arrow /></InstallCta><a className="button button--outline" href="#how-it-works">See the Messages flow <span className="play" aria-hidden="true" /></a></div></div><PhoneTranscript /></section>
+  return <section className="hero"><div className="hero__copy"><p className="eyebrow">A real iMessage app</p><h1>Find the GIF.<br />Send it<span>.</span></h1><p>Open #tiny-gifs from the Messages drawer, browse or search GIPHY, then tap once. Your compact animated reaction sends immediately.</p><div className="hero__actions"><InstallCta className="button button--lime">Get #tiny-gifs <Arrow /></InstallCta><a className="button button--outline" href="#messages-demo">Try the Messages demo <span className="play" aria-hidden="true" /></a></div><p className="hero__fine-print">The optional keyboard copies GIFs for supported chat apps. Messages is the fastest path.</p></div><MessagesExperience /></section>
+}
+
+function MessagesDemo() {
+  return <section className="messages-demo section-rule" id="messages-demo" aria-labelledby="messages-demo-title"><div className="messages-demo__copy"><p className="eyebrow">How it works</p><h2 id="messages-demo-title">The real<br />Messages flow<span>.</span></h2><ol><li><b>1</b><span>Open #tiny-gifs from the Messages app drawer.</span></li><li><b>2</b><span>Browse trending GIFs or search GIPHY.</span></li><li><b>3</b><span>Tap once to send, then keep the conversation moving.</span></li></ol></div><MessagesExperience /></section>
 }
 
 function ReactionRail() {
@@ -37,5 +41,5 @@ function Footer() { return <footer><a href="/privacy">Privacy</a><a href="/suppo
 export default function App() {
   if (window.location.pathname === '/privacy') return <InfoPage page="privacy" />
   if (window.location.pathname === '/support') return <InfoPage page="support" />
-  return <><Header /><main><Hero /><FootprintComparison /><ReactionRail /><GiphyExplorer /><SharingPathDemo /><Installation /><ClosingBand /></main><Footer /></>
+  return <><Header /><main><Hero /><MessagesDemo /><FootprintComparison /><ReactionRail /><GiphyExplorer /><SharingPathDemo /><Installation /><ClosingBand /></main><Footer /></>
 }

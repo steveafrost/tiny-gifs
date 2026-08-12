@@ -51,7 +51,7 @@ export function GiphyExplorer() {
   return <section className="giphy-explorer section-rule" id="library" aria-labelledby="library-title">
     <div className="giphy-explorer__intro">
       <h2 id="library-title">The GIF library.<br />Right in Messages<span>.</span></h2>
-      <p>Search GIPHY from the app drawer, pick the feeling, and add a compact animated attachment to your message field.</p>
+      <p>Search GIPHY from the app drawer, pick the feeling, then tap once to send a compact animated reaction.</p>
       <label className="giphy-search"><span className="visually-hidden">Search GIPHY</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search GIPHY" /><b>⌕</b></label>
       <small>Powered By GIPHY</small>
     </div>

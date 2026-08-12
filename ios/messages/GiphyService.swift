@@ -45,10 +45,15 @@ enum GiphyServiceError: LocalizedError {
 
 enum GiphyService {
     private static var apiKey: String? {
-        let key = (Bundle.main.object(forInfoDictionaryKey: "GIPHY_API_KEY") as? String)?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let key, !key.isEmpty, key != "$(GIPHY_API_KEY)" else { return nil }
-        return key
+        let bundles = [Bundle(for: GiphyBundleToken.self), .main]
+        for bundle in bundles {
+            let key = (bundle.object(forInfoDictionaryKey: "GIPHY_API_KEY") as? String)?
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if let key, !key.isEmpty, key != "$(GIPHY_API_KEY)" {
+                return key
+            }
+        }
+        return nil
     }
 
     static var isConfigured: Bool { apiKey != nil }
@@ -92,3 +97,5 @@ enum GiphyService {
         return decoded.data
     }
 }
+
+private final class GiphyBundleToken {}
