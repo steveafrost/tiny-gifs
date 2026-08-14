@@ -1,15 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { toGifItems } from '../lib/giphy.js'
 
 type GiphyItem = { id: string; title: string; previewUrl: string; gifUrl: string; sourceUrl: string }
 type GiphyResponse = { data: Array<{ id: string; title: string; url?: string; images?: { fixed_width_small?: { webp?: string; url?: string }; fixed_height?: { url?: string } } }> }
 type SendState = 'browsing' | 'sending' | 'sent'
+type GifStatus = 'loading' | 'ready' | 'empty' | 'error'
 
 const apiKey = import.meta.env.VITE_GIPHY_API_KEY?.trim()
 
 export function MessagesExperience() {
   const [query, setQuery] = useState('')
   const [gifs, setGifs] = useState<GiphyItem[]>([])
+  const [status, setStatus] = useState<GifStatus>('loading')
+  const [requestVersion, setRequestVersion] = useState(0)
   const [selected, setSelected] = useState<GiphyItem | null>(null)
   const [state, setState] = useState<SendState>('browsing')
 
@@ -17,6 +20,7 @@ export function MessagesExperience() {
     if (!apiKey) return
     const controller = new AbortController()
     const timeout = window.setTimeout(async () => {
+      setStatus('loading')
       try {
         const params = new URLSearchParams({ api_key: apiKey, limit: '6', rating: 'g', bundle: 'messaging_non_clips' })
         const term = query.trim()
@@ -24,13 +28,18 @@ export function MessagesExperience() {
         const response = await fetch(`https://api.giphy.com/v1/gifs/${term ? 'search' : 'trending'}?${params}`, { signal: controller.signal })
         if (!response.ok) throw new Error('GIPHY request failed')
         const payload = await response.json() as GiphyResponse
-        setGifs(toGifItems(payload.data) as GiphyItem[])
+        const nextGifs = toGifItems(payload.data) as GiphyItem[]
+        setGifs(nextGifs)
+        setStatus(nextGifs.length ? 'ready' : 'empty')
       } catch (error) {
-        if ((error as Error).name !== 'AbortError') setGifs([])
+        if ((error as Error).name !== 'AbortError') {
+          setGifs([])
+          setStatus('error')
+        }
       }
     }, query ? 280 : 0)
     return () => { controller.abort(); window.clearTimeout(timeout) }
-  }, [query])
+  }, [query, requestVersion])
 
   function sendGif(gif: GiphyItem) {
     if (state !== 'browsing') return
@@ -38,6 +47,8 @@ export function MessagesExperience() {
     setState('sending')
     window.setTimeout(() => setState('sent'), 350)
   }
+
+  const drawerHint = status === 'ready' ? 'Tap a GIF once to send it.' : status === 'loading' ? 'Loading GIFs…' : 'Search GIPHY for a reaction.'
 
   return <section className="messages-experience" aria-label="Interactive Messages drawer walkthrough">
     <div className="messages-experience__chrome"><span>‹</span><b>Messages</b><i /></div>
@@ -50,12 +61,19 @@ export function MessagesExperience() {
       <div className="messages-experience__handle" />
       <div className="messages-experience__drawer-header"><strong>tiny gifs</strong><span>Powered by GIPHY</span></div>
       <label className="messages-experience__search"><span className="visually-hidden">Search GIFs in the walkthrough</span><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="4.8" fill="none" stroke="currentColor" strokeWidth="1.6" /><path d="m12 12 4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search GIFs" /></label>
-      <p>Tap a GIF once to send it.</p>
-      <div className="messages-experience__grid">
-        {apiKey && gifs.map((gif) => <button key={gif.id} type="button" onClick={() => sendGif(gif)} disabled={state !== 'browsing'} aria-label={`Send ${gif.title} GIF`}><img src={gif.previewUrl} alt="" /></button>)}
-        {!apiKey && <div className="messages-experience__unconfigured"><strong>Real GIPHY GIFs load here.</strong><span>Production uses the configured GIPHY key.</span></div>}
+      <p>{drawerHint}</p>
+      <div className="messages-experience__grid" aria-live="polite">
+        {!apiKey && <DrawerState><strong>Real GIPHY GIFs load here.</strong><span>This local preview does not include the production API key.</span></DrawerState>}
+        {apiKey && status === 'loading' && <DrawerState>Loading GIFs…</DrawerState>}
+        {apiKey && status === 'ready' && gifs.map((gif) => <button key={gif.id} type="button" onClick={() => sendGif(gif)} disabled={state !== 'browsing'} aria-label={`Send ${gif.title} GIF`}><img src={gif.previewUrl} alt="" /></button>)}
+        {apiKey && status === 'empty' && <DrawerState><strong>No GIFs found.</strong><span>Try another search.</span></DrawerState>}
+        {apiKey && status === 'error' && <DrawerState><strong>We couldn't load GIFs.</strong><button className="messages-experience__retry" type="button" onClick={() => setRequestVersion((value) => value + 1)}>Try again</button></DrawerState>}
       </div>
     </div>}
     <p className="messages-experience__caption">A faithful walkthrough of the native flow — search GIPHY in the drawer, tap one GIF, then return to the conversation.</p>
   </section>
+}
+
+function DrawerState({ children }: { children: ReactNode }) {
+  return <div className="messages-experience__unconfigured">{children}</div>
 }

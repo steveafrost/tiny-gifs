@@ -5,7 +5,7 @@ type Page = 'privacy' | 'support'
 export function InfoPage({ page }: { page: Page }) {
   const isPrivacy = page === 'privacy'
   return <div className="info-page">
-    <header className="site-header"><a className="brand" href="/">#tiny-gifs</a><nav aria-label="Main navigation"><a href="/#how-it-works">How it works</a><a href="/#why-tiny">Why tiny</a></nav><InstallCta className="button button--lime button--header">Get Tiny GIFs</InstallCta></header>
+    <header className="site-header"><a className="brand" href="/">#tiny-gifs</a><nav aria-label="Main navigation"><a href="/#how-it-works">How it works</a><a href="/#library">GIF library</a></nav><InstallCta className="button button--lime button--header">Get Tiny GIFs</InstallCta></header>
     <main className="info-page__main">
       <p className="info-page__label">#tiny-gifs</p>
       <h1>{isPrivacy ? 'Private by\ndesign.' : 'Support for\ntiny reactions.'}</h1>

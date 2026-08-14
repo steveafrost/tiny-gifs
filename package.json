@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && node scripts/prepare-sites-build.mjs",
+    "build:production": "node scripts/check-production-config.mjs && npm run build",
+    "test": "node --test test/*.test.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },
