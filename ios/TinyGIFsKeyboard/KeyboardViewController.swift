@@ -4,11 +4,18 @@ final class KeyboardViewController: UIInputViewController {
     private let statusLabel = UILabel()
     private let reactionGrid = UIStackView()
     private let giphyResults = UIStackView()
+    private var searchGeneration = KeyboardSearchGeneration()
+    private var searchTask: Task<Void, Never>?
     private let keys = [["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"], ["a", "s", "d", "f", "g", "h", "j", "k", "l"], ["z", "x", "c", "v", "b", "n", "m"]]
 
     override func viewDidLoad() {
         super.viewDidLoad()
         buildKeyboard()
+    }
+
+    private func setStatus(_ message: String) {
+        statusLabel.text = message
+        UIAccessibility.post(notification: .announcement, argument: message)
     }
 
     private func buildKeyboard() {
@@ -26,6 +33,13 @@ final class KeyboardViewController: UIInputViewController {
         let brand = UILabel(); brand.text = "#tiny-gifs"; brand.font = .systemFont(ofSize: 15, weight: .black); header.addArrangedSubview(brand)
         statusLabel.text = hasFullAccess ? "Search GIPHY or tap a starter" : "Typing stays on your iPhone"
         statusLabel.font = .systemFont(ofSize: 12, weight: .semibold); statusLabel.textAlignment = .right; statusLabel.numberOfLines = 2; header.addArrangedSubview(statusLabel)
+        let attribution = UIImageView(image: UIImage(named: "PoweredByGiphy"))
+        attribution.contentMode = .scaleAspectFit
+        attribution.accessibilityLabel = "Powered by GIPHY"
+        attribution.isAccessibilityElement = true
+        header.addArrangedSubview(attribution)
+        attribution.widthAnchor.constraint(equalToConstant: 77).isActive = true
+        attribution.heightAnchor.constraint(equalToConstant: 10).isActive = true
         root.addArrangedSubview(header)
 
         let searchRow = UIStackView(); searchRow.axis = .horizontal; searchRow.spacing = 6
@@ -87,30 +101,39 @@ final class KeyboardViewController: UIInputViewController {
         switch KeyboardReactionAction.selecting(reaction, hasFullAccess: hasFullAccess) {
         case .copyLocalGIF(let reaction):
             guard let url = ReactionCatalog.resourceURL(for: reaction, fileExtension: "gif") else {
-                statusLabel.text = "Local GIF unavailable"
+                setStatus("Local GIF unavailable")
                 return
             }
             copyNormalizedGIF(sourceURL: url, identifier: reaction.id)
         case .explainFullAccess:
-            statusLabel.text = "Turn on Full Access to copy. Typing stays local."
+            setStatus("Turn on Full Access to copy. Typing stays local.")
         }
     }
 
     @objc private func searchReturn(_ sender: UITextField) { searchGiphy(sender.text ?? "") }
 
     private func searchGiphy(_ query: String) {
-        guard hasFullAccess else { statusLabel.text = "Full Access enables GIPHY search. Typing stays local."; return }
-        guard GiphyService.isConfigured else { statusLabel.text = "Add GIPHY_API_KEY to activate search."; return }
+        guard hasFullAccess else { setStatus("Full Access enables GIPHY search. Typing stays local."); return }
+        guard GiphyService.isConfigured else { setStatus("Add GIPHY_API_KEY to activate search."); return }
         let cleanQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanQuery.isEmpty else { return }
-        statusLabel.text = "Searching GIPHY…"
-        Task { [weak self] in
-            guard let self else { return }
+        searchTask?.cancel()
+        let search = searchGeneration.begin()
+        setStatus("Searching GIPHY…")
+        searchTask = Task { [weak self] in
             do {
                 let gifs = try await GiphyService.search(cleanQuery, limit: 4)
-                await MainActor.run { self.showGiphy(gifs) }
+                await MainActor.run {
+                    guard let self, !Task.isCancelled, self.searchGeneration.isCurrent(search) else { return }
+                    self.searchTask = nil
+                    self.showGiphy(gifs)
+                }
             } catch {
-                await MainActor.run { self.statusLabel.text = "GIPHY is unavailable. Try again." }
+                await MainActor.run {
+                    guard let self, !Task.isCancelled, self.searchGeneration.isCurrent(search) else { return }
+                    self.searchTask = nil
+                    self.setStatus("GIPHY is unavailable. Try again.")
+                }
             }
         }
     }
@@ -119,7 +142,7 @@ final class KeyboardViewController: UIInputViewController {
         giphyResults.arrangedSubviews.forEach { $0.removeFromSuperview() }
         gifs.forEach { gif in
             let button = UIButton(type: .system)
-            button.accessibilityLabel = gif.title
+            button.accessibilityLabel = gif.title.isEmpty ? "GIPHY GIF" : gif.title
             button.layer.cornerRadius = 9; button.backgroundColor = .white
             Task { [weak button] in
                 guard let button, let (data, _) = try? await URLSession.shared.data(from: gif.tinyPreviewURL), let image = UIImage(data: data) else { return }
@@ -129,12 +152,12 @@ final class KeyboardViewController: UIInputViewController {
             giphyResults.addArrangedSubview(button); button.heightAnchor.constraint(equalToConstant: 47).isActive = true
         }
         giphyResults.isHidden = gifs.isEmpty
-        statusLabel.text = gifs.isEmpty ? "No GIFs found" : "Powered By GIPHY — tap to copy"
+        setStatus(gifs.isEmpty ? "No GIFs found" : "Powered By GIPHY — tap to copy")
     }
 
     private func copyGiphy(_ gif: GiphyGIF) {
         guard hasFullAccess else { return }
-        statusLabel.text = "Preparing GIF…"
+        setStatus("Preparing GIF…")
         Task { [weak self] in
             do {
                 let sourceURL = try await GiphyService.localGIFURL(for: gif)
@@ -144,7 +167,7 @@ final class KeyboardViewController: UIInputViewController {
                     alreadyPreparing: true
                 )
             } catch {
-                await MainActor.run { self?.statusLabel.text = "Couldn’t copy that GIF" }
+                await MainActor.run { self?.setStatus("Couldn’t copy that GIF") }
             }
         }
     }
@@ -154,7 +177,7 @@ final class KeyboardViewController: UIInputViewController {
         identifier: String,
         alreadyPreparing: Bool = false
     ) {
-        if !alreadyPreparing { statusLabel.text = "Preparing GIF…" }
+        if !alreadyPreparing { setStatus("Preparing GIF…") }
         Task { [weak self] in
             do {
                 let normalizedURL = try await Task.detached(priority: .userInitiated) {
@@ -163,10 +186,10 @@ final class KeyboardViewController: UIInputViewController {
                 let data = try Data(contentsOf: normalizedURL)
                 await MainActor.run {
                     UIPasteboard.general.setData(data, forPasteboardType: "com.compuserve.gif")
-                    self?.statusLabel.text = "Copied — paste in the conversation ✓"
+                    self?.setStatus("Copied — paste in the conversation ✓")
                 }
             } catch {
-                await MainActor.run { self?.statusLabel.text = "Couldn’t copy that GIF" }
+                await MainActor.run { self?.setStatus("Couldn’t copy that GIF") }
             }
         }
     }

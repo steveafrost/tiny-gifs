@@ -11,6 +11,12 @@ final class CatalogIntegrityTests: XCTestCase {
         XCTAssertEqual(ReactionCatalog.all.map(\.id), ["lol", "nope", "omg", "brb", "perfect", "yes", "yikes", "tiny-clap"])
     }
 
+    func testStarterReactionDescriptionsAndFilenamesUseTheReactionName() {
+        XCTAssertEqual(Reaction.tinyClap.localizedDescription, "#tiny-gifs tiny clap reaction")
+        XCTAssertEqual(Reaction.tinyClap.pngFilename, "tiny-clap.png")
+        XCTAssertEqual(Reaction.tinyClap.gifFilename, "tiny-clap.gif")
+    }
+
     func testTinyGIFAssetsMeetCompactBudgetAndDimensions() throws {
         let bundle = Bundle(for: type(of: self))
         for reaction in ReactionCatalog.all {
@@ -27,6 +33,15 @@ final class CatalogIntegrityTests: XCTestCase {
     func testKeyboardCopyDecisionKeepsTypingUsefulWithoutFullAccess() {
         XCTAssertEqual(KeyboardReactionAction.selecting(.lol, hasFullAccess: false), .explainFullAccess)
         XCTAssertEqual(KeyboardReactionAction.selecting(.tinyClap, hasFullAccess: true), .copyLocalGIF(.tinyClap))
+    }
+
+    func testKeyboardSearchGenerationRejectsAnOlderResponse() {
+        var searches = KeyboardSearchGeneration()
+        let firstSearch = searches.begin()
+        let secondSearch = searches.begin()
+
+        XCTAssertFalse(searches.isCurrent(firstSearch))
+        XCTAssertTrue(searches.isCurrent(secondSearch))
     }
 
     func testMessagesDrawerRequestsExpandedPresentationWithoutAPartialRowLimit() {

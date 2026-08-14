@@ -13,7 +13,8 @@ struct GiphyGIF: Decodable, Identifiable, Hashable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(String.self, forKey: .id)
-        title = try container.decodeIfPresent(String.self, forKey: .title) ?? "GIPHY GIF"
+        let decodedTitle = try container.decodeIfPresent(String.self, forKey: .title) ?? ""
+        title = decodedTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "GIPHY GIF" : decodedTitle
         let images = try container.nestedContainer(keyedBy: ImagesKeys.self, forKey: .images)
         // A GIPHY small rendition is the actual message attachment, so it stays
         // close to a large emoji rather than inserting a full-size GIF.

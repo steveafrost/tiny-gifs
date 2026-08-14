@@ -6,9 +6,14 @@ import ImageIO
 final class MessagesViewController: MSMessagesAppViewController, UISearchBarDelegate {
     private let searchBar = UISearchBar()
     private let statusLabel = UILabel()
-    private let attribution = UILabel()
+    private let attribution = UIImageView()
     private let picker = TinyGIFPickerViewController()
     private var sendState = TinyGIFSendState()
+
+    private func setStatus(_ message: String) {
+        statusLabel.text = message
+        UIAccessibility.post(notification: .announcement, argument: message)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,16 +34,16 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
         statusLabel.accessibilityIdentifier = "tiny-gifs.status"
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        attribution.text = "Powered By GIPHY"
-        attribution.font = .systemFont(ofSize: 10, weight: .bold)
-        attribution.textColor = .secondaryLabel
-        attribution.textAlignment = .right
+        attribution.image = UIImage(named: "PoweredByGiphy")
+        attribution.contentMode = .scaleAspectFit
+        attribution.accessibilityLabel = "Powered by GIPHY"
+        attribution.isAccessibilityElement = true
         attribution.translatesAutoresizingMaskIntoConstraints = false
 
         addChild(picker)
         picker.view.translatesAutoresizingMaskIntoConstraints = false
         picker.onSelect = { [weak self] item in self?.send(item) }
-        picker.onStatusChange = { [weak self] status in self?.statusLabel.text = status }
+        picker.onStatusChange = { [weak self] status in self?.setStatus(status) }
 
         // Remove the template storyboard label before installing the real drawer.
         view.subviews.forEach { $0.removeFromSuperview() }
@@ -58,6 +63,8 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
             statusLabel.heightAnchor.constraint(equalToConstant: 18),
             statusLabel.trailingAnchor.constraint(lessThanOrEqualTo: attribution.leadingAnchor, constant: -8),
             attribution.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -12),
+            attribution.widthAnchor.constraint(equalToConstant: 100),
+            attribution.heightAnchor.constraint(equalToConstant: 13),
             attribution.centerYAnchor.constraint(equalTo: statusLabel.centerYAnchor),
             picker.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             picker.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -82,10 +89,10 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
         guard sendState.begin() else { return }
         guard let conversation = activeConversation else {
             sendState.finish()
-            statusLabel.text = "Open a Messages conversation to send a GIF"
+            setStatus("Open a Messages conversation to send a GIF")
             return
         }
-        statusLabel.text = "Preparing GIF…"
+        setStatus("Preparing GIF…")
         let sourceURL = item.url
         let itemID = item.id
         let description = item.title.isEmpty ? "Tiny animated GIF" : item.title
@@ -100,13 +107,13 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
                     conversation: conversation
                 )
                 self?.sendState.finish()
-                self?.statusLabel.text = "Sent tiny GIF"
+                self?.setStatus("Sent tiny GIF")
                 if TinyGIFDrawerLayout.shouldDismissToKeyboardAfterSend(succeeded: true) {
                     self?.dismiss()
                 }
             } catch {
                 self?.sendState.finish()
-                self?.statusLabel.text = "Couldn’t send that GIF"
+                self?.setStatus("Couldn’t send that GIF")
             }
         }
     }

@@ -21,11 +21,11 @@ public enum Reaction: String, CaseIterable, Identifiable {
     }
 
     public var localizedDescription: String {
-        "#tiny-gifs (displayName) reaction"
+        "#tiny-gifs \(displayName) reaction"
     }
 
-    public var pngFilename: String { "(rawValue).png" }
-    public var gifFilename: String { "(rawValue).gif" }
+    public var pngFilename: String { "\(rawValue).png" }
+    public var gifFilename: String { "\(rawValue).gif" }
 }
 
 public enum ReactionCatalog {

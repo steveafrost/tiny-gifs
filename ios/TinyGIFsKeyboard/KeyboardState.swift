@@ -9,3 +9,17 @@ enum KeyboardReactionAction: Equatable {
         hasFullAccess ? .copyLocalGIF(reaction) : .explainFullAccess
     }
 }
+
+/// Monotonic tokens prevent a slower prior GIPHY search from replacing newer results.
+struct KeyboardSearchGeneration {
+    private(set) var current: UInt = 0
+
+    mutating func begin() -> UInt {
+        current &+= 1
+        return current
+    }
+
+    func isCurrent(_ search: UInt) -> Bool {
+        search == current
+    }
+}
