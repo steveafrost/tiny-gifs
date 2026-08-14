@@ -285,7 +285,11 @@ private extension Color {
     static let mutedOnDark = Color(red: 0.70, green: 0.70, blue: 0.73)
     static let rule = Color(uiColor: .separator)
     static let messageBlue = Color(uiColor: .systemBlue)
-    static let brandAccent = Color(red: 0.94, green: 0.35, blue: 0.29)
+    static let brandAccent = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.94, green: 0.35, blue: 0.29, alpha: 1)
+            : UIColor(red: 0.70, green: 0.23, blue: 0.19, alpha: 1)
+    })
     static let incomingBubble = Color(uiColor: .secondarySystemFill)
     static let drawer = Color(red: 0.11, green: 0.11, blue: 0.12)
     static let previewDrawer = Color(red: 0.17, green: 0.17, blue: 0.18)
