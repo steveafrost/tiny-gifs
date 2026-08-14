@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">Tiny GIFs app icon</title>
+  <desc id="desc">The Tiny GIFs Signal Trio: three ascending signal-coral bars on deep ink.</desc>
+  <rect width="1024" height="1024" fill="#fff9f0"/>
+  <rect x="56" y="56" width="912" height="912" rx="238" fill="#1c1613"/>
+  <g fill="#ef5a49">
+    <rect x="282" y="556" width="108" height="188" rx="54"/>
+    <rect x="458" y="454" width="108" height="290" rx="54"/>
+    <rect x="634" y="332" width="108" height="412" rx="54"/>
+  </g>
+</svg>
