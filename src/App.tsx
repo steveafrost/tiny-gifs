@@ -41,10 +41,10 @@ function HowItWorks() {
 
 function CompanionApp() {
   return <section className="app-guide" id="the-app" aria-labelledby="app-title">
-    <div className="app-guide__copy"><p className="eyebrow">What opens first</p><h2 id="app-title">The app sets up Tiny GIFs. Messages does the sending.</h2><p>The downloaded app is a calm, practical guide to the primary Messages flow. It does not pretend to be another GIF feed or a cartoon reaction pack.</p><InstallCta className="button button--primary">Get Tiny GIFs <Arrow /></InstallCta></div>
-    <div className="app-guide__screen" aria-label="A preview of the Tiny GIFs setup app">
+    <div className="app-guide__copy"><p className="eyebrow">The downloaded app</p><h2 id="app-title">Open once.<br />Then send from Messages.</h2><p>The downloaded app is a focused first-launch guide—not another GIF feed. It points to the one-tap Messages path, then keeps the keyboard option clearly out of the way.</p><InstallCta className="button button--light">Get Tiny GIFs <Arrow /></InstallCta></div>
+    <div className="app-guide__screen" aria-label="A preview of the Tiny GIFs first-launch app">
       <div className="app-guide__status"><span>9:41</span><span>◒ ◔ ◼</span></div>
-      <div className="app-guide__content"><p>tiny gifs</p><h3>Messages first.</h3><span>Tiny GIFs is already ready in the Messages app drawer.</span><div className="app-guide__message-preview"><div>Need a reaction for that.</div><p><span>⌕</span> Search GIPHY <b>tiny gifs</b></p><small>Real GIF results load here. Tap one to send.</small></div><div className="app-guide__action">Open Messages</div><div className="app-guide__optional"><strong>Optional: add the keyboard later</strong><span>Use it only for copy-and-paste in supported chats.</span></div></div>
+      <div className="app-guide__content"><p>tiny gifs <b>MESSAGES EXTENSION</b></p><h3>Use Tiny GIFs<br />in Messages.</h3><span>The full GIPHY library lives beside the message field.</span><div className="app-guide__message-preview"><div>Need a reaction for that.</div><p><span>⌕</span> Search GIPHY <b>tiny gifs</b></p><small>Real GIF results load in the drawer. Tap one to send.</small></div><div className="app-guide__action">Open Messages</div><div className="app-guide__optional"><strong>Optional keyboard</strong><span>Only for copy-and-paste in supported chats.</span></div></div>
     </div>
   </section>
 }

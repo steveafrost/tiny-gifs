@@ -5,15 +5,22 @@ import { readFileSync } from 'node:fs'
 const site = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8')
 const app = readFileSync(new URL('../ios/TinyGIFsApp/TinyGIFsApp.swift', import.meta.url), 'utf8')
 
-test('product site presents the containing app as a focused setup path, not another reaction pack', () => {
-  assert.match(site, /The app sets up Tiny GIFs\. Messages does the sending\./)
-  assert.match(site, /What opens first/)
+test('product site presents the containing app as a focused first-launch path, not another GIF feed', () => {
+  assert.match(site, /Open once\./)
+  assert.match(site, /Then send from Messages\./)
+  assert.match(site, /The downloaded app/)
+  assert.match(site, /The downloaded app is a focused first-launch guide—not another GIF feed\./)
   assert.doesNotMatch(site, /Useful everywhere else\./)
 })
 
-test('first-launch app leads with Messages and describes the optional keyboard as a secondary path', () => {
-  assert.match(app, /Messages first\./)
-  assert.match(app, /Optional: add the keyboard later/)
+test('first-launch app gives Messages a clear primary action, respects appearance, and keeps the keyboard optional', () => {
+  assert.match(app, /Use Tiny GIFs in Messages\./)
+  assert.match(app, /No setup is required for the one-tap Messages path\./)
+  assert.match(app, /Open Messages/)
+  assert.match(app, /Optional keyboard/)
+  assert.match(app, /Search GIPHY in the drawer/)
+  assert.match(app, /openURL\(URL\(string: "sms:"\)!\)/)
+  assert.doesNotMatch(app, /\.preferredColorScheme\(\.light\)/)
   assert.doesNotMatch(app, /Big feeling\.\\nTiny footprint\./)
   assert.doesNotMatch(app, /GIPHY SEARCH/)
 })
