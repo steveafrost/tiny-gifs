@@ -35,22 +35,26 @@ private struct TinyGIFsSetupView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                Text("tiny gifs")
-                    .font(.system(size: 17, weight: .semibold))
-                Text("MESSAGES EXTENSION")
+                BrandMark()
+                Text("tiny")
+                    .font(.headline.weight(.bold))
+                Text("gifs")
+                    .font(.headline.weight(.bold))
+                    .foregroundStyle(Color.brandAccent)
+                Text("SMALL SIGNALS")
                     .font(.caption2.weight(.bold))
                     .tracking(0.7)
                     .foregroundStyle(Color.muted)
             }
             .foregroundStyle(Color.ink)
 
-            Text("Use Tiny GIFs in Messages.")
-                .font(.system(size: 36, weight: .bold))
-                .tracking(-1.1)
+            Text("A little more you, right in Messages.")
+                .font(.largeTitle.weight(.bold))
+                .tracking(-1)
                 .foregroundStyle(Color.ink)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text("The full GIPHY library lives beside the message field. Search, tap, and keep talking.")
+            Text("The real GIPHY library lives beside the message field. Find the feeling, tap once, and keep the conversation moving.")
                 .font(.body)
                 .foregroundStyle(Color.muted)
                 .fixedSize(horizontal: false, vertical: true)
@@ -62,7 +66,7 @@ private struct TinyGIFsSetupView: View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("Ready when you are")
+                    Text("Your tiny signal is ready")
                         .font(.headline.weight(.semibold))
                     Text("No setup is required for the one-tap Messages path.")
                         .font(.subheadline)
@@ -92,7 +96,7 @@ private struct TinyGIFsSetupView: View {
     private var quickStart: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text("A short path, in the place you already message")
+                Text("Your three-second tour")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.ink)
                 Spacer()
@@ -123,7 +127,7 @@ private struct TinyGIFsSetupView: View {
                 }
                 Spacer()
                 Image(systemName: "keyboard")
-                    .foregroundStyle(Color.messageBlue)
+                    .foregroundStyle(Color.brandAccent)
             }
 
             Text("Add it only when you want to search GIPHY, copy a GIF, and paste it yourself. It is never needed for the one-tap Messages path.")
@@ -134,7 +138,7 @@ private struct TinyGIFsSetupView: View {
             HStack(alignment: .top, spacing: 9) {
                 Image(systemName: "lock.fill")
                     .font(.caption)
-                    .foregroundStyle(Color.messageBlue)
+                    .foregroundStyle(Color.brandAccent)
                 Text("Full Access enables search and copying. Tiny GIFs does not record what you type.")
                     .font(.footnote)
                     .foregroundStyle(Color.muted)
@@ -160,6 +164,18 @@ private struct TinyGIFsSetupView: View {
     }
 }
 
+private struct BrandMark: View {
+    var body: some View {
+        HStack(alignment: .center, spacing: 2) {
+            Capsule().fill(Color.brandAccent).frame(width: 3, height: 6)
+            Capsule().fill(Color.brandAccent).frame(width: 3, height: 11)
+            Capsule().fill(Color.brandAccent).frame(width: 3, height: 16)
+        }
+        .frame(width: 13, height: 16)
+        .accessibilityHidden(true)
+    }
+}
+
 private struct SetupStep: View {
     let number: String
     let title: String
@@ -169,7 +185,7 @@ private struct SetupStep: View {
         HStack(alignment: .top, spacing: 12) {
             Text(number)
                 .font(.caption2.weight(.bold))
-                .foregroundStyle(Color.messageBlue)
+                .foregroundStyle(Color.brandAccent)
                 .frame(width: 31, alignment: .leading)
 
             VStack(alignment: .leading, spacing: 3) {
@@ -251,7 +267,7 @@ private struct TinySecondaryButton: ButtonStyle {
         configuration.label
             .frame(maxWidth: .infinity, minHeight: 44)
             .font(.subheadline.weight(.semibold))
-            .foregroundStyle(Color.messageBlue)
+            .foregroundStyle(Color.brandAccent)
             .background(Color.cardSurface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.rule, lineWidth: 1))
             .opacity(configuration.isPressed ? 0.72 : 1)
@@ -269,6 +285,7 @@ private extension Color {
     static let mutedOnDark = Color(red: 0.70, green: 0.70, blue: 0.73)
     static let rule = Color(uiColor: .separator)
     static let messageBlue = Color(uiColor: .systemBlue)
+    static let brandAccent = Color(red: 0.94, green: 0.35, blue: 0.29)
     static let incomingBubble = Color(uiColor: .secondarySystemFill)
     static let drawer = Color(red: 0.11, green: 0.11, blue: 0.12)
     static let previewDrawer = Color(red: 0.17, green: 0.17, blue: 0.18)

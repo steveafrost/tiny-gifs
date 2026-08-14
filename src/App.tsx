@@ -7,10 +7,18 @@ function Arrow() {
   return <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
 }
 
+function SignalMark() {
+  return <span className="signal-mark" aria-hidden="true"><i /><i /><i /></span>
+}
+
+function Wordmark() {
+  return <span className="wordmark"><SignalMark /><span>tiny</span><b>gifs</b></span>
+}
+
 function Header() {
   return <header className="site-header" id="top">
-    <a className="brand" href="#top">tiny gifs</a>
-    <nav aria-label="Main navigation"><a href="#library">Library</a><a href="#how-it-works">Messages</a><a href="#the-app">The app</a></nav>
+    <a className="brand" href="#top" aria-label="Tiny GIFs home"><Wordmark /></a>
+    <nav aria-label="Main navigation"><a href="#library">Library</a><a href="#how-it-works">How it works</a><a href="#the-app">The app</a></nav>
     <InstallCta className="button button--header">Get the app <Arrow /></InstallCta>
   </header>
 }
@@ -18,47 +26,47 @@ function Header() {
 function Hero() {
   return <section className="hero" aria-labelledby="hero-title">
     <div className="hero__copy">
-      <p className="eyebrow">A GIPHY-powered Messages extension</p>
-      <h1 id="hero-title">The GIF you mean.<br />Without the detour.</h1>
-      <p className="hero__lede">Browse the real GIPHY library in Messages. Tap once and Tiny GIFs sends a compact animated attachment straight into the conversation.</p>
-      <div className="hero__actions"><InstallCta className="button button--primary">Get Tiny GIFs <Arrow /></InstallCta><a className="text-link" href="#library">Browse the library <Arrow /></a></div>
-      <p className="hero__note">Messages is native and one-tap. The optional keyboard is for copy-and-paste in supported chats.</p>
+      <p className="eyebrow"><SignalMark /> SMALL SIGNALS. BIG TIMING.</p>
+      <h1 id="hero-title">The smallest thing<br /><em>that says a lot.</em></h1>
+      <p className="hero__lede">Tiny GIFs brings the real GIPHY library into Messages, so the feeling lands before you have to find the words.</p>
+      <div className="hero__actions"><InstallCta className="button button--primary">Get Tiny GIFs <Arrow /></InstallCta><a className="text-link" href="#library">Find your signal <Arrow /></a></div>
+      <p className="hero__note">Made for Messages. One tap sends; the optional keyboard is only for supported copy-and-paste chats.</p>
     </div>
-    <MessagesExperience />
+    <div className="hero__product"><div className="hero__cue">a better reply is one tap away</div><MessagesExperience /></div>
   </section>
 }
 
 function HowItWorks() {
   return <section className="how-it-works" id="how-it-works" aria-labelledby="how-title">
-    <div><p className="eyebrow">The primary path</p><h2 id="how-title">A real GIF, sent<br />from the conversation.</h2></div>
+    <div><p className="eyebrow">The tiny gifs rhythm</p><h2 id="how-title">Less explaining.<br />More <em>exactly.</em></h2></div>
     <ol>
-      <li><span>01</span><div><strong>Open the drawer</strong><p>Tiny GIFs lives beside the apps you already use in Messages.</p></div></li>
-      <li><span>02</span><div><strong>Search the live library</strong><p>Browse trending results or ask GIPHY for the exact reaction.</p></div></li>
-      <li><span>03</span><div><strong>Tap once and continue</strong><p>The GIF is normalized to a consistent 192 × 192 attachment canvas and sent into the thread.</p></div></li>
+      <li><span>01</span><div><strong>Catch the moment</strong><p>Open Tiny GIFs beside the message field—right where the conversation is happening.</p></div></li>
+      <li><span>02</span><div><strong>Find the feeling</strong><p>Search GIPHY or browse what is moving now. The full library is already in the drawer.</p></div></li>
+      <li><span>03</span><div><strong>Keep the beat</strong><p>Tap once to send a compact animated attachment, then carry on talking.</p></div></li>
     </ol>
   </section>
 }
 
 function CompanionApp() {
   return <section className="app-guide" id="the-app" aria-labelledby="app-title">
-    <div className="app-guide__copy"><p className="eyebrow">The downloaded app</p><h2 id="app-title">Open once.<br />Then send from Messages.</h2><p>The downloaded app is a focused first-launch guide—not another GIF feed. It points to the one-tap Messages path, then keeps the keyboard option clearly out of the way.</p><InstallCta className="button button--light">Get Tiny GIFs <Arrow /></InstallCta></div>
+    <div className="app-guide__copy"><p className="eyebrow"><SignalMark /> The downloaded app</p><h2 id="app-title">Open once.<br />Make it <em>yours.</em></h2><p>The downloaded app gives the Tiny GIFs signal its home: a quick orientation to the one-tap Messages path, with the keyboard kept clearly secondary.</p><InstallCta className="button button--light">Get Tiny GIFs <Arrow /></InstallCta></div>
     <div className="app-guide__screen" aria-label="A preview of the Tiny GIFs first-launch app">
       <div className="app-guide__status"><span>9:41</span><span>◒ ◔ ◼</span></div>
-      <div className="app-guide__content"><p>tiny gifs <b>MESSAGES EXTENSION</b></p><h3>Use Tiny GIFs<br />in Messages.</h3><span>The full GIPHY library lives beside the message field.</span><div className="app-guide__message-preview"><div>Need a reaction for that.</div><p><span>⌕</span> Search GIPHY <b>tiny gifs</b></p><small>Real GIF results load in the drawer. Tap one to send.</small></div><div className="app-guide__action">Open Messages</div><div className="app-guide__optional"><strong>Optional keyboard</strong><span>Only for copy-and-paste in supported chats.</span></div></div>
+      <div className="app-guide__content"><p><span className="app-guide__mini-mark" aria-hidden="true">•••</span> tiny gifs <b>SMALL SIGNALS</b></p><h3>A little more you,<br />in Messages.</h3><span>The real GIPHY library is right beside the message field.</span><div className="app-guide__message-preview"><div>Need a reaction for that.</div><p><span>⌕</span> Search GIPHY <b>tiny gifs</b></p><small>Open the drawer. Find the feeling. Send it.</small></div><div className="app-guide__action">Open Messages</div><div className="app-guide__optional"><strong>Optional keyboard</strong><span>Only for copy-and-paste in supported chats.</span></div></div>
     </div>
   </section>
 }
 
 function ProductNotes() {
-  return <section className="product-notes" aria-label="Product details">
-    <div><p className="product-notes__label">Small on purpose</p><p>Real GIFs stay readable without taking over the conversation.</p></div>
-    <div><p className="product-notes__label">No account</p><p>No profile, analytics SDK, or advertising SDK inside the app.</p></div>
-    <div><p className="product-notes__label">Optional keyboard</p><p>Use it only when you need GIPHY search and copy-paste outside Messages.</p></div>
+  return <section className="product-notes" aria-label="Tiny GIFs principles">
+    <div><p className="product-notes__label"><span>01</span> Keep it tiny</p><p>Real GIFs stay readable—enough feeling, no takeover.</p></div>
+    <div><p className="product-notes__label"><span>02</span> Keep it yours</p><p>No account, profile, analytics SDK, or advertising SDK inside the app.</p></div>
+    <div><p className="product-notes__label"><span>03</span> Keep it moving</p><p>The optional keyboard is there only when copy-and-paste is the better move.</p></div>
   </section>
 }
 
 function Footer() {
-  return <footer><a href="/privacy">Privacy</a><a href="/support">Support</a><p>Made for the message, not the feed.</p></footer>
+  return <footer><a href="/privacy">Privacy</a><a href="/support">Support</a><p>Made for the moment between the words.</p></footer>
 }
 
 export default function App() {
