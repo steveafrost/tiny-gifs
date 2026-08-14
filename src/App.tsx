@@ -10,7 +10,7 @@ function Arrow() {
 function Header() {
   return <header className="site-header" id="top">
     <a className="brand" href="#top">tiny gifs</a>
-    <nav aria-label="Main navigation"><a href="#library">Library</a><a href="#how-it-works">How it works</a></nav>
+    <nav aria-label="Main navigation"><a href="#library">Library</a><a href="#how-it-works">Messages</a><a href="#the-app">The app</a></nav>
     <InstallCta className="button button--header">Get the app <Arrow /></InstallCta>
   </header>
 }
@@ -30,12 +30,22 @@ function Hero() {
 
 function HowItWorks() {
   return <section className="how-it-works" id="how-it-works" aria-labelledby="how-title">
-    <div><p className="eyebrow">Built around the conversation</p><h2 id="how-title">Native in Messages.<br />Useful everywhere else.</h2></div>
+    <div><p className="eyebrow">The primary path</p><h2 id="how-title">A real GIF, sent<br />from the conversation.</h2></div>
     <ol>
-      <li><span>01</span><div><strong>Open the drawer</strong><p>Tiny GIFs lives alongside the apps you already use in Messages.</p></div></li>
-      <li><span>02</span><div><strong>Search the real library</strong><p>Find trending GIFs or search GIPHY for the exact reaction.</p></div></li>
-      <li><span>03</span><div><strong>Send, then keep talking</strong><p>The selected GIF is normalized to a consistent 192 × 192 attachment canvas before it sends.</p></div></li>
+      <li><span>01</span><div><strong>Open the drawer</strong><p>Tiny GIFs lives beside the apps you already use in Messages.</p></div></li>
+      <li><span>02</span><div><strong>Search the live library</strong><p>Browse trending results or ask GIPHY for the exact reaction.</p></div></li>
+      <li><span>03</span><div><strong>Tap once and continue</strong><p>The GIF is normalized to a consistent 192 × 192 attachment canvas and sent into the thread.</p></div></li>
     </ol>
+  </section>
+}
+
+function CompanionApp() {
+  return <section className="app-guide" id="the-app" aria-labelledby="app-title">
+    <div className="app-guide__copy"><p className="eyebrow">What opens first</p><h2 id="app-title">The app sets up Tiny GIFs. Messages does the sending.</h2><p>The downloaded app is a calm, practical guide to the primary Messages flow. It does not pretend to be another GIF feed or a cartoon reaction pack.</p><InstallCta className="button button--primary">Get Tiny GIFs <Arrow /></InstallCta></div>
+    <div className="app-guide__screen" aria-label="A preview of the Tiny GIFs setup app">
+      <div className="app-guide__status"><span>9:41</span><span>◒ ◔ ◼</span></div>
+      <div className="app-guide__content"><p>tiny gifs</p><h3>Messages first.</h3><span>Tiny GIFs is already ready in the Messages app drawer.</span><div className="app-guide__message-preview"><div>Need a reaction for that.</div><p><span>⌕</span> Search GIPHY <b>tiny gifs</b></p><small>Real GIF results load here. Tap one to send.</small></div><div className="app-guide__action">Open Messages</div><div className="app-guide__optional"><strong>Optional: add the keyboard later</strong><span>Use it only for copy-and-paste in supported chats.</span></div></div>
+    </div>
   </section>
 }
 
@@ -54,5 +64,5 @@ function Footer() {
 export default function App() {
   if (window.location.pathname === '/privacy') return <InfoPage page="privacy" />
   if (window.location.pathname === '/support') return <InfoPage page="support" />
-  return <><Header /><main><Hero /><GiphyExplorer /><HowItWorks /><ProductNotes /></main><Footer /></>
+  return <><Header /><main><Hero /><GiphyExplorer /><HowItWorks /><CompanionApp /><ProductNotes /></main><Footer /></>
 }

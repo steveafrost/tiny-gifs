@@ -5,97 +5,127 @@ import UIKit
 struct TinyGIFsApp: App {
     var body: some Scene {
         WindowGroup {
-            KeyboardInstallerView()
-                // The product's light canvas is intentional. Without this, system Dark
-                // Mode makes SwiftUI's primary labels white against the light canvas.
+            TinyGIFsSetupView()
                 .preferredColorScheme(.light)
         }
     }
 }
 
-/// iOS requires a containing app to distribute the Messages extension and the
-/// optional keyboard. This screen explains the real sharing paths clearly.
-private struct KeyboardInstallerView: View {
+/// The containing app is a focused setup surface. The live GIPHY catalog and
+/// one-tap send interaction live in the Messages extension, not in a second,
+/// competing GIF browser here.
+private struct TinyGIFsSetupView: View {
     @Environment(\.openURL) private var openURL
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 22) {
+            VStack(alignment: .leading, spacing: 28) {
                 header
-                KeyboardPreview()
-                installSteps
-                giphyExplainer
+                MessagesPathPreview()
+                primaryPath
+                keyboardPath
                 privacyNote
             }
-            .padding(24)
-            .padding(.bottom, 28)
+            .padding(.horizontal, 22)
+            .padding(.top, 18)
+            .padding(.bottom, 36)
         }
         .background(Color.canvas.ignoresSafeArea())
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("#tiny-gifs")
-                .font(.system(size: 23, weight: .black, design: .rounded))
-            Text("Big feeling.\nTiny footprint.")
-                .font(.system(size: 42, weight: .black, design: .rounded))
-                .lineSpacing(-6)
-                .foregroundStyle(.black)
-            Text("Your fastest path is in Messages: search GIPHY, then tap a GIF to send it immediately without taking over the thread.")
-                .font(.title3.weight(.medium))
-                .foregroundStyle(Color.black.opacity(0.72))
+        VStack(alignment: .leading, spacing: 11) {
+            Text("tiny gifs")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(Color.ink)
+
+            Text("Messages first.")
+                .font(.system(size: 40, weight: .bold))
+                .tracking(-1.1)
+                .foregroundStyle(Color.ink)
+
+            Text("Tiny GIFs is already ready in the Messages app drawer. Search the real GIPHY library there, then tap once to send a compact animated GIF.")
+                .font(.body)
+                .foregroundStyle(Color.muted)
                 .fixedSize(horizontal: false, vertical: true)
         }
+        .accessibilityElement(children: .combine)
     }
 
-    private var installSteps: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Start in Messages")
-                .font(.title2.weight(.black))
-                .foregroundStyle(.black)
+    private var primaryPath: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Text("Use it in Messages")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(Color.ink)
+                Spacer()
+                Text("PRIMARY")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(Color.messageBlue)
+            }
 
-            InstallStep(number: "1", title: "Open Messages", detail: "Start or open a conversation, then open the app drawer.")
-            InstallStep(number: "2", title: "Choose #tiny-gifs", detail: "Browse trending GIFs or search GIPHY for the right reaction.")
-            InstallStep(number: "3", title: "Tap to Send", detail: "Tap a GIF once to send the compact reaction immediately.")
+            SetupStep(number: "1", title: "Open a conversation", detail: "Tap the plus button beside the message field, then choose tiny gifs from the app drawer.")
+            SetupStep(number: "2", title: "Find the right GIF", detail: "Browse trending results or search GIPHY without leaving the conversation.")
+            SetupStep(number: "3", title: "Tap once to send", detail: "Tiny GIFs prepares a consistent 192 × 192 animated attachment and sends it immediately.")
 
-            Button("Open Settings for the optional keyboard") {
-                openURL(URL(string: UIApplication.openSettingsURLString)!)
+            Button("Open Messages") {
+                openURL(URL(string: "sms:")!)
             }
             .buttonStyle(TinyPrimaryButton())
-            .accessibilityHint("Opens iOS Settings. Continue to General, Keyboard, and Keyboards to add #tiny-gifs for supported apps outside Messages.")
-        }
-    }
-
-    private var giphyExplainer: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label("Take Tiny GIFs beyond Messages", systemImage: "keyboard")
-                .font(.headline.weight(.black))
-                .foregroundStyle(.black)
-            Text("The keyboard is optional for supported chat apps. It types without Full Access; turn on Full Access when you want to search GIPHY, copy a GIF, and paste it into a conversation.")
-                .foregroundStyle(Color.black.opacity(0.76))
-                .fixedSize(horizontal: false, vertical: true)
-            Text("Powered By GIPHY")
-                .font(.caption.weight(.black))
-                .foregroundStyle(Color.black.opacity(0.58))
+            .accessibilityHint("Opens Messages so you can use the Tiny GIFs app drawer.")
         }
         .padding(18)
-        .background(Color.sky.opacity(0.2), in: RoundedRectangle(cornerRadius: 20))
-        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.black, lineWidth: 1.5))
+        .background(.white, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(Color.rule, lineWidth: 1))
+    }
+
+    private var keyboardPath: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("Optional: add the keyboard later")
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(Color.ink)
+                Spacer()
+                Image(systemName: "keyboard")
+                    .foregroundStyle(Color.messageBlue)
+            }
+
+            Text("Use the keyboard only in supported chat apps when you want to search GIPHY, copy a GIF, and paste it yourself. It is not required for Messages.")
+                .font(.subheadline)
+                .foregroundStyle(Color.muted)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Divider()
+
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: "lock.fill")
+                    .font(.footnote)
+                    .foregroundStyle(Color.messageBlue)
+                Text("Full Access enables GIPHY search and copying. Tiny GIFs does not record what you type.")
+                    .font(.footnote)
+                    .foregroundStyle(Color.muted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Button("Open Settings") {
+                openURL(URL(string: UIApplication.openSettingsURLString)!)
+            }
+            .buttonStyle(TinySecondaryButton())
+            .accessibilityHint("Opens the Tiny GIFs settings page. Add the keyboard from Settings when you need the copy-and-paste path.")
+        }
+        .padding(18)
+        .background(Color.secondarySurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     private var privacyNote: some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: "lock.fill")
-                .foregroundStyle(.black)
-            Text("#tiny-gifs never records or sends what you type. Full Access is used only for GIPHY search and copying the GIF you select to the pasteboard.")
-                .font(.footnote.weight(.medium))
-                .foregroundStyle(Color.black.opacity(0.7))
-        }
-        .padding(.horizontal, 4)
+        Text("Powered by GIPHY. No account, profile, analytics SDK, or advertising SDK.")
+            .font(.footnote)
+            .foregroundStyle(Color.tertiary)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }
 
-private struct InstallStep: View {
+private struct SetupStep: View {
     let number: String
     let title: String
     let detail: String
@@ -103,75 +133,104 @@ private struct InstallStep: View {
     var body: some View {
         HStack(alignment: .top, spacing: 13) {
             Text(number)
-                .font(.headline.weight(.black))
-                .foregroundStyle(.black)
-                .frame(width: 30, height: 30)
-                .background(Color.lime, in: Circle())
+                .font(.caption.weight(.bold))
+                .foregroundStyle(Color.messageBlue)
+                .frame(width: 24, height: 24)
+                .background(Color.messageBlue.opacity(0.1), in: Circle())
+
             VStack(alignment: .leading, spacing: 3) {
-                Text(title).font(.headline.weight(.black)).foregroundStyle(.black)
-                Text(detail).font(.subheadline.weight(.medium)).foregroundStyle(Color.black.opacity(0.68))
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.ink)
+                Text(detail)
+                    .font(.footnote)
+                    .foregroundStyle(Color.muted)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            Spacer(minLength: 0)
         }
-        .padding(15)
-        .background(.white, in: RoundedRectangle(cornerRadius: 18))
-        .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.black, lineWidth: 1.5))
+        .padding(.vertical, 2)
     }
 }
 
-private struct KeyboardPreview: View {
-    private let keys = ["GIF", "lol", "omg", "nope", "brb", "yes", "yikes", "clap"]
-
+private struct MessagesPathPreview: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 13) {
+        VStack(spacing: 0) {
             HStack {
-                Label("#tiny-gifs in Messages", systemImage: "message.fill")
-                    .font(.headline.weight(.black))
-                    .foregroundStyle(.black)
+                Text("Messages")
+                    .font(.caption.weight(.semibold))
                 Spacer()
-                Text("GIPHY SEARCH")
-                    .font(.caption2.weight(.black))
-                    .foregroundStyle(.black)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 5)
-                    .background(Color.lime, in: Capsule())
+                Image(systemName: "ellipsis.circle.fill")
+                    .foregroundStyle(Color.messageBlue)
             }
-            HStack(spacing: 7) {
-                ForEach(keys, id: \.self) { key in
-                    Text(key)
-                        .font(.caption.weight(.black))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                        .foregroundStyle(.black)
-                        .frame(maxWidth: .infinity, minHeight: 31)
-                        .background(key == "GIF" ? Color.lime : .white, in: RoundedRectangle(cornerRadius: 8))
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.black.opacity(0.72), lineWidth: 1))
+            .padding(.horizontal, 16)
+            .frame(height: 44)
+            .background(.white)
+
+            VStack(alignment: .leading, spacing: 13) {
+                Text("Need a reaction for that.")
+                    .font(.footnote)
+                    .foregroundStyle(Color.ink)
+                    .padding(.horizontal, 11)
+                    .padding(.vertical, 8)
+                    .background(Color.incomingBubble, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+
+                HStack(spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                    Text("Search GIPHY")
+                    Spacer()
+                    Text("tiny gifs")
+                        .fontWeight(.semibold)
                 }
+                .font(.caption)
+                .foregroundStyle(Color.white.opacity(0.88))
+                .padding(.horizontal, 12)
+                .frame(height: 38)
+                .background(Color.drawer, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+
+                Text("Real GIF results load in the drawer. Tap one to send.")
+                    .font(.caption2)
+                    .foregroundStyle(Color.white.opacity(0.66))
             }
-            Text("In Messages, search GIPHY, then tap a GIF to send the compact reaction immediately.")
-                .font(.footnote.weight(.medium))
-                .foregroundStyle(Color.black.opacity(0.72))
+            .padding(16)
+            .background(Color.drawer)
         }
-        .padding(18)
-        .background(Color.black.opacity(0.08), in: RoundedRectangle(cornerRadius: 20))
-        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.black, lineWidth: 1.5))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(Color.rule, lineWidth: 1))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Messages preview. Tiny GIFs searches real GIPHY GIFs in the app drawer and sends a selection with one tap.")
     }
 }
 
 private struct TinyPrimaryButton: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .font(.headline.weight(.black))
-            .foregroundStyle(.black)
-            .background(Color.lime.opacity(configuration.isPressed ? 0.72 : 1), in: RoundedRectangle(cornerRadius: 14))
-            .overlay(RoundedRectangle(cornerRadius: 14).stroke(.black, lineWidth: 2))
+            .frame(maxWidth: .infinity, minHeight: 48)
+            .font(.headline.weight(.semibold))
+            .foregroundStyle(.white)
+            .background(Color.messageBlue.opacity(configuration.isPressed ? 0.82 : 1), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+}
+
+private struct TinySecondaryButton: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .frame(maxWidth: .infinity, minHeight: 44)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(Color.messageBlue)
+            .background(.white, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.rule, lineWidth: 1))
+            .opacity(configuration.isPressed ? 0.72 : 1)
     }
 }
 
 private extension Color {
-    static let canvas = Color(red: 247 / 255, green: 244 / 255, blue: 238 / 255)
-    static let lime = Color(red: 200 / 255, green: 1, blue: 61 / 255)
-    static let sky = Color(red: 113 / 255, green: 201 / 255, blue: 1)
+    static let canvas = Color(red: 0.96, green: 0.96, blue: 0.97)
+    static let secondarySurface = Color(red: 0.92, green: 0.95, blue: 0.99)
+    static let ink = Color(red: 0.11, green: 0.11, blue: 0.12)
+    static let muted = Color(red: 0.33, green: 0.33, blue: 0.36)
+    static let tertiary = Color(red: 0.45, green: 0.45, blue: 0.48)
+    static let rule = Color.black.opacity(0.10)
+    static let messageBlue = Color(red: 0.00, green: 0.48, blue: 1.00)
+    static let incomingBubble = Color(red: 0.91, green: 0.91, blue: 0.92)
+    static let drawer = Color(red: 0.14, green: 0.14, blue: 0.15)
 }
