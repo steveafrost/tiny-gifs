@@ -2,7 +2,7 @@
 
 **Status: no final screenshot is approved for App Store Connect upload yet.**
 
-The inspected build-33 host-app candidate is retained at `candidates/build33-host-app-iphone17pro.png` (1206×2622). It accurately shows the current one-tap Messages copy and has no severe clipping after the `yikes` preview fix, but it is a supporting installer/onboarding image—not the lead product screenshot and not approved for upload.
+The inspected build-33 host-app candidate is retained at `candidates/build33-host-app-iphone17pro.png` (1206×2622). A current source capture is retained at `candidates/build42-host-app-iphone17pro.png` (1206×2622). Both accurately show the one-tap Messages copy; build 42 also contains the Signal Trio icon. Each is a supporting installer/onboarding image—not the lead product screenshot and not approved for upload.
 
 ## Required before App Store Connect upload
 
