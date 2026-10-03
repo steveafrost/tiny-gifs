@@ -126,6 +126,14 @@ for plist in "${expected_plists[@]}"; do
 done
 
 keyboard_plist="$app/PlugIns/TinyGIFsKeyboard.appex/Info.plist"
+for reaction in lol nope omg brb perfect yes yikes tiny-clap; do
+  for extension in png gif; do
+    if [[ ! -s "$app/PlugIns/TinyGIFsKeyboard.appex/$reaction.$extension" ]]; then
+      echo "Archive keyboard is missing starter asset: $reaction.$extension." >&2
+      exit 1
+    fi
+  done
+done
 requests_open_access="$(/usr/libexec/PlistBuddy -c 'Print :NSExtension:NSExtensionAttributes:RequestsOpenAccess' "$keyboard_plist" 2>/dev/null || true)"
 if [[ "$requests_open_access" != "true" ]]; then
   echo "Archive keyboard extension is not configured to request Full Access." >&2

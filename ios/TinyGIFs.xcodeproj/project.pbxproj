@@ -63,6 +63,14 @@
 		1A00000000000000000000U5 /* yes.gif in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000045 /* yes.gif */; };
 		1A00000000000000000000U6 /* yikes.gif in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000046 /* yikes.gif */; };
 		1A00000000000000000000U7 /* tiny-clap.gif in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000047 /* tiny-clap.gif */; };
+		083AA002DF4C420EB075D929 /* lol.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000030 /* lol.png */; };
+		9309848BDB6E4474BC64EE03 /* nope.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000031 /* nope.png */; };
+		C2EB156123EB4E22AD7D06ED /* omg.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000032 /* omg.png */; };
+		2CF6AC8922F145F4BAD22541 /* brb.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000033 /* brb.png */; };
+		9CDCC98DC8C14DAC86109989 /* perfect.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000034 /* perfect.png */; };
+		92268244954C467AA60307DE /* yes.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000035 /* yes.png */; };
+		247C88DC7B5144388BD1FE1B /* yikes.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000036 /* yikes.png */; };
+		E4496B0D979944198126E88D /* tiny-clap.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000037 /* tiny-clap.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -465,6 +473,14 @@
 				1A00000000000000000000K6 /* yikes.gif in Resources */,
 				1A00000000000000000000K7 /* tiny-clap.gif in Resources */,
 				1A00000000000000000000K8 /* PoweredByGiphy.png in Resources */,
+				083AA002DF4C420EB075D929 /* lol.png in Resources */,
+				9309848BDB6E4474BC64EE03 /* nope.png in Resources */,
+				C2EB156123EB4E22AD7D06ED /* omg.png in Resources */,
+				2CF6AC8922F145F4BAD22541 /* brb.png in Resources */,
+				9CDCC98DC8C14DAC86109989 /* perfect.png in Resources */,
+				92268244954C467AA60307DE /* yes.png in Resources */,
+				247C88DC7B5144388BD1FE1B /* yikes.png in Resources */,
+				E4496B0D979944198126E88D /* tiny-clap.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

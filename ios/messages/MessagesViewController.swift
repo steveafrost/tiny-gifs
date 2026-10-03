@@ -36,6 +36,7 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
 
         attribution.image = UIImage(named: "PoweredByGiphy")
         attribution.contentMode = .scaleAspectFit
+        attribution.backgroundColor = .black
         attribution.accessibilityLabel = "Powered by GIPHY"
         attribution.isAccessibilityElement = true
         attribution.translatesAutoresizingMaskIntoConstraints = false

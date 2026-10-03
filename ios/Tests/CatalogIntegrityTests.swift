@@ -35,6 +35,17 @@ final class CatalogIntegrityTests: XCTestCase {
         XCTAssertEqual(KeyboardReactionAction.selecting(.tinyClap, hasFullAccess: true), .copyLocalGIF(.tinyClap))
     }
 
+    func testPackagedKeyboardContainsEveryStarterPreviewAndGIF() throws {
+        let keyboardURL = try XCTUnwrap(Bundle.main.builtInPlugInsURL)
+            .appendingPathComponent("TinyGIFsKeyboard.appex")
+        let keyboard = try XCTUnwrap(Bundle(url: keyboardURL), "Missing embedded keyboard bundle")
+        for reaction in ReactionCatalog.all {
+            let preview = try XCTUnwrap(ReactionCatalog.resourceURL(for: reaction, fileExtension: "png", bundle: keyboard), "Keyboard missing preview for \(reaction.id)")
+            XCTAssertNotNil(UIImage(contentsOfFile: preview.path), "Keyboard preview cannot decode: \(reaction.id)")
+            XCTAssertNotNil(ReactionCatalog.resourceURL(for: reaction, fileExtension: "gif", bundle: keyboard), "Keyboard missing copy asset for \(reaction.id)")
+        }
+    }
+
     func testKeyboardSearchGenerationRejectsAnOlderResponse() {
         var searches = KeyboardSearchGeneration()
         let firstSearch = searches.begin()

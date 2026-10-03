@@ -35,6 +35,7 @@ final class KeyboardViewController: UIInputViewController {
         statusLabel.font = .systemFont(ofSize: 12, weight: .semibold); statusLabel.textAlignment = .right; statusLabel.numberOfLines = 2; header.addArrangedSubview(statusLabel)
         let attribution = UIImageView(image: UIImage(named: "PoweredByGiphy"))
         attribution.contentMode = .scaleAspectFit
+        attribution.backgroundColor = .black
         attribution.accessibilityLabel = "Powered by GIPHY"
         attribution.isAccessibilityElement = true
         header.addArrangedSubview(attribution)
