@@ -41,3 +41,20 @@ Executed test-case count0 (no Test Case started records; test stdout empty). Log
 Next exclusive slot: verify own simulator bootstatus and testmanager socket readiness; install compiled host and smoke-launch it without XCTest injection. If host launches, run only testRemoteRenderingDoesNotReuseAPersistentAttachment first with parallel testing disabled and a fresh result path. If injected launch still stalls, try one newly created dedicated device after parent coordination; do not reset global CoreSimulator or erase existing devices. Capture test-manager/session logs and stop only owned runner. Full suite and UI verification follow only after targeted launch works. No runtime action taken while Fluency owns slot.
 
 Durable offline fixture script `scripts/test-giphy-provider-fixtures.sh` checks both native service copies without API requests or simulator.
+
+## Existing mailbox evidence reported by parent
+
+Parent's authorized mailbox worker01a10c76 found only:
+- Production Key Request Received for #tiny-gifs, July11 2026 14:24UTC: receipt, not approval.
+- API Beta Key Created, July11 2026 13:10UTC.
+- SDK Beta Key Created, September30 2026 02:30UTC.
+
+Reported sender: donotreply@outbound.developers.giphy.com to the existing developer account. Beta messages require a commercial-license/pricing discussion and integration/attribution recordings for production access. No production approval, paid-distribution permission, caching exception or privacy agreement found across the worker's authorized All Mailboxes search. This is parent-reported correspondence evidence; raw messages were not independently read in this environment. Public API functioning does not establish production permission. Publication remains HOLD. No provider outreach performed.
+
+## Minimum technical recording package after runtime recovery
+
+1. Actual iPhone Messages expanded trending and benign search with Powered by GIPHY and available creator/source credit visible. Capture one selection, successful immediate send and dismissal; show the animated result in the test conversation. Record exact candidate version/build/source and simulator versus physical device.
+2. Actual optional keyboard search and credited results, selected GIF copy, paste into an unsent supported test composer. Enable Full Access only through explicitly authorized permitted UI; do not infer this from earlier permission denial. Show keyboard branding and available creator/source credit.
+3. Supply concise technical note: direct client API/CDN requests, g-rated results, per-interaction transient download/normalization for MSSticker or pasteboard, no persistent remote reuse after patch, no proxy or user-conversation upload. Ask whether this temporary processing/resizing is approved and what source-credit format is required; do not represent the patch as provider-certified.
+
+Provider follow-up needs only existing key identifiers through a supported private flow, $0.99 paid-app model, requested iOS Messages/keyboard production scope, recordings above, and precise questions about licensing/limits/fees, temporary processing, attribution and API-specific privacy retention/purposes/linkage/tracking. Do not include key secrets. Parent is handling owner authorization for any draft/send. Native test execution and actual UI recordings remain pending; no fabricated footage.
