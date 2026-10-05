@@ -100,8 +100,9 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
         Task { [weak self, conversation] in
             do {
                 let attachmentURL = try await Task.detached(priority: .userInitiated) {
-                    try TinyGIFAttachmentRenderer.render(sourceURL: sourceURL, identifier: itemID)
+                    try TinyGIFAttachmentRenderer.render(sourceURL: sourceURL, identifier: itemID, persistOwnedReaction: false)
                 }.value
+                defer { try? FileManager.default.removeItem(at: attachmentURL) }
                 try await TinyGIFMessageSender.send(
                     stickerURL: attachmentURL,
                     localizedDescription: description,
@@ -124,6 +125,7 @@ private struct GIFPickerItem: Identifiable, Hashable {
     let id: String
     let title: String
     let url: URL
+    let attribution: String?
 }
 
 @MainActor
@@ -133,6 +135,7 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
 
     private let collectionView: UICollectionView
     private var items: [GIFPickerItem] = []
+    private var temporaryMedia: Set<URL> = []
     private let pageSize = 24
     private var activeQuery: String?
     private var nextOffset = 0
@@ -151,6 +154,10 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
     }
 
     required init?(coder: NSCoder) { nil }
+
+    deinit {
+        for url in temporaryMedia { try? FileManager.default.removeItem(at: url) }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -244,7 +251,8 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
                     guard !Task.isCancelled,
                           self.requestGeneration.isCurrent(request) else { return }
                     if let url = try? await GiphyService.localGIFURL(for: gif) {
-                        loaded.append(GIFPickerItem(id: gif.id, title: gif.title, url: url))
+                        self.temporaryMedia.insert(url)
+                        loaded.append(GIFPickerItem(id: gif.id, title: gif.title, url: url, attribution: gif.attribution))
                     }
                 }
                 guard !Task.isCancelled,
@@ -296,6 +304,7 @@ private final class GIFPickerCell: UICollectionViewCell {
     static let reuseIdentifier = "GIFPickerCell"
 
     private let imageView = UIImageView()
+    private let attributionLabel = UILabel()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -307,7 +316,17 @@ private final class GIFPickerCell: UICollectionViewCell {
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(imageView)
+        attributionLabel.font = .systemFont(ofSize: 10)
+        attributionLabel.textColor = .white
+        attributionLabel.backgroundColor = .black
+        attributionLabel.textAlignment = .center
+        attributionLabel.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(attributionLabel)
         NSLayoutConstraint.activate([
+            attributionLabel.leadingAnchor.constraint(equalTo: imageView.leadingAnchor),
+            attributionLabel.trailingAnchor.constraint(equalTo: imageView.trailingAnchor),
+            attributionLabel.bottomAnchor.constraint(equalTo: imageView.bottomAnchor),
+            attributionLabel.heightAnchor.constraint(equalToConstant: 16),
             imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 4),
             imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -4),
             imageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
@@ -324,6 +343,8 @@ private final class GIFPickerCell: UICollectionViewCell {
 
     func configure(with item: GIFPickerItem) {
         imageView.image = AnimatedGIFImage.load(from: item.url)
+        attributionLabel.text = item.attribution
+        attributionLabel.isHidden = item.attribution == nil
         accessibilityIdentifier = "tiny-gifs.gif.\(item.id)"
         accessibilityLabel = "Send \(item.title) GIF"
     }

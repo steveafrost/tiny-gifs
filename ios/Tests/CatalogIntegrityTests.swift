@@ -103,6 +103,21 @@ final class CatalogIntegrityTests: XCTestCase {
         XCTAssertNoThrow(try MSSticker(contentsOfFileURL: renderedURL, localizedDescription: "Tiny GIF"))
     }
 
+    func testRemoteRenderingDoesNotReuseAPersistentAttachment() throws {
+        let source = try animatedGIF(frameCount: 2)
+        defer { try? FileManager.default.removeItem(at: source) }
+        let identifier = "remote-test-\(UUID().uuidString)"
+        let first = try TinyGIFAttachmentRenderer.render(sourceURL: source, identifier: identifier, persistOwnedReaction: false)
+        let second = try TinyGIFAttachmentRenderer.render(sourceURL: source, identifier: identifier, persistOwnedReaction: false)
+        defer {
+            try? FileManager.default.removeItem(at: first)
+            try? FileManager.default.removeItem(at: second)
+        }
+        XCTAssertNotEqual(first, second)
+        XCTAssertTrue(first.path.hasPrefix(FileManager.default.temporaryDirectory.path))
+        XCTAssertNoThrow(try MSSticker(contentsOfFileURL: first, localizedDescription: "Transient remote GIF"))
+    }
+
     func testMessagesRendererUsesANewCacheVersionForThe192PixelStickerCanvas() throws {
         let sourceURL = try animatedGIF(frameCount: 1)
         defer { try? FileManager.default.removeItem(at: sourceURL) }

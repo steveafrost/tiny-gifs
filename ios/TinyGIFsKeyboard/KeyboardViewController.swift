@@ -146,11 +146,22 @@ final class KeyboardViewController: UIInputViewController {
             button.accessibilityLabel = gif.title.isEmpty ? "GIPHY GIF" : gif.title
             button.layer.cornerRadius = 9; button.backgroundColor = .white
             Task { [weak button] in
-                guard let button, let (data, _) = try? await URLSession.shared.data(from: gif.tinyPreviewURL), let image = UIImage(data: data) else { return }
+                guard let button, let (data, _) = try? await GiphyService.session.data(from: gif.tinyPreviewURL), let image = UIImage(data: data) else { return }
                 await MainActor.run { button.setImage(image.withRenderingMode(.alwaysOriginal), for: .normal); button.imageView?.contentMode = .scaleAspectFit }
             }
             button.addAction(UIAction { [weak self] _ in self?.copyGiphy(gif) }, for: .touchUpInside)
-            giphyResults.addArrangedSubview(button); button.heightAnchor.constraint(equalToConstant: 47).isActive = true
+            let column = UIStackView(arrangedSubviews: [button])
+            column.axis = .vertical
+            if let attribution = gif.attribution {
+                let label = UILabel()
+                label.text = attribution
+                label.font = .systemFont(ofSize: 9)
+                label.textColor = .label
+                label.textAlignment = .center
+                column.addArrangedSubview(label)
+            }
+            giphyResults.addArrangedSubview(column)
+            button.heightAnchor.constraint(equalToConstant: 47).isActive = true
         }
         giphyResults.isHidden = gifs.isEmpty
         setStatus(gifs.isEmpty ? "No GIFs found" : "Powered By GIPHY — tap to copy")
@@ -165,7 +176,8 @@ final class KeyboardViewController: UIInputViewController {
                 self?.copyNormalizedGIF(
                     sourceURL: sourceURL,
                     identifier: gif.id,
-                    alreadyPreparing: true
+                    alreadyPreparing: true,
+                    temporaryRemoteSource: true
                 )
             } catch {
                 await MainActor.run { self?.setStatus("Couldn’t copy that GIF") }
@@ -176,14 +188,17 @@ final class KeyboardViewController: UIInputViewController {
     private func copyNormalizedGIF(
         sourceURL: URL,
         identifier: String,
-        alreadyPreparing: Bool = false
+        alreadyPreparing: Bool = false,
+        temporaryRemoteSource: Bool = false
     ) {
         if !alreadyPreparing { setStatus("Preparing GIF…") }
         Task { [weak self] in
+            defer { if temporaryRemoteSource { try? FileManager.default.removeItem(at: sourceURL) } }
             do {
                 let normalizedURL = try await Task.detached(priority: .userInitiated) {
-                    try TinyGIFAttachmentRenderer.render(sourceURL: sourceURL, identifier: identifier)
+                    try TinyGIFAttachmentRenderer.render(sourceURL: sourceURL, identifier: identifier, persistOwnedReaction: !temporaryRemoteSource)
                 }.value
+                defer { if temporaryRemoteSource { try? FileManager.default.removeItem(at: normalizedURL) } }
                 let data = try Data(contentsOf: normalizedURL)
                 await MainActor.run {
                     UIPasteboard.general.setData(data, forPasteboardType: "com.compuserve.gif")

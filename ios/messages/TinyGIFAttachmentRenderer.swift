@@ -49,11 +49,12 @@ enum TinyGIFAttachmentRenderer {
         let maximumFrames: Int
     }
 
-    static func render(sourceURL: URL, identifier: String) throws -> URL {
+    static func render(sourceURL: URL, identifier: String, persistOwnedReaction: Bool = true) throws -> URL {
         let fileManager = FileManager.default
-        let cacheDirectory = try fileManager
-            .url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-            .appendingPathComponent("TinyGIFAttachments", isDirectory: true)
+        let cacheDirectory = persistOwnedReaction
+            ? try fileManager.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+                .appendingPathComponent("TinyGIFAttachments", isDirectory: true)
+            : fileManager.temporaryDirectory.appendingPathComponent("TinyGIFTransientAttachments", isDirectory: true)
         try fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
 
         let safeIdentifier = identifier.replacingOccurrences(
@@ -62,9 +63,9 @@ enum TinyGIFAttachmentRenderer {
             options: .regularExpression
         )
         let destination = cacheDirectory.appendingPathComponent(
-            "\(safeIdentifier)-sticker-v14.gif"
+            persistOwnedReaction ? "\(safeIdentifier)-sticker-v14.gif" : "\(UUID().uuidString).gif"
         )
-        if let size = fileSize(at: destination), size <= maximumFileBytes {
+        if persistOwnedReaction, let size = fileSize(at: destination), size <= maximumFileBytes {
             return destination
         }
 

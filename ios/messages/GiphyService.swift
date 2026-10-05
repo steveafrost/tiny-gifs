@@ -3,10 +3,11 @@ import Foundation
 struct GiphyGIF: Decodable, Identifiable, Hashable {
     let id: String
     let title: String
+    let attribution: String?
     let tinyPreviewURL: URL
     let tinyGIFURL: URL
 
-    private enum CodingKeys: String, CodingKey { case id, title, images }
+    private enum CodingKeys: String, CodingKey { case id, title, images, username, source, user }
     private enum ImagesKeys: String, CodingKey { case fixedWidthSmall = "fixed_width_small", fixedHeightSmall = "fixed_height_small" }
     private enum RenditionKeys: String, CodingKey { case url }
 
@@ -15,6 +16,13 @@ struct GiphyGIF: Decodable, Identifiable, Hashable {
         id = try container.decode(String.self, forKey: .id)
         let decodedTitle = try container.decodeIfPresent(String.self, forKey: .title) ?? ""
         title = decodedTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "GIPHY GIF" : decodedTitle
+        struct Creator: Decodable { let display_name: String?; let username: String? }
+        let creator = try container.decodeIfPresent(Creator.self, forKey: .user)
+        let names = [creator?.display_name, creator?.username,
+                     try container.decodeIfPresent(String.self, forKey: .username)]
+        let name = names.compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }.first { !$0.isEmpty }
+        let source = try container.decodeIfPresent(String.self, forKey: .source)
+        attribution = name ?? source.flatMap { URL(string: $0)?.host }
         let images = try container.nestedContainer(keyedBy: ImagesKeys.self, forKey: .images)
         // A GIPHY small rendition is the actual message attachment, so it stays
         // close to a large emoji rather than inserting a full-size GIF.
@@ -45,6 +53,13 @@ enum GiphyServiceError: LocalizedError {
 }
 
 enum GiphyService {
+    static let session: URLSession = {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.urlCache = nil
+        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+        return URLSession(configuration: configuration)
+    }()
+
     private static var apiKey: String? {
         let bundles = [Bundle(for: GiphyBundleToken.self), .main]
         for bundle in bundles {
@@ -68,12 +83,10 @@ enum GiphyService {
     }
 
     static func localGIFURL(for gif: GiphyGIF) async throws -> URL {
-        let directory = try FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-            .appendingPathComponent("GiphyMedia", isDirectory: true)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        let destination = directory.appendingPathComponent("\(gif.id).gif")
-        if FileManager.default.fileExists(atPath: destination.path) { return destination }
-        let (data, response) = try await URLSession.shared.data(from: gif.tinyGIFURL)
+        // A fresh, temporary file for this interaction; never reuse retained media.
+        let destination = FileManager.default.temporaryDirectory
+            .appendingPathComponent("giphy-\(UUID().uuidString).gif")
+        let (data, response) = try await session.data(from: gif.tinyGIFURL)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else { throw GiphyServiceError.unavailable }
         try data.write(to: destination, options: .atomic)
         return destination
@@ -91,7 +104,7 @@ enum GiphyService {
         ]
         if let query, !query.isEmpty { items.append(URLQueryItem(name: "q", value: query)) }
         components.queryItems = items
-        let (data, response) = try await URLSession.shared.data(from: components.url!)
+        let (data, response) = try await session.data(from: components.url!)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else { throw GiphyServiceError.unavailable }
         struct Response: Decodable { let data: [GiphyGIF] }
         guard let decoded = try? JSONDecoder().decode(Response.self, from: data) else { throw GiphyServiceError.invalidResponse }
