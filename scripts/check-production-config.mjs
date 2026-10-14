@@ -1,4 +1,4 @@
-const required = ['VITE_KLIPY_API_KEY']
+const required = ['KLIPY_API_KEY']
 const missing = required.filter((name) => !process.env[name]?.trim())
 
 if (missing.length) {

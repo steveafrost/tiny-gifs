@@ -7,7 +7,7 @@ type Path = 'messages' | 'keyboard'
 const pathCopy: Record<Path, { title: string; description: string }> = {
   messages: {
     title: 'Made for Messages.',
-    description: 'Open the drawer, search KLIPY or browse what is trending, then tap a tiny GIF to send it immediately. No copy-and-paste detour.',
+    description: 'Open the drawer, search KLIPY or browse what is trending, then choose a tiny GIF and tap Send. No copy-and-paste detour.',
   },
   keyboard: {
     title: 'Optional keyboard elsewhere.',

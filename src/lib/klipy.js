@@ -1,3 +1,7 @@
+export function websiteKlipyURL({ query = '', limit = 12 } = {}) {
+  return '/api/gifs?' + new URLSearchParams({ q: query, limit: String(limit) })
+}
+
 export function klipyRequestURL(apiKey, { query = '', page = 1, limit = 12 } = {}) {
   const term = query.trim()
   const url = new URL('https://api.klipy.com/api/v1/' + encodeURIComponent(apiKey) + '/gifs/' + (term ? 'search' : 'trending'))

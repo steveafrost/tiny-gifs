@@ -5,7 +5,7 @@ The migration uses KLIPY GIF API v1 for native and website search and trending. 
 ## Configuration
 
 - Create/manage a key in the [KLIPY Partner Panel](https://partner.klipy.com/). Testing keys are limited to 100 requests per hour; request production access before expanding distribution.
-- Native targets read `KLIPY_API_KEY` from their build configuration. Website builds read `VITE_KLIPY_API_KEY`. Never commit keys; client API keys are necessarily included in distributed client builds.
+- Native targets read `KLIPY_API_KEY` from their build configuration. Website builds read `KLIPY_API_KEY`. Never commit keys; client API keys are necessarily included in distributed client builds.
 - The compact Messages/keyboard sharing path requires written KLIPY approval for local resizing and retained normalized media. Until that approval is obtained, `KLIPY_MEDIA_PROCESSING_APPROVED` defaults to `NO`; browsing works, provider media processing is gated, and the release script refuses an archive/upload.
 - After approval, set `KLIPY_MEDIA_PROCESSING_APPROVED=YES` in the local build environment and implement any expiration/invalidation requirements supplied by KLIPY before distributing.
 

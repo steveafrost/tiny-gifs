@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
-import { klipyRequestURL, toGifItems } from '../lib/klipy.js'
+import { websiteKlipyURL, toGifItems } from '../lib/klipy.js'
 
 type KlipyItem = { id: string; title: string; previewUrl: string; gifUrl: string; slug: string }
 
 
-const apiKey = import.meta.env.VITE_KLIPY_API_KEY?.trim()
 
 export function KlipyExplorer() {
   const [query, setQuery] = useState('')
@@ -13,12 +12,11 @@ export function KlipyExplorer() {
   const [selected, setSelected] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!apiKey) return
     const controller = new AbortController()
     const timeout = window.setTimeout(async () => {
       setStatus('loading')
       try {
-        const response = await fetch(klipyRequestURL(apiKey, { query, limit: 12 }), { signal: controller.signal })
+        const response = await fetch(websiteKlipyURL({ query, limit: 12 }), { signal: controller.signal })
         if (!response.ok) throw new Error('KLIPY request failed')
         const payload = await response.json()
         const items = toGifItems(payload) as KlipyItem[]
@@ -39,10 +37,9 @@ export function KlipyExplorer() {
       <label className="klipy-search"><span className="visually-hidden">Search KLIPY</span><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="4.8" fill="none" stroke="currentColor" strokeWidth="1.6" /><path d="m12 12 4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search KLIPY" /></label>
       <div className="klipy-explorer__meta"><span>{query.trim() ? `Results for “${query.trim()}”` : 'Trending now'}</span><span>Powered by KLIPY</span></div>
       <div className="klipy-explorer__results" aria-live="polite">
-        {!apiKey && <div className="klipy-explorer__empty"><strong>Live KLIPY results appear here in production.</strong><p>This local preview does not include the production API key.</p></div>}
-        {apiKey && status === 'loading' && <div className="klipy-explorer__empty">Loading KLIPY results…</div>}
-        {apiKey && status === 'error' && <div className="klipy-explorer__empty"><strong>KLIPY could not load right now.</strong><p>Try a different search.</p></div>}
-        {apiKey && status === 'idle' && gifs.map((gif) => <button className={`klipy-gif ${selected === gif.id ? 'is-selected' : ''}`} key={gif.id} type="button" onClick={() => setSelected(gif.id)} aria-label={`Select ${gif.title}`} aria-pressed={selected === gif.id}><img src={gif.previewUrl} alt={gif.title} /><span>{selected === gif.id ? 'Selected' : 'Preview'}</span></button>)}
+        {status === 'loading' && <div className="klipy-explorer__empty">Loading KLIPY results…</div>}
+        {status === 'error' && <div className="klipy-explorer__empty"><strong>KLIPY could not load right now.</strong><p>Try a different search.</p></div>}
+        {status === 'idle' && gifs.map((gif) => <button className={`klipy-gif ${selected === gif.id ? 'is-selected' : ''}`} key={gif.id} type="button" onClick={() => setSelected(gif.id)} aria-label={`Select ${gif.title}`} aria-pressed={selected === gif.id}><img src={gif.previewUrl} alt={gif.title} /><span>{selected === gif.id ? 'Selected' : 'Preview'}</span></button>)}
       </div>
     </div>
   </section>

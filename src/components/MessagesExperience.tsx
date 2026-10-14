@@ -1,12 +1,11 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { klipyRequestURL, toGifItems } from '../lib/klipy.js'
+import { websiteKlipyURL, toGifItems } from '../lib/klipy.js'
 
 type KlipyItem = { id: string; title: string; previewUrl: string; gifUrl: string; slug: string }
 
-type SendState = 'browsing' | 'sending' | 'sent'
+type SendState = 'browsing' | 'selected' | 'sent'
 type GifStatus = 'loading' | 'ready' | 'empty' | 'error'
 
-const apiKey = import.meta.env.VITE_KLIPY_API_KEY?.trim()
 
 export function MessagesExperience() {
   const [query, setQuery] = useState('')
@@ -17,12 +16,11 @@ export function MessagesExperience() {
   const [state, setState] = useState<SendState>('browsing')
 
   useEffect(() => {
-    if (!apiKey) return
     const controller = new AbortController()
     const timeout = window.setTimeout(async () => {
       setStatus('loading')
       try {
-        const response = await fetch(klipyRequestURL(apiKey, { query, limit: 8 }), { signal: controller.signal })
+        const response = await fetch(websiteKlipyURL({ query, limit: 8 }), { signal: controller.signal })
         if (!response.ok) throw new Error('KLIPY request failed')
         const payload = await response.json()
         const nextGifs = toGifItems(payload) as KlipyItem[]
@@ -39,14 +37,13 @@ export function MessagesExperience() {
     return () => { controller.abort(); window.clearTimeout(timeout) }
   }, [query, requestVersion])
 
-  function sendGif(gif: KlipyItem) {
+  function selectGif(gif: KlipyItem) {
     if (state !== 'browsing') return
     setSelected(gif)
-    setState('sending')
-    window.setTimeout(() => setState('sent'), 350)
+    setState('selected')
   }
 
-  const drawerHint = status === 'ready' ? 'Tap a GIF once to send it.' : status === 'loading' ? 'Loading GIFs…' : 'Search KLIPY for a reaction.'
+  const drawerHint = status === 'ready' ? 'Choose a GIF, then tap Send.' : status === 'loading' ? 'Loading GIFs…' : 'Search KLIPY for a reaction.'
 
   return <section className="messages-experience" aria-label="Interactive Messages drawer walkthrough">
     <div className="messages-experience__chrome"><span>‹</span><b>Messages</b><i /></div>
@@ -54,21 +51,20 @@ export function MessagesExperience() {
       <div className="incoming-bubble">Need a reaction for that.</div>
       {state === 'sent' && selected && <div className="sent-gif"><img src={selected.previewUrl} alt={selected.title} /><span>Sent</span></div>}
     </div>
-    <div className="messages-experience__composer"><b>+</b><span>iMessage</span><i>↑</i></div>
-    {state === 'sent' ? <div className="messages-experience__complete" aria-live="polite"><div><strong>Sent with one tap.</strong><span>The drawer closes after a successful send.</span></div><button type="button" onClick={() => { setQuery(''); setState('browsing') }}>Try another</button></div> : <div className="messages-experience__drawer">
+    <div className="messages-experience__composer"><b aria-hidden="true">+</b><span aria-live="polite">{state === 'selected' && selected ? <img className="messages-experience__attachment" src={selected.previewUrl} alt={`Selected: ${selected.title}`} /> : 'iMessage'}</span><button type="button" aria-label="Send selected GIF" disabled={state !== 'selected'} onClick={() => setState('sent')}>↑</button></div>
+    {state !== 'browsing' ? <div className="messages-experience__complete" aria-live="polite"><div><strong>{state === 'sent' ? 'Reaction sent.' : 'Ready for your reply.'}</strong><span>{state === 'sent' ? 'A little GIF. A lot said.' : 'Tap the blue Send arrow above to share it.'}</span></div><button type="button" onClick={() => { setQuery(''); setState('browsing') }}>{state === 'sent' ? 'Try another' : 'Choose another'}</button></div> : <div className="messages-experience__drawer">
       <div className="messages-experience__handle" />
       <div className="messages-experience__drawer-header"><strong>tiny gifs</strong><span>Powered by KLIPY</span></div>
       <label className="messages-experience__search"><span className="visually-hidden">Search GIFs in the walkthrough</span><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="4.8" fill="none" stroke="currentColor" strokeWidth="1.6" /><path d="m12 12 4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search KLIPY" /></label>
       <p>{drawerHint}</p>
       <div className="messages-experience__grid" aria-live="polite">
-        {!apiKey && <DrawerState><strong>Real KLIPY GIFs load here.</strong><span>This local preview does not include the production API key.</span></DrawerState>}
-        {apiKey && status === 'loading' && <DrawerState>Loading GIFs…</DrawerState>}
-        {apiKey && status === 'ready' && gifs.map((gif) => <button key={gif.id} type="button" onClick={() => sendGif(gif)} disabled={state !== 'browsing'} aria-label={`Send ${gif.title} GIF`}><img src={gif.previewUrl} alt="" /></button>)}
-        {apiKey && status === 'empty' && <DrawerState><strong>No GIFs found.</strong><span>Try another search.</span></DrawerState>}
-        {apiKey && status === 'error' && <DrawerState><strong>We couldn't load GIFs.</strong><button className="messages-experience__retry" type="button" onClick={() => setRequestVersion((value) => value + 1)}>Try again</button></DrawerState>}
+        {status === 'loading' && <DrawerState>Loading GIFs…</DrawerState>}
+        {status === 'ready' && gifs.map((gif) => <button key={gif.id} type="button" onClick={() => selectGif(gif)} disabled={state !== 'browsing'} aria-label={`Choose ${gif.title} GIF`}><img src={gif.previewUrl} alt="" /></button>)}
+        {status === 'empty' && <DrawerState><strong>No GIFs found.</strong><span>Try another search.</span></DrawerState>}
+        {status === 'error' && <DrawerState><strong>We couldn't load GIFs.</strong><button className="messages-experience__retry" type="button" onClick={() => setRequestVersion((value) => value + 1)}>Try again</button></DrawerState>}
       </div>
     </div>}
-    <p className="messages-experience__caption">A faithful walkthrough of the native flow — search KLIPY in the drawer, tap one GIF, then return to the conversation.</p>
+    <p className="messages-experience__caption">Try the Messages flow: search KLIPY, choose a GIF, then tap Send.</p>
   </section>
 }
 

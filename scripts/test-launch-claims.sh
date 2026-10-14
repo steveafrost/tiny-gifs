@@ -15,16 +15,16 @@ test "$requests_open_access" = "true"
 grep -Fq 'supported chat apps' "$host_source"
 grep -Fq "title: 'Optional keyboard elsewhere.'" "$website_source"
 grep -Fq 'paste into a supported chat.' "$website_source"
-grep -Fq 'send it immediately' "$website_source"
-grep -Fq 'send it immediately' "$support_source"
+grep -Fq 'choose a tiny GIF and tap Send.' "$website_source"
+grep -Fq 'tap the Messages Send button.' "$support_source"
 grep -Fq 'Open Messages' "$host_source"
 grep -Fq 'TinyGIFMessageSender.send(' "$messages_source"
-grep -Fq 'static let canvasPixels: CGFloat = 192' "$renderer_source"
-grep -Fq 'sticker-v14' "$renderer_source"
+grep -Fq 'static let canvasPixels: CGFloat = 288' "$renderer_source"
+grep -Fq 'sticker-v16' "$renderer_source"
 
-if grep -Eq 'Added — tap Send|add it to the message field, then tap Send|TinyGIFMessageSender\.insert\(' \
-  "$website_source" "$support_source" "$host_source" "$messages_source"; then
-  echo 'Stale two-tap Messages copy remains in a release surface.' >&2
+if grep -Eqi 'one.tap sends|sent with one tap|send it immediately' \
+  "$root/src/App.tsx" "$root/src/components/MessagesExperience.tsx" "$website_source" "$support_source" "$root/src/components/InstallCta.tsx"; then
+  echo 'Unverified automatic-send claim remains on the website.' >&2
   exit 1
 fi
 
