@@ -337,7 +337,7 @@ final class CatalogIntegrityTests: XCTestCase {
     }
 
     @MainActor
-    func testPreparedSelectionCallsSendBeforeReturningToTheRunLoop() throws {
+    func testSendEntryPointCallsThePlatformBeforeReturningToTheRunLoop() throws {
         let stickerURL = try animatedGIF(frameCount: 1)
         defer { try? FileManager.default.removeItem(at: stickerURL) }
         let conversation = RecordingTinyGIFConversation()
@@ -345,12 +345,12 @@ final class CatalogIntegrityTests: XCTestCase {
             stickerURL: stickerURL, localizedDescription: "Prepared GIF", conversation: conversation,
             completionHandler: nil
         )
-        XCTAssertEqual(conversation.sendCount, 1, "Sending must begin synchronously in the tap callback")
+        XCTAssertEqual(conversation.sendCount, 1, "The platform API must be called synchronously; this does not verify delivery")
         XCTAssertEqual(conversation.sentSticker?.imageFileURL, stickerURL)
     }
 
     @MainActor
-    func testMessagesSelectionSendsACompactStickerImmediately() async throws {
+    func testStickerSendHelperCallsThePlatformSendAPI() async throws {
         let conversation = RecordingTinyGIFConversation()
         let stickerURL = try animatedGIF(frameCount: 1, size: CGSize(width: 288, height: 288))
         defer { try? FileManager.default.removeItem(at: stickerURL) }
