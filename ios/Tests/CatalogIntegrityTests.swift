@@ -15,6 +15,12 @@ final class CatalogIntegrityTests: XCTestCase {
         XCTAssertThrowsError(try JSONDecoder().decode(KlipyPage.self, from: Data(#"{"result":false,"data":{"has_next":false,"data":[]}}"#.utf8)))
     }
 
+    func testKlipyInternalTestingDoesNotRepresentProductionApproval() {
+        XCTAssertFalse(KlipyService.mediaProcessingEnabled(approved: false, internalTesting: false))
+        XCTAssertTrue(KlipyService.mediaProcessingEnabled(approved: false, internalTesting: true))
+        XCTAssertTrue(KlipyService.mediaProcessingEnabled(approved: true, internalTesting: false))
+    }
+
     func testKlipyDoesNotProcessMediaBeforeApproval() async throws {
         XCTAssertFalse(KlipyService.isMediaProcessingApproved)
         let data = Data(#"{"id":"1","slug":"hello","file":{"hd":{"gif":{"url":"https://static.klipy.com/full.gif"}}}}"#.utf8)

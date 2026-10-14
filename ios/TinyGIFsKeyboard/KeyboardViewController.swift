@@ -159,7 +159,7 @@ final class KeyboardViewController: UIInputViewController {
 
     private func copyKlipy(_ gif: KlipyGIF) {
         guard hasFullAccess else { return }
-        guard KlipyService.isMediaProcessingApproved else {
+        guard KlipyService.isMediaProcessingEnabled else {
             setStatus("GIF sharing is not available yet")
             return
         }

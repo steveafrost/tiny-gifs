@@ -75,7 +75,9 @@ if [[ "$mode" == "--validate" ]]; then
   exit 0
 fi
 
-if [[ "${KLIPY_MEDIA_PROCESSING_APPROVED:-NO}" != "YES" ]]; then
+media_approved="${KLIPY_MEDIA_PROCESSING_APPROVED:-NO}"
+internal_testing="${KLIPY_INTERNAL_TESTING:-NO}"
+if [[ "$media_approved" != "YES" && "$internal_testing" != "YES" ]]; then
   echo "Compact KLIPY sharing requires written KLIPY approval for local media processing. Set KLIPY_MEDIA_PROCESSING_APPROVED=YES only after approval." >&2
   exit 65
 fi
@@ -84,7 +86,14 @@ build_config="$workdir/ReleaseOverrides.xcconfig"
 # Keep this file private: Info.plist variable substitution embeds the API key in the
 # product, but it must not land in source control or command-line build logs.
 umask 077
-printf 'KLIPY_API_KEY = %s\nCURRENT_PROJECT_VERSION = %s\nKLIPY_MEDIA_PROCESSING_APPROVED = YES\n' "$api_key" "$build_number" > "$build_config"
+printf 'KLIPY_API_KEY = %s\nCURRENT_PROJECT_VERSION = %s\nKLIPY_MEDIA_PROCESSING_APPROVED = %s\nKLIPY_INTERNAL_TESTING = %s\n' "$api_key" "$build_number" "$media_approved" "$internal_testing" > "$build_config"
+
+if [[ "$internal_testing" == "YES" ]]; then
+  export_options="$workdir/InternalTestingExport.plist"
+  cp "$root/ios/ExportOptions.plist" "$export_options"
+  /usr/libexec/PlistBuddy -c 'Add :testFlightInternalTestingOnly bool true' "$export_options"
+  echo "This upload is restricted to internal TestFlight testing."
+fi
 
 archive="$root/build/TinyGIFs-${build_number}.xcarchive"
 log="$workdir/xcodebuild.log"

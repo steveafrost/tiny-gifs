@@ -74,6 +74,16 @@ enum KlipyService {
         Bundle.main.object(forInfoDictionaryKey: "KLIPY_MEDIA_PROCESSING_APPROVED") as? String == "YES"
     }
 
+    static func mediaProcessingEnabled(approved: Bool, internalTesting: Bool) -> Bool {
+        approved || internalTesting
+    }
+    static var isMediaProcessingEnabled: Bool {
+        mediaProcessingEnabled(
+            approved: isMediaProcessingApproved,
+            internalTesting: Bundle.main.object(forInfoDictionaryKey: "KLIPY_INTERNAL_TESTING") as? String == "YES"
+        )
+    }
+
     static var isConfigured: Bool { apiKey != nil }
 
     static func requestURL(apiKey: String, query: String?, limit: Int, page: Int) -> URL {
@@ -101,7 +111,7 @@ enum KlipyService {
 
     // Only the selected GIF is downloaded. Previews use provider URLs directly.
     static func localGIFURL(for gif: KlipyGIF) async throws -> URL {
-        guard isMediaProcessingApproved else { throw KlipyServiceError.sharingUnavailable }
+        guard isMediaProcessingEnabled else { throw KlipyServiceError.sharingUnavailable }
         let (data, response) = try await URLSession.shared.data(from: gif.tinyGIFURL)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else { throw KlipyServiceError.unavailable }
         let destination = FileManager.default.temporaryDirectory.appendingPathComponent("klipy-\(UUID().uuidString).gif")

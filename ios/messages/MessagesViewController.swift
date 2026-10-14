@@ -87,7 +87,7 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
     }
 
     private func send(_ item: GIFPickerItem) {
-        guard KlipyService.isMediaProcessingApproved else {
+        guard KlipyService.isMediaProcessingEnabled else {
             setStatus("GIF sharing is not available yet")
             return
         }

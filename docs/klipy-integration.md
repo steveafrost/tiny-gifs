@@ -24,3 +24,7 @@ The migration uses KLIPY GIF API v1 for native and website search and trending. 
 Run `scripts/release-testflight.sh <number> --validate` to verify API access without accepting an unresolved media-processing approval. Archive/upload requires approval as described above. Review App Store privacy and metadata before a KLIPY release.
 
 See [KLIPY API documentation](https://docs.klipy.com/), [API terms](https://klipy.com/support/api-terms), and [privacy policy](https://klipy.com/support/privacy-policy).
+
+## Owner-requested internal testing
+
+`KLIPY_INTERNAL_TESTING=YES` enables compact sharing solely for the requested internal TestFlight evaluation without asserting production approval. The release script sets Apple’s `testFlightInternalTestingOnly` export option, preventing App Store or external testing distribution. Defaults remain disabled. Public distribution still requires KLIPY approval and its caching requirements.
