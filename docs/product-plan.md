@@ -19,7 +19,7 @@ Ship a real iPhone product behind the existing website: an installable host app,
 
 - Ships inside the containing iOS app.
 - Presents KLIPY search results in a custom #images-style GIF grid, with bundled GIFs as an offline fallback.
-- A deliberate tap normalizes the selected GIF to a consistent 192×192 canvas, sends it immediately as an `MSSticker`, then collapses the drawer only after the send succeeds.
+- A deliberate tap normalizes the selected GIF to a consistent 288×288 canvas, sends it immediately as an `MSSticker`, then collapses the drawer only after the send succeeds.
 - A failed send leaves the drawer expanded and presents a retryable error. The extension does not expose a system Stickers surface or support peeling onto bubbles.
 - This is the default website story because it minimizes setup and avoids keyboard paste friction.
 

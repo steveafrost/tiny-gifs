@@ -28,7 +28,7 @@ When this value is absent or invalid, the CTA opens an accessible sheet that exp
 Open [ios/TinyGIFs.xcodeproj](ios/TinyGIFs.xcodeproj) in Xcode 26.5. The `TinyGIFs` scheme includes these targets:
 
 - `TinyGIFs` — iOS 17+ SwiftUI containing app that exists to install and explain the custom keyboard. It clearly distinguishes keyboard KLIPY search from the companion app and explains Full Access.
-- `messages` — custom Messages app-drawer GIF picker. It browses and searches KLIPY, normalizes the selected animation to a 192×192 `MSSticker`, and sends it immediately after the user's tap.
+- `messages` — custom Messages app-drawer GIF picker. It browses and searches KLIPY, normalizes the selected animation to a 288×288 `MSSticker`, and sends it immediately after the user's tap.
 - `TinyGIFsKeyboard` — `UIInputViewController` with letter input, delete, space, return, next-keyboard/globe action, bundled fallback reactions, and Full Access KLIPY search + GIF pasteboard copying.
 - `TinyGIFsTests` — catalog, media budget/dimension, and keyboard Full Access decision tests.
 

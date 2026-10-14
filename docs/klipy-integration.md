@@ -15,9 +15,9 @@ The migration uses KLIPY GIF API v1 for native and website search and trending. 
 - Paging uses `page` and `has_next`. Native searches fetch 24 results; the keyboard fetches 8, respecting KLIPY's minimum page size.
 - Search queries preserve submitted text. Requests use `content_filter=high`, `locale=us`, and `format_filter=gif`.
 - Result order is preserved. Unsupported ads or incomplete records fail the page instead of silently removing results. Configure a GIF-only, non-ad integration in the Partner Panel; ad rendering is not implemented.
-- The grid loads the provider's small GIF previews directly. Only a selected full GIF is downloaded into a temporary local file, which is removed after processing.
+- The grid loads the provider's small GIF previews directly. In the Messages drawer, visible GIFs are prepared before selection with one encoder at a time. Temporary original downloads are removed after processing. The optional keyboard downloads on selection.
 - Attribution is visible as “Powered by KLIPY”; search placeholders say “Search KLIPY”. No persistent customer identifier is introduced.
-- The existing 192×192 encoder preserves all frames where possible, reduces palette detail before frames, and retains both endpoints and full duration when reduction is necessary.
+- The existing 288×288 encoder preserves all frames where possible, reduces palette detail before frames, and retains both endpoints and full duration when reduction is necessary.
 
 ## Release
 
@@ -28,3 +28,5 @@ See [KLIPY API documentation](https://docs.klipy.com/), [API terms](https://klip
 ## Owner-requested internal testing
 
 `KLIPY_INTERNAL_TESTING=YES` enables compact sharing solely for the requested internal TestFlight evaluation without asserting production approval. The release script sets Apple’s `testFlightInternalTestingOnly` export option, preventing App Store or external testing distribution. Defaults remain disabled. Public distribution still requires KLIPY approval and its caching requirements.
+
+Ready Messages tiles send synchronously from the tap callback, with no download/encoding after the tap. The drawer stays visible briefly after Apple reports that sending has started. Cache version 16 regenerates attachments at the 50% larger dimensions.

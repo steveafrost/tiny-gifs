@@ -43,7 +43,7 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
 
         addChild(picker)
         picker.view.translatesAutoresizingMaskIntoConstraints = false
-        picker.onSelect = { [weak self] item in self?.send(item) }
+        picker.onSelect = { [weak self] item, stickerURL in self?.send(item, stickerURL: stickerURL) }
         picker.onStatusChange = { [weak self] status in self?.setStatus(status) }
 
         // Remove the template storyboard label before installing the real drawer.
@@ -86,7 +86,7 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
         picker.search(searchBar.text ?? "")
     }
 
-    private func send(_ item: GIFPickerItem) {
+    private func send(_ item: GIFPickerItem, stickerURL: URL) {
         guard KlipyService.isMediaProcessingEnabled else {
             setStatus("GIF sharing is not available yet")
             return
@@ -97,33 +97,32 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
             setStatus("Open a Messages conversation to send a GIF")
             return
         }
-        setStatus("Preparing GIF…")
-        let gif = item.gif
-        let itemID = item.id
-        let description = item.title.isEmpty ? "Tiny animated GIF" : item.title
-        Task { [weak self, conversation] in
-            do {
-                let sourceURL = try await KlipyService.localGIFURL(for: gif)
-                defer { try? FileManager.default.removeItem(at: sourceURL) }
-                let attachmentURL = try await Task.detached(priority: .userInitiated) {
-                    try TinyGIFAttachmentRenderer.render(sourceURL: sourceURL, identifier: "klipy-" + itemID)
-                }.value
-                try await TinyGIFMessageSender.send(
-                    stickerURL: attachmentURL,
-                    localizedDescription: description,
-                    conversation: conversation
-                )
-                self?.sendState.finish()
-                self?.setStatus("Sent tiny GIF")
-                if TinyGIFDrawerLayout.shouldDismissToKeyboardAfterSend(succeeded: true) {
-                    self?.dismiss()
+        setStatus("Sending GIF…")
+        // The file is ready before the tap. Do not download or encode here.
+        TinyGIFMessageSender.startSend(
+            stickerURL: stickerURL,
+            localizedDescription: item.title.isEmpty ? "Tiny animated GIF" : item.title,
+            conversation: conversation
+        ) { [weak self] error in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                if error != nil {
+                    self.sendState.finish()
+                    self.setStatus("Couldn’t send that GIF")
+                    return
                 }
-            } catch {
-                self?.sendState.finish()
-                self?.setStatus("Couldn’t send that GIF")
+                self.setStatus("Sent tiny GIF")
+                // Apple's callback means sending has started; keep the extension
+                // visible briefly while Messages commits the outgoing sticker.
+                try? await Task.sleep(for: .milliseconds(500))
+                self.sendState.finish()
+                if TinyGIFDrawerLayout.shouldDismissToKeyboardAfterSend(succeeded: true) {
+                    self.dismiss()
+                }
             }
         }
     }
+
 }
 
 private struct GIFPickerItem: Identifiable, Hashable {
@@ -135,7 +134,7 @@ private struct GIFPickerItem: Identifiable, Hashable {
 
 @MainActor
 private final class TinyGIFPickerViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    var onSelect: ((GIFPickerItem) -> Void)?
+    var onSelect: ((GIFPickerItem, URL) -> Void)?
     var onStatusChange: ((String) -> Void)?
 
     private let collectionView: UICollectionView
@@ -147,6 +146,11 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
     private var canLoadMore = true
     private var requestGeneration = TinyGIFRequestGeneration()
     private var pageTask: Task<Void, Never>?
+    private var preparedAttachments: [String: URL] = [:]
+    private var preparationFailures: Set<String> = []
+    private var preparationQueue: [GIFPickerItem] = []
+    private var queuedIDs: Set<String> = []
+    private var preparationTasks: [String: Task<Void, Never>] = [:]
 
     init() {
         let layout = UICollectionViewFlowLayout()
@@ -199,6 +203,7 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
         pageTask?.cancel()
         pageTask = nil
         _ = requestGeneration.begin()
+        resetPreparation()
         activeQuery = query
         nextPage = 0
         canLoadMore = true
@@ -274,12 +279,77 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GIFPickerCell.reuseIdentifier, for: indexPath) as! GIFPickerCell
-        cell.configure(with: items[indexPath.item])
+        let item = items[indexPath.item]
+        cell.configure(with: item, ready: preparedAttachments[item.id] != nil, failed: preparationFailures.contains(item.id) || !KlipyService.isMediaProcessingEnabled)
         return cell
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        onSelect?(items[indexPath.item])
+        let item = items[indexPath.item]
+        guard let stickerURL = preparedAttachments[item.id] else { return }
+        onSelect?(item, stickerURL)
+    }
+
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        let item = items[indexPath.item]
+        guard KlipyService.isMediaProcessingEnabled,
+              preparedAttachments[item.id] == nil,
+              !preparationFailures.contains(item.id),
+              queuedIDs.insert(item.id).inserted else { return }
+        preparationQueue.append(item)
+        // Start after willDisplay returns so the visible index paths are current.
+        Task { @MainActor [weak self] in self?.startNextPreparation() }
+    }
+
+    private func resetPreparation() {
+        preparationTasks.values.forEach { $0.cancel() }
+        preparationTasks = [:]
+        preparationQueue = []
+        queuedIDs = []
+        preparedAttachments = [:]
+        preparationFailures = []
+    }
+
+    private func startNextPreparation() {
+        // Bound full-media downloads and encoders to avoid overwhelming the extension.
+        while preparationTasks.count < 1, !preparationQueue.isEmpty {
+            let item = preparationQueue.removeFirst()
+            let visible = collectionView.indexPathsForVisibleItems.contains {
+                items.indices.contains($0.item) && items[$0.item].id == item.id
+            }
+            guard visible else {
+                queuedIDs.remove(item.id)
+                continue
+            }
+            let generation = requestGeneration.current
+            preparationTasks[item.id] = Task { [weak self] in
+                guard let self else { return }
+                do {
+                    let sourceURL = try await KlipyService.localGIFURL(for: item.gif)
+                    defer { try? FileManager.default.removeItem(at: sourceURL) }
+                    try Task.checkCancellation()
+                    let encoder = Task.detached(priority: .userInitiated) {
+                        try TinyGIFAttachmentRenderer.render(sourceURL: sourceURL, identifier: "klipy-" + item.id)
+                    }
+                    let url = try await withTaskCancellationHandler {
+                        try await encoder.value
+                    } onCancel: {
+                        encoder.cancel()
+                    }
+                    guard !Task.isCancelled, self.requestGeneration.isCurrent(generation) else { return }
+                    self.preparedAttachments[item.id] = url
+                } catch {
+                    guard !Task.isCancelled, self.requestGeneration.isCurrent(generation) else { return }
+                    self.preparationFailures.insert(item.id)
+                }
+                self.preparationTasks[item.id] = nil
+                if let index = self.items.firstIndex(where: { $0.id == item.id }),
+                   let cell = self.collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? GIFPickerCell {
+                    cell.setPreparationState(ready: self.preparedAttachments[item.id] != nil, failed: self.preparationFailures.contains(item.id))
+                }
+                self.startNextPreparation()
+            }
+        }
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -297,6 +367,8 @@ private final class GIFPickerCell: UICollectionViewCell {
 
     private let imageView = UIImageView()
     private var previewTask: Task<Void, Never>?
+    private let preparationSpinner = UIActivityIndicatorView(style: .medium)
+    private let preparationLabel = UILabel()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -308,7 +380,22 @@ private final class GIFPickerCell: UICollectionViewCell {
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(imageView)
+        preparationSpinner.translatesAutoresizingMaskIntoConstraints = false
+        preparationSpinner.hidesWhenStopped = true
+        contentView.addSubview(preparationSpinner)
+        preparationLabel.translatesAutoresizingMaskIntoConstraints = false
+        preparationLabel.font = .systemFont(ofSize: 10, weight: .semibold)
+        preparationLabel.textColor = .white
+        preparationLabel.backgroundColor = UIColor.black.withAlphaComponent(0.65)
+        preparationLabel.textAlignment = .center
+        contentView.addSubview(preparationLabel)
         NSLayoutConstraint.activate([
+            preparationSpinner.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            preparationSpinner.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            preparationLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            preparationLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            preparationLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            preparationLabel.heightAnchor.constraint(equalToConstant: 18),
             imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 4),
             imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -4),
             imageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
@@ -325,7 +412,17 @@ private final class GIFPickerCell: UICollectionViewCell {
         imageView.image = nil
     }
 
-    func configure(with item: GIFPickerItem) {
+    func setPreparationState(ready: Bool, failed: Bool) {
+        isUserInteractionEnabled = ready
+        preparationLabel.isHidden = ready
+        preparationLabel.text = failed ? "Unavailable" : "Preparing…"
+        if ready || failed { preparationSpinner.stopAnimating() }
+        else { preparationSpinner.startAnimating() }
+        accessibilityTraits = ready ? [.button] : [.button, .notEnabled]
+    }
+
+    func configure(with item: GIFPickerItem, ready: Bool, failed: Bool) {
+        setPreparationState(ready: ready, failed: failed)
         previewTask?.cancel()
         imageView.image = nil
         previewTask = Task { [weak self] in
