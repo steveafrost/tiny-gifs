@@ -11,12 +11,12 @@ usage() {
   cat <<'USAGE'
 Usage: scripts/release-testflight.sh <build-number> [--validate|--archive|--upload]
 
-Reads the production GIPHY key from GIPHY_API_KEY or the macOS Keychain item
+Reads the GIPHY key (beta or production) from GIPHY_API_KEY or the macOS Keychain item
 "tiny-gifs-giphy-api-key". The key is placed only in a temporary build config,
 never written into the repository or printed in logs.
 
 Modes:
-  --validate  Verify that a production GIPHY key is available and accepted.
+  --validate  Verify that a GIPHY key is available and accepted.
   --archive   Create and inspect a signed archive with the supplied build number.
   --upload    Archive, inspect, and upload to App Store Connect.
 USAGE
@@ -43,7 +43,7 @@ if [[ -z "$api_key" ]]; then
   api_key="$(security find-generic-password -s "$keychain_service" -w 2>/dev/null || true)"
 fi
 if [[ -z "$api_key" ]]; then
-  echo "A production GIPHY key is required. Set GIPHY_API_KEY or add the Keychain item '$keychain_service'." >&2
+  echo "A GIPHY key is required. Set GIPHY_API_KEY or add the Keychain item '$keychain_service'." >&2
   exit 65
 fi
 
@@ -54,25 +54,22 @@ cleanup() {
 trap cleanup EXIT
 chmod 700 "$workdir"
 
-response="$workdir/giphy-response.json"
-curl_config="$workdir/giphy-validation.curl"
-# Keep the client credential out of curl's process arguments as well as out of logs.
-printf 'silent\nshow-error\nmax-time = 20\nget\nurl = "https://api.giphy.com/v1/gifs/trending"\ndata-urlencode = "api_key=%s"\ndata-urlencode = "limit=1"\ndata-urlencode = "rating=g"\noutput = "%s"\nwrite-out = "%%{http_code}"\n' "$api_key" "$response" > "$curl_config"
-http_status="$(curl --config "$curl_config")"
-if [[ "$http_status" != "200" ]] || ! python3 - "$response" <<'PY'
-import json
-import sys
+report_build_failure() {
+  local saved_log
+  saved_log="$(mktemp "${TMPDIR:-/tmp}/tiny-gifs-release-failure.XXXXXX")"
+  GIPHY_API_KEY="$api_key" node --input-type=module - "$log" "$saved_log" <<'JS'
+import { readFileSync, writeFileSync } from 'node:fs'
+const sanitized = readFileSync(process.argv[2], 'utf8')
+  .split(process.env.GIPHY_API_KEY).join('[redacted]')
+writeFileSync(process.argv[3], sanitized, { mode: 0o600 })
+const lines = sanitized.split('\n').filter(line => /error:|Error|failed|errSec|not allowed|not permitted|Authentication/.test(line))
+console.error(lines.slice(-20).map(line => line.slice(0, 1000)).join('\n'))
+JS
+  echo "Sanitized build log retained at $saved_log." >&2
+}
 
-with open(sys.argv[1], encoding="utf-8") as source:
-    payload = json.load(source)
-if not isinstance(payload.get("data"), list) or not payload["data"]:
-    raise SystemExit(1)
-PY
-then
-  echo "The configured GIPHY key was rejected or returned no usable trending result (HTTP $http_status)." >&2
-  exit 65
-fi
-echo "Verified production GIPHY access."
+# Pass the credential through the child environment, never process arguments.
+GIPHY_API_KEY="$api_key" node "$root/scripts/validate-giphy-key.mjs"
 
 if [[ "$mode" == "--validate" ]]; then
   exit 0
@@ -97,8 +94,8 @@ if ! xcodebuild \
   -xcconfig "$build_config" \
   -allowProvisioningUpdates \
   archive >"$log" 2>&1; then
-  grep -E '(^| )error:|Provisioning|Signing|not permitted' "$log" | tail -80 >&2 || true
-  echo "Archive failed; full build log is private at $log until this command exits." >&2
+  report_build_failure
+  echo "Archive failed." >&2
   exit 1
 fi
 
@@ -144,8 +141,8 @@ if [[ "$mode" == "--upload" ]]; then
     -archivePath "$archive" \
     -exportOptionsPlist "$export_options" \
     -allowProvisioningUpdates >"$log" 2>&1; then
-    grep -E '(^| )error:|ERROR|Upload|not permitted|Authentication' "$log" | tail -80 >&2 || true
-    echo "App Store Connect upload failed; full export log is private at $log until this command exits." >&2
+    report_build_failure
+    echo "App Store Connect upload failed." >&2
     exit 1
   fi
   echo "Upload accepted by App Store Connect."

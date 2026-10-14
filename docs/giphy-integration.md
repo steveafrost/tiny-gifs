@@ -4,7 +4,7 @@
 
 ## Configuration
 
-1. Create a production API key through the [GIPHY API dashboard](https://developers.giphy.com/docs/api/).
+1. Obtain an API key through the [GIPHY API dashboard](https://developers.giphy.com/dashboard/). New keys start with free beta access, limited to 100 API calls per hour. GIPHY confirmed beta access as an option for this app; use it for a low-traffic release and review usage before expanding distribution. Enterprise access is a separate paid upgrade.
 2. Supply `GIPHY_API_KEY` when building the `TinyGIFs`, `messages`, and `TinyGIFsKeyboard` targets. It is deliberately empty in source control. For a release archive, pass it as an Xcode build setting (for example, `xcodebuild … GIPHY_API_KEY="$GIPHY_API_KEY" archive`) or set it only in your local Xcode build environment.
 3. Set `VITE_GIPHY_API_KEY` in the website deployment environment to activate the public library explorer.
 

@@ -54,7 +54,7 @@ The keyboard only performs GIPHY search or media download with Full Access. With
 
 ### TestFlight release
 
-The production key is stored in the macOS Keychain as `tiny-gifs-giphy-api-key`; it is never committed. Run the release preflight before archiving:
+The GIPHY key can be supplied through `GIPHY_API_KEY` or stored in the macOS Keychain as `tiny-gifs-giphy-api-key`; it is never committed. A free beta key supports a low-traffic release with GIPHY's limit of 100 API calls per hour. The preflight validates access, not the key's pricing tier. Run it before archiving:
 
 ```bash
 scripts/test-release-testflight.sh
