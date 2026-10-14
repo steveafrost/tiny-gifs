@@ -47,6 +47,7 @@ enum TinyGIFAttachmentRenderer {
     private struct RenderAttempt {
         let visiblePixels: CGFloat
         let maximumFrames: Int
+        let colorLevels: Int?
     }
 
     static func render(sourceURL: URL, identifier: String) throws -> URL {
@@ -62,7 +63,7 @@ enum TinyGIFAttachmentRenderer {
             options: .regularExpression
         )
         let destination = cacheDirectory.appendingPathComponent(
-            "\(safeIdentifier)-sticker-v14.gif"
+            "\(safeIdentifier)-sticker-v15.gif"
         )
         if let size = fileSize(at: destination), size <= maximumFileBytes {
             return destination
@@ -73,24 +74,35 @@ enum TinyGIFAttachmentRenderer {
             throw TinyGIFAttachmentRendererError.unreadableSource
         }
 
-        let attempts = [
-            RenderAttempt(visiblePixels: canvasPixels, maximumFrames: 10),
-            RenderAttempt(visiblePixels: canvasPixels, maximumFrames: 8),
-            RenderAttempt(visiblePixels: canvasPixels, maximumFrames: 6),
-            RenderAttempt(visiblePixels: canvasPixels, maximumFrames: 4),
-            RenderAttempt(visiblePixels: canvasPixels, maximumFrames: 2)
+        let frameCount = CGImageSourceGetCount(source)
+        // Keep every frame first. Reduce palette detail before temporal detail.
+        var attempts = [
+            RenderAttempt(visiblePixels: canvasPixels, maximumFrames: frameCount, colorLevels: nil),
+            RenderAttempt(visiblePixels: canvasPixels, maximumFrames: frameCount, colorLevels: 6),
+            RenderAttempt(visiblePixels: canvasPixels, maximumFrames: frameCount, colorLevels: 4),
+            RenderAttempt(visiblePixels: canvasPixels, maximumFrames: frameCount, colorLevels: 3)
         ]
+        var reducedFrames = frameCount
+        while reducedFrames > 2 {
+            reducedFrames = max(2, reducedFrames / 2)
+            attempts.append(RenderAttempt(
+                visiblePixels: canvasPixels,
+                maximumFrames: reducedFrames,
+                colorLevels: 3
+            ))
+        }
 
         for (attemptIndex, attempt) in attempts.enumerated() {
             let temporary = cacheDirectory.appendingPathComponent(
-                "\(safeIdentifier)-sticker-v14-\(attemptIndex)-\(UUID().uuidString)-temporary.gif"
+                "\(safeIdentifier)-sticker-v15-\(attemptIndex)-\(UUID().uuidString)-temporary.gif"
             )
             defer { try? fileManager.removeItem(at: temporary) }
             try writeGIF(
                 source: source,
                 destination: temporary,
                 visiblePixels: attempt.visiblePixels,
-                maximumFrames: attempt.maximumFrames
+                maximumFrames: attempt.maximumFrames,
+                colorLevels: attempt.colorLevels
             )
             guard let size = fileSize(at: temporary), size <= maximumFileBytes else {
                 continue
@@ -124,7 +136,8 @@ enum TinyGIFAttachmentRenderer {
         source: CGImageSource,
         destination: URL,
         visiblePixels: CGFloat,
-        maximumFrames: Int
+        maximumFrames: Int,
+        colorLevels: Int?
     ) throws {
         let sourceFrameCount = CGImageSourceGetCount(source)
         let frameIndices = sampledFrameIndices(
@@ -148,7 +161,8 @@ enum TinyGIFAttachmentRenderer {
 
         for (outputIndex, sourceIndex) in frameIndices.enumerated() {
             guard let sourceFrame = CGImageSourceCreateImageAtIndex(source, sourceIndex, nil),
-                  let renderedFrame = renderFrame(sourceFrame, visiblePixels: visiblePixels) else {
+                  let renderedFrame = renderFrame(sourceFrame, visiblePixels: visiblePixels),
+                  let encodedFrame = quantizedFrame(renderedFrame, levels: colorLevels) else {
                 throw TinyGIFAttachmentRendererError.unreadableFrame
             }
             let nextSourceIndex = outputIndex + 1 < frameIndices.count
@@ -157,7 +171,7 @@ enum TinyGIFAttachmentRenderer {
             let duration = (sourceIndex..<nextSourceIndex).reduce(0.0) {
                 $0 + frameDuration(source: source, at: $1)
             }
-            CGImageDestinationAddImage(output, renderedFrame, [
+            CGImageDestinationAddImage(output, encodedFrame, [
                 kCGImagePropertyGIFDictionary: [
                     kCGImagePropertyGIFDelayTime: duration,
                     kCGImagePropertyGIFUnclampedDelayTime: duration
@@ -204,10 +218,40 @@ enum TinyGIFAttachmentRenderer {
         }.cgImage
     }
 
-    private static func sampledFrameIndices(frameCount: Int, maximumFrames: Int) -> [Int] {
+    /// Quantize RGB while retaining the transparent letterbox and the same canvas.
+    private static func quantizedFrame(_ frame: CGImage, levels: Int?) -> CGImage? {
+        guard let levels else { return frame }
+        guard let context = CGContext(
+            data: nil,
+            width: frame.width,
+            height: frame.height,
+            bitsPerComponent: 8,
+            bytesPerRow: frame.width * 4,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
+        ), let data = context.data else { return nil }
+        context.draw(frame, in: CGRect(x: 0, y: 0, width: frame.width, height: frame.height))
+        let pixels = data.assumingMemoryBound(to: UInt8.self)
+        for offset in stride(from: 0, to: frame.width * frame.height * 4, by: 4) {
+            let alpha = Int(pixels[offset + 3])
+            guard alpha > 0 else { continue }
+            for channel in 0..<3 {
+                // Work in straight RGB, then restore premultiplication at edges.
+                let value = min(255, Int(pixels[offset + channel]) * 255 / alpha)
+                let bucket = (value * (levels - 1) + 127) / 255
+                let quantized = bucket * 255 / (levels - 1)
+                pixels[offset + channel] = UInt8(quantized * alpha / 255)
+            }
+        }
+        return context.makeImage()
+    }
+
+    static func sampledFrameIndices(frameCount: Int, maximumFrames: Int) -> [Int] {
+        precondition(maximumFrames >= 2 || frameCount <= maximumFrames)
         guard frameCount > maximumFrames else { return Array(0..<frameCount) }
         return (0..<maximumFrames).map { index in
-            Int(floor(Double(index * frameCount) / Double(maximumFrames)))
+            // Include both endpoints so the final action never disappears.
+            Int((Double(index) * Double(frameCount - 1) / Double(maximumFrames - 1)).rounded())
         }
     }
 

@@ -16,5 +16,6 @@ The keyboard’s GIPHY requests and GIF pasteboard copy require Full Access. The
 - Search results display the required `Powered By GIPHY` attribution in every surface.
 - A keyboard search term is sent to GIPHY only after the user enables Full Access and explicitly submits a search. Typed text and conversation content are never sent.
 - The Messages extension downloads the selected media file, normalizes it to a 192×192 animated `MSSticker`, and sends it after the user's tap. The keyboard normalizes the selected GIF before copying it to the system pasteboard.
+- Encoding keeps all frames and their timing when they fit the 490 KB budget, trying reduced color palettes before reducing frame count. Oversized animations retain the first and final frames and full duration; the 192×192 footprint is unchanged. Cache version 15 regenerates previously simplified animations.
 
 Review GIPHY’s current API documentation and branding/attribution requirements before a production submission.
