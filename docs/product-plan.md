@@ -12,24 +12,24 @@ Ship a real iPhone product behind the existing website: an installable host app,
 
 - SwiftUI app targeting iOS 17 or later.
 - The containing app is a focused keyboard installer, not a second GIF browser. It explains the manual Settings path Apple requires for custom-keyboard installation.
-- It clearly shows that live GIPHY search lives in the keyboard after Full Access, while the Messages extension remains the primary sharing path.
-- Privacy is local-first for typing and the fallback catalog: no analytics SDK or account. Optional GIPHY search sends only the user-selected search term to GIPHY.
+- It clearly shows that live KLIPY search lives in the keyboard after Full Access, while the Messages extension remains the primary sharing path.
+- Privacy is local-first for typing and the fallback catalog: no analytics SDK or account. Optional KLIPY search sends only the user-selected search term to KLIPY.
 
 ### 2. Messages GIF picker extension — primary path
 
 - Ships inside the containing iOS app.
-- Presents GIPHY search results in a custom #images-style GIF grid, with bundled GIFs as an offline fallback.
-- A deliberate tap normalizes the selected GIF to a consistent 192×192 canvas, sends it immediately as an `MSSticker`, then collapses the drawer only after the send succeeds.
+- Presents KLIPY search results in a custom #images-style GIF grid, with bundled GIFs as an offline fallback.
+- A deliberate tap normalizes the selected GIF to a consistent 288×288 canvas, sends it immediately as an `MSSticker`, then collapses the drawer only after the send succeeds.
 - A failed send leaves the drawer expanded and presents a retryable error. The extension does not expose a system Stickers surface or support peeling onto bubbles.
 - This is the default website story because it minimizes setup and avoids keyboard paste friction.
 
 ### 3. `#tiny-gifs` custom keyboard — cross-app path
 
-- `UIInputViewController` extension with a compact GIPHY search row and starter reaction grid.
+- `UIInputViewController` extension with a compact KLIPY search row and starter reaction grid.
 - Includes basic typed-character input, delete, space, return, and the required next-keyboard control.
 - Remains useful without Full Access: browsing, previews, and text input still work.
-- With Full Access enabled, searching sends the search term to GIPHY and tapping a reaction copies its GIF to `UIPasteboard`; the UI then shows a clear `Copied — paste in the conversation` state.
-- Never records keystrokes or transmits conversation content. GIPHY requests are limited to a selected search term and media download.
+- With Full Access enabled, searching sends the search term to KLIPY and tapping a reaction copies its GIF to `UIPasteboard`; the UI then shows a clear `Copied — paste in the conversation` state.
+- Never records keystrokes or transmits conversation content. KLIPY requests are limited to a selected search term and media download.
 
 ## MVP reaction catalog
 
@@ -58,7 +58,7 @@ Each asset must:
 - Change installation messaging from keyboard-only to the honest bundled experience: fastest in Messages, optional keyboard everywhere else.
 - Add a compact live product switcher demonstrating `Messages GIF picker` and `Keyboard` behavior.
 - Keep `VITE_INSTALL_URL`; until a real App Store/TestFlight link exists, the CTA opens the accessible beta sheet.
-- Add privacy and support routes/pages that explain the local fallback and optional GIPHY requests.
+- Add privacy and support routes/pages that explain the local fallback and optional KLIPY requests.
 
 ## Repository layout
 
@@ -94,7 +94,7 @@ Shared catalog metadata lives in Swift source for the native targets and in a sm
 - Keyboard does not require Full Access to launch or type.
 - Every bundled GIF asset is below 500 KB and has expected dimensions.
 - Website passes lint/build, has no horizontal overflow, and accurately describes installation.
-- Privacy copy explicitly states that typed content is neither stored nor transmitted, and precisely describes optional GIPHY requests.
+- Privacy copy explicitly states that typed content is neither stored nor transmitted, and precisely describes optional KLIPY requests.
 - Physical-device QA verifies GIF paste behavior and transcript footprint before any App Store size claim is treated as guaranteed.
 
 ## Known platform constraints
@@ -111,4 +111,4 @@ Shared catalog metadata lives in Swift source for the native targets and in a sm
 - [Sending stickers in Messages](https://developer.apple.com/documentation/messages/msconversation/send(_:completionhandler:)-3vje4)
 - [Apple Messages framework](https://developer.apple.com/documentation/messages/)
 - [iMessage apps](https://developer.apple.com/imessage/)
-- [GIPHY API documentation](https://developers.giphy.com/docs/api/)
+- [KLIPY API documentation](https://docs.klipy.com/)

@@ -10,7 +10,7 @@ enum KeyboardReactionAction: Equatable {
     }
 }
 
-/// Monotonic tokens prevent a slower prior GIPHY search from replacing newer results.
+/// Monotonic tokens prevent a slower prior KLIPY search from replacing newer results.
 struct KeyboardSearchGeneration {
     private(set) var current: UInt = 0
 

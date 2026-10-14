@@ -27,9 +27,9 @@ When this value is absent or invalid, the CTA opens an accessible sheet that exp
 
 Open [ios/TinyGIFs.xcodeproj](ios/TinyGIFs.xcodeproj) in Xcode 26.5. The `TinyGIFs` scheme includes these targets:
 
-- `TinyGIFs` — iOS 17+ SwiftUI containing app that exists to install and explain the custom keyboard. It clearly distinguishes keyboard GIPHY search from the companion app and explains Full Access.
-- `messages` — custom Messages app-drawer GIF picker. It browses and searches GIPHY, normalizes the selected animation to a 192×192 `MSSticker`, and sends it immediately after the user's tap.
-- `TinyGIFsKeyboard` — `UIInputViewController` with letter input, delete, space, return, next-keyboard/globe action, bundled fallback reactions, and Full Access GIPHY search + GIF pasteboard copying.
+- `TinyGIFs` — iOS 17+ SwiftUI containing app that exists to install and explain the custom keyboard. It clearly distinguishes keyboard KLIPY search from the companion app and explains Full Access.
+- `messages` — custom Messages app-drawer GIF picker. It browses and searches KLIPY, normalizes the selected animation to a 288×288 `MSSticker`, and requests direct sending through Apple’s API. On the current device test, Messages stages the GIF in the compose field and requires Send; automatic delivery remains unresolved.
+- `TinyGIFsKeyboard` — `UIInputViewController` with letter input, delete, space, return, next-keyboard/globe action, bundled fallback reactions, and Full Access KLIPY search + GIF pasteboard copying.
 - `TinyGIFsTests` — catalog, media budget/dimension, and keyboard Full Access decision tests.
 
 To compile without signing, select an installed iPhone Simulator destination in Xcode or run:
@@ -48,20 +48,20 @@ If no simulator runtime is installed, build the project in Xcode after installin
 
 ## Full GIF library and starter assets
 
-GIPHY provides the full searchable GIF library in the Messages extension, keyboard, and website explorer. The companion app is intentionally an installer, not another GIF browser. Create an API key in the [GIPHY developer portal](https://developers.giphy.com/docs/api/), then configure it in Xcode's `GIPHY_API_KEY` build setting for every native target. For the website, set `VITE_GIPHY_API_KEY` in its deployment environment. The product visibly attributes search results as `Powered By GIPHY`.
+KLIPY provides the full searchable GIF library in the Messages extension, keyboard, and website explorer. The companion app is intentionally an installer, not another GIF browser. Create an API key in the [KLIPY developer portal](https://docs.klipy.com/), then configure it in Xcode's `KLIPY_API_KEY` build setting for every native target. For the website, set `KLIPY_API_KEY` as a server secret in its deployment environment. The browser calls `/api/gifs`; the server sends requests to KLIPY without placing the key in browser assets. The product visibly attributes search results as `Powered By KLIPY`.
 
-The keyboard only performs GIPHY search or media download with Full Access. Without it, text input and bundled reactions are still available.
+The keyboard only performs KLIPY search or media download with Full Access. Without it, text input and bundled reactions are still available.
 
 ### TestFlight release
 
-The GIPHY key can be supplied through `GIPHY_API_KEY` or stored in the macOS Keychain as `tiny-gifs-giphy-api-key`; it is never committed. A free beta key supports a low-traffic release with GIPHY's limit of 100 API calls per hour. The preflight validates access, not the key's pricing tier. Run it before archiving:
+The KLIPY key can be supplied through `KLIPY_API_KEY` or stored in the macOS Keychain as `tiny-gifs-klipy-api-key`; it is never committed. Testing keys are limited to 100 API calls per hour; request production access in the KLIPY Partner Panel. The preflight validates access, not the key's pricing tier. Run it before archiving. Compact sharing is gated until KLIPY grants written approval for local media resizing/caching; see [integration requirements](docs/klipy-integration.md).
 
 ```bash
 scripts/test-release-testflight.sh
 scripts/release-testflight.sh <next-build-number> --upload
 ```
 
-The release script validates the key against GIPHY, injects it only through a private temporary build configuration, and verifies that the containing app plus both embedded extensions have the requested build number and a resolved key before upload. Because GIPHY search runs from the iOS client, its API key is embedded in the shipped app; protect it with GIPHY's applicable app/domain restrictions and rotate it if it is abused.
+The release script validates the key against KLIPY, injects it only through a private temporary build configuration, and verifies that the containing app plus both embedded extensions have the requested build number and a resolved key before upload. Because KLIPY search runs from the iOS client, its API key is embedded in the shipped app; protect it with KLIPY's applicable app/domain restrictions and rotate it if it is abused.
 
 The eight owned starter reactions are `lol`, `nope`, `omg`, `brb`, `perfect`, `yes`, `yikes`, and `tiny clap`. Their deterministic vector sources live in `ios/Shared/ArtworkSources`; matching 300×300 PNG and GIF exports live in `ios/Shared/Resources/GIFs` and are included in the native targets. The test suite enforces the 500 KB per-file cap and PNG dimensions.
 
@@ -71,13 +71,13 @@ The checked-in GIFs are deliberately static fallback exports because this reposi
 
 The completed simulator evidence and remaining release checks are also recorded in [docs/validation/native-verification.md](docs/validation/native-verification.md).
 
-- Open the #tiny-gifs Messages app-drawer extension and confirm each GIF is sent immediately, the drawer closes only after a successful send, and it stays open with a useful error after a failed send.
+- Open the #tiny-gifs Messages app-drawer extension and select a GIF, and check whether it reaches the compose field or sends directly. Tap Messages Send when staged. Confirm animation timing and endings, and verify failed selections show a useful error.
 - Add the keyboard from Settings and confirm typing, delete, space, return, and globe behavior in a normal text field.
-- Configure a production GIPHY key and confirm that search returns results in the Messages extension, keyboard, and website; confirm the required GIPHY attribution is visible.
-- Confirm that enabling Full Access allows GIPHY and local GIF pasteboard copy and that the copy feedback is clear; without Full Access, typing and bundled reactions must remain usable.
+- Configure a production KLIPY key and confirm that search returns results in the Messages extension, keyboard, and website; confirm the required KLIPY attribution is visible.
+- Confirm that enabling Full Access allows KLIPY and local GIF pasteboard copy and that the copy feedback is clear; without Full Access, typing and bundled reactions must remain usable.
 - Test actual GIF footprint in Messages and at least two supported third-party chat apps. Receiving apps control final attachment rendering, so emoji-scale is a target rather than a universal fixed-size claim.
 - Verify custom-keyboard fallback behavior in secure fields and apps that reject third-party keyboards.
 
 ## Notes
 
-The starter reaction artwork is original and repo-owned. GIPHY supplies the optional full-library search and media downloads; #tiny-gifs has no analytics SDK or user account system.
+The starter reaction artwork is original and repo-owned. KLIPY supplies the optional full-library search and media downloads; #tiny-gifs has no analytics SDK or user account system.

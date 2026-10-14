@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 
 const source = readFileSync(new URL('../src/components/MessagesExperience.tsx', import.meta.url), 'utf8')
 
-test('Messages walkthrough exposes loading, empty, and failed GIPHY states', () => {
+test('Messages walkthrough exposes loading, empty, and failed KLIPY states', () => {
   assert.match(source, /'loading' \| 'ready' \| 'empty' \| 'error'/)
   assert.match(source, /Loading GIFs/)
   assert.match(source, /No GIFs found/)

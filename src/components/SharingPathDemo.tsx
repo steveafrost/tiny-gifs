@@ -7,11 +7,11 @@ type Path = 'messages' | 'keyboard'
 const pathCopy: Record<Path, { title: string; description: string }> = {
   messages: {
     title: 'Made for Messages.',
-    description: 'Open the drawer, search GIPHY or browse what is trending, then tap a tiny GIF to send it immediately. No copy-and-paste detour.',
+    description: 'Open the drawer, search KLIPY or browse what is trending, then choose a tiny GIF and tap Send. No copy-and-paste detour.',
   },
   keyboard: {
     title: 'Optional keyboard elsewhere.',
-    description: 'Type normally with no Full Access. Turn it on when you want to search GIPHY, copy a GIF, and paste into a supported chat.',
+    description: 'Type normally with no Full Access. Turn it on when you want to search KLIPY, copy a GIF, and paste into a supported chat.',
   },
 }
 

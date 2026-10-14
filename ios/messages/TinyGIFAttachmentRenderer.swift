@@ -20,28 +20,37 @@ enum TinyGIFMessageSender {
         localizedDescription: String,
         conversation: TinyGIFConversationSending
     ) async throws {
-        let sticker = try MSSticker(
-            contentsOfFileURL: stickerURL,
-            localizedDescription: localizedDescription
-        )
         try await withCheckedThrowingContinuation {
             (continuation: CheckedContinuation<Void, Error>) in
-            conversation.send(sticker) { error in
-                if let error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume()
-                }
+            startSend(stickerURL: stickerURL, localizedDescription: localizedDescription, conversation: conversation) { error in
+                if let error { continuation.resume(throwing: error) }
+                else { continuation.resume() }
             }
         }
     }
+
+    /// Invoke from the selection callback, before yielding the user interaction.
+    static func startSend(
+        stickerURL: URL,
+        localizedDescription: String,
+        conversation: TinyGIFConversationSending,
+        completionHandler: (@Sendable (Error?) -> Void)?
+    ) {
+        do {
+            let sticker = try MSSticker(contentsOfFileURL: stickerURL, localizedDescription: localizedDescription)
+            conversation.send(sticker, completionHandler: completionHandler)
+        } catch {
+            completionHandler?(error)
+        }
+    }
+
 }
 
 /// Builds a compact animated sticker whose file dimensions control its Messages
 /// transcript footprint. Regular attachments render as large media bubbles even
 /// when their pixel dimensions are small, so outgoing GIFs must use `MSSticker`.
 enum TinyGIFAttachmentRenderer {
-    static let canvasPixels: CGFloat = 192
+    static let canvasPixels: CGFloat = 288
     static let maximumFileBytes = 490_000
 
     private struct RenderAttempt {
@@ -63,7 +72,7 @@ enum TinyGIFAttachmentRenderer {
             options: .regularExpression
         )
         let destination = cacheDirectory.appendingPathComponent(
-            "\(safeIdentifier)-sticker-v15.gif"
+            "\(safeIdentifier)-sticker-v16.gif"
         )
         if let size = fileSize(at: destination), size <= maximumFileBytes {
             return destination
@@ -93,8 +102,9 @@ enum TinyGIFAttachmentRenderer {
         }
 
         for (attemptIndex, attempt) in attempts.enumerated() {
+            try Task.checkCancellation()
             let temporary = cacheDirectory.appendingPathComponent(
-                "\(safeIdentifier)-sticker-v15-\(attemptIndex)-\(UUID().uuidString)-temporary.gif"
+                "\(safeIdentifier)-sticker-v16-\(attemptIndex)-\(UUID().uuidString)-temporary.gif"
             )
             defer { try? fileManager.removeItem(at: temporary) }
             try writeGIF(
@@ -160,23 +170,26 @@ enum TinyGIFAttachmentRenderer {
         ] as CFDictionary)
 
         for (outputIndex, sourceIndex) in frameIndices.enumerated() {
-            guard let sourceFrame = CGImageSourceCreateImageAtIndex(source, sourceIndex, nil),
-                  let renderedFrame = renderFrame(sourceFrame, visiblePixels: visiblePixels),
-                  let encodedFrame = quantizedFrame(renderedFrame, levels: colorLevels) else {
-                throw TinyGIFAttachmentRendererError.unreadableFrame
+            try autoreleasepool {
+                try Task.checkCancellation()
+                guard let sourceFrame = CGImageSourceCreateImageAtIndex(source, sourceIndex, [kCGImageSourceShouldCache: false] as CFDictionary),
+                      let renderedFrame = renderFrame(sourceFrame, visiblePixels: visiblePixels),
+                      let encodedFrame = quantizedFrame(renderedFrame, levels: colorLevels) else {
+                    throw TinyGIFAttachmentRendererError.unreadableFrame
+                }
+                let nextSourceIndex = outputIndex + 1 < frameIndices.count
+                    ? frameIndices[outputIndex + 1]
+                    : sourceFrameCount
+                let duration = (sourceIndex..<nextSourceIndex).reduce(0.0) {
+                    $0 + frameDuration(source: source, at: $1)
+                }
+                CGImageDestinationAddImage(output, encodedFrame, [
+                    kCGImagePropertyGIFDictionary: [
+                        kCGImagePropertyGIFDelayTime: duration,
+                        kCGImagePropertyGIFUnclampedDelayTime: duration
+                    ]
+                ] as CFDictionary)
             }
-            let nextSourceIndex = outputIndex + 1 < frameIndices.count
-                ? frameIndices[outputIndex + 1]
-                : sourceFrameCount
-            let duration = (sourceIndex..<nextSourceIndex).reduce(0.0) {
-                $0 + frameDuration(source: source, at: $1)
-            }
-            CGImageDestinationAddImage(output, encodedFrame, [
-                kCGImagePropertyGIFDictionary: [
-                    kCGImagePropertyGIFDelayTime: duration,
-                    kCGImagePropertyGIFUnclampedDelayTime: duration
-                ]
-            ] as CFDictionary)
         }
 
         guard CGImageDestinationFinalize(output) else {

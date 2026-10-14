@@ -6,7 +6,7 @@ import ImageIO
 final class MessagesViewController: MSMessagesAppViewController, UISearchBarDelegate {
     private let searchBar = UISearchBar()
     private let statusLabel = UILabel()
-    private let attribution = UIImageView()
+    private let attribution = UILabel()
     private let picker = TinyGIFPickerViewController()
     private var sendState = TinyGIFSendState()
 
@@ -19,7 +19,7 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
 
-        searchBar.placeholder = "Search GIFs"
+        searchBar.placeholder = "Search KLIPY"
         searchBar.delegate = self
         searchBar.autocapitalizationType = .none
         searchBar.searchBarStyle = .minimal
@@ -34,9 +34,10 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
         statusLabel.accessibilityIdentifier = "tiny-gifs.status"
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        attribution.image = UIImage(named: "PoweredByGiphy")
-        attribution.contentMode = .scaleAspectFit
-        attribution.accessibilityLabel = "Powered by GIPHY"
+        attribution.text = "Powered by KLIPY"
+        attribution.font = .systemFont(ofSize: 10, weight: .semibold)
+        attribution.textAlignment = .right
+        attribution.accessibilityLabel = "Powered by KLIPY"
         attribution.isAccessibilityElement = true
         attribution.translatesAutoresizingMaskIntoConstraints = false
 
@@ -86,6 +87,10 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
     }
 
     private func send(_ item: GIFPickerItem) {
+        guard KlipyService.isMediaProcessingEnabled else {
+            setStatus("GIF sharing is not available yet")
+            return
+        }
         guard sendState.begin() else { return }
         guard let conversation = activeConversation else {
             sendState.finish()
@@ -93,13 +98,15 @@ final class MessagesViewController: MSMessagesAppViewController, UISearchBarDele
             return
         }
         setStatus("Preparing GIF…")
-        let sourceURL = item.url
+        let gif = item.gif
         let itemID = item.id
         let description = item.title.isEmpty ? "Tiny animated GIF" : item.title
         Task { [weak self, conversation] in
             do {
+                let sourceURL = try await KlipyService.localGIFURL(for: gif)
+                defer { try? FileManager.default.removeItem(at: sourceURL) }
                 let attachmentURL = try await Task.detached(priority: .userInitiated) {
-                    try TinyGIFAttachmentRenderer.render(sourceURL: sourceURL, identifier: itemID)
+                    try TinyGIFAttachmentRenderer.render(sourceURL: sourceURL, identifier: "klipy-" + itemID)
                 }.value
                 try await TinyGIFMessageSender.send(
                     stickerURL: attachmentURL,
@@ -123,6 +130,7 @@ private struct GIFPickerItem: Identifiable, Hashable {
     let id: String
     let title: String
     let url: URL
+    let gif: KlipyGIF
 }
 
 @MainActor
@@ -134,7 +142,7 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
     private var items: [GIFPickerItem] = []
     private let pageSize = 24
     private var activeQuery: String?
-    private var nextOffset = 0
+    private var nextPage = 1
     private var isLoadingPage = false
     private var canLoadMore = true
     private var requestGeneration = TinyGIFRequestGeneration()
@@ -170,8 +178,8 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
     }
 
     func loadTrending() {
-        guard GiphyService.isConfigured else {
-            beginUnavailable(message: "GIPHY needs a production API key")
+        guard KlipyService.isConfigured else {
+            beginUnavailable(message: "GIF browsing is not available yet")
             return
         }
         beginLoading(query: nil, status: "Loading trending GIFs…")
@@ -180,11 +188,11 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
     func search(_ query: String) {
         let cleaned = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleaned.isEmpty else { loadTrending(); return }
-        guard GiphyService.isConfigured else {
-            beginUnavailable(message: "GIPHY needs a production API key")
+        guard KlipyService.isConfigured else {
+            beginUnavailable(message: "GIF browsing is not available yet")
             return
         }
-        beginLoading(query: cleaned, status: "Searching GIPHY…")
+        beginLoading(query: query, status: "Searching KLIPY…")
     }
 
     private func beginLoading(query: String?, status: String) {
@@ -192,7 +200,7 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
         pageTask = nil
         _ = requestGeneration.begin()
         activeQuery = query
-        nextOffset = 0
+        nextPage = 0
         canLoadMore = true
         isLoadingPage = false
         showLoading(message: status)
@@ -204,7 +212,7 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
         pageTask = nil
         _ = requestGeneration.begin()
         isLoadingPage = false
-        nextOffset = 0
+        nextPage = 0
         canLoadMore = false
         showUnavailable(message: message)
     }
@@ -222,36 +230,29 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
     }
 
     private func loadNextPage() {
-        guard !isLoadingPage, canLoadMore, GiphyService.isConfigured else { return }
+        guard !isLoadingPage, canLoadMore, KlipyService.isConfigured else { return }
         isLoadingPage = true
         let request = requestGeneration.current
         let query = activeQuery
-        let offset = nextOffset
+        let pageNumber = nextPage
         pageTask = Task { [weak self] in
             guard let self else { return }
             do {
-                let gifs: [GiphyGIF]
+                let page: KlipyPage
                 if let query {
-                    gifs = try await GiphyService.search(query, limit: self.pageSize, offset: offset)
+                    page = try await KlipyService.search(query, limit: self.pageSize, page: pageNumber)
                 } else {
-                    gifs = try await GiphyService.trending(limit: self.pageSize, offset: offset)
+                    page = try await KlipyService.trending(limit: self.pageSize, page: pageNumber)
                 }
                 guard !Task.isCancelled,
                       self.requestGeneration.isCurrent(request) else { return }
-                var loaded: [GIFPickerItem] = []
-                for gif in gifs {
-                    guard !Task.isCancelled,
-                          self.requestGeneration.isCurrent(request) else { return }
-                    if let url = try? await GiphyService.localGIFURL(for: gif) {
-                        loaded.append(GIFPickerItem(id: gif.id, title: gif.title, url: url))
-                    }
+                let loaded = page.items.map {
+                    GIFPickerItem(id: $0.id, title: $0.title, url: $0.tinyPreviewURL, gif: $0)
                 }
-                guard !Task.isCancelled,
-                      self.requestGeneration.isCurrent(request) else { return }
                 self.pageTask = nil
                 self.isLoadingPage = false
-                self.nextOffset += gifs.count
-                self.canLoadMore = gifs.count == self.pageSize
+                self.nextPage += 1
+                self.canLoadMore = page.hasNext
                 guard !loaded.isEmpty else {
                     if self.items.isEmpty { self.showUnavailable(message: "No GIFs found — try another search") }
                     return
@@ -264,7 +265,7 @@ private final class TinyGIFPickerViewController: UIViewController, UICollectionV
                       self.requestGeneration.isCurrent(request) else { return }
                 self.pageTask = nil
                 self.isLoadingPage = false
-                if self.items.isEmpty { self.showUnavailable(message: "GIPHY is unavailable — try again") }
+                if self.items.isEmpty { self.showUnavailable(message: "KLIPY is unavailable — try again") }
             }
         }
     }
@@ -295,6 +296,7 @@ private final class GIFPickerCell: UICollectionViewCell {
     static let reuseIdentifier = "GIFPickerCell"
 
     private let imageView = UIImageView()
+    private var previewTask: Task<Void, Never>?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -318,22 +320,30 @@ private final class GIFPickerCell: UICollectionViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
+        previewTask?.cancel()
+        previewTask = nil
         imageView.image = nil
     }
 
     func configure(with item: GIFPickerItem) {
-        imageView.image = AnimatedGIFImage.load(from: item.url)
+        previewTask?.cancel()
+        imageView.image = nil
+        previewTask = Task { [weak self] in
+            guard let (data, response) = try? await URLSession.shared.data(from: item.url),
+                  let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode),
+                  !Task.isCancelled else { return }
+            let image = AnimatedGIFImage.load(data: data)
+            guard !Task.isCancelled else { return }
+            self?.imageView.image = image
+        }
         accessibilityIdentifier = "tiny-gifs.gif.\(item.id)"
         accessibilityLabel = "Send \(item.title) GIF"
     }
 }
 
 private enum AnimatedGIFImage {
-    private static let cache = NSCache<NSURL, UIImage>()
-
-    static func load(from url: URL) -> UIImage? {
-        if let cached = cache.object(forKey: url as NSURL) { return cached }
-        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+    static func load(data: Data) -> UIImage? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
         let frameCount = CGImageSourceGetCount(source)
         guard frameCount > 0 else { return nil }
 
@@ -345,7 +355,6 @@ private enum AnimatedGIFImage {
             duration += frameDuration(source: source, at: index)
         }
         let result = frames.count == 1 ? frames.first : UIImage.animatedImage(with: frames, duration: max(duration, 0.1))
-        if let result { cache.setObject(result, forKey: url as NSURL) }
         return result
     }
 

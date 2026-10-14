@@ -228,7 +228,7 @@ if (command === 'developer-resources') {
   if (!detailID || !firstName || !lastName || !email || !phone) throw new Error('beta-review-detail-update requires <detail-id> <first-name> <last-name> <email> <phone>')
   const result = await request(`/betaAppReviewDetails/${detailID}`, {
     method: 'PATCH',
-    body: JSON.stringify({ data: { type: 'betaAppReviewDetails', id: detailID, attributes: { contactFirstName: firstName, contactLastName: lastName, contactEmail: email, contactPhone: phone, demoAccountRequired: false, notes: 'No account is required. Review the Messages extension for the primary sharing flow. The optional keyboard types normally without Full Access; Full Access is used only for optional GIPHY search and local pasteboard copy.' } } }),
+    body: JSON.stringify({ data: { type: 'betaAppReviewDetails', id: detailID, attributes: { contactFirstName: firstName, contactLastName: lastName, contactEmail: email, contactPhone: phone, demoAccountRequired: false, notes: 'No account is required. Review the Messages extension for the primary sharing flow. The optional keyboard types normally without Full Access; Full Access is used only for optional KLIPY search and local pasteboard copy.' } } }),
   })
   console.log(JSON.stringify(result, null, 2))
 } else if (command === 'beta-review-submission-create') {
