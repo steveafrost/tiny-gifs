@@ -4,8 +4,10 @@
 <dict>
 	<key>CFBundleDisplayName</key>
 	<string>#tiny-gifs</string>
-	<key>GIPHY_API_KEY</key>
-	<string>$(GIPHY_API_KEY)</string>
+	<key>KLIPY_MEDIA_PROCESSING_APPROVED</key>
+	<string>$(KLIPY_MEDIA_PROCESSING_APPROVED)</string>
+	<key>KLIPY_API_KEY</key>
+	<string>$(KLIPY_API_KEY)</string>
 	<key>MSMessagesExtensionStoreIconName</key>
 	<string>iMessage App Icon</string>
 	<key>NSExtension</key>

@@ -17,11 +17,11 @@ export function InfoPage({ page }: { page: Page }) {
 
 function PrivacyContent() {
   return <div className="info-page__content">
-    <p>#tiny-gifs uses GIPHY to power a searchable GIF drawer in Messages and optional keyboard search. The app has no account, analytics SDK, or advertising SDK.</p>
+    <p>#tiny-gifs uses KLIPY to power a searchable GIF drawer in Messages and optional keyboard search. The app has no account, analytics SDK, or advertising SDK.</p>
     <h2>Keyboard privacy</h2>
-    <p>The keyboard never records, stores, or transmits what you type. It works without Full Access for typing. If you enable Full Access, a GIF search term is sent to GIPHY to find media and the selected GIF is downloaded to copy to the system pasteboard. Conversation text and typed characters are never sent.</p>
+    <p>The keyboard never records, stores, or transmits what you type. It works without Full Access for typing. If you enable Full Access, a GIF search term is sent to KLIPY to find media and the selected GIF is downloaded to copy to the system pasteboard. Conversation text and typed characters are never sent.</p>
     <h2>Questions</h2>
-    <p>GIPHY handles its service requests under its own privacy terms. #tiny-gifs does not create a user profile or retain a search history on a server.</p>
+    <p>KLIPY receives GIF search terms and media requests under its <a href="https://klipy.com/support/privacy-policy">privacy policy</a>. Requests also expose normal connection information such as your IP address. #tiny-gifs does not create a user profile or retain a search history on a server.</p>
   </div>
 }
 
@@ -30,7 +30,7 @@ function SupportContent() {
     <h2>Start with Messages</h2>
     <ol><li>Install #tiny-gifs on your iPhone.</li><li>Open a Messages conversation and tap the app drawer.</li><li>Choose #tiny-gifs, then tap a GIF to send it immediately.</li></ol>
     <h2>Use the optional keyboard</h2>
-    <ol><li>Go to Settings → General → Keyboard → Keyboards → Add New Keyboard.</li><li>Add #tiny-gifs. It types without Full Access.</li><li>Turn on Full Access to search GIPHY, tap a GIF to copy it, then paste it into a supported chat field.</li></ol>
+    <ol><li>Go to Settings → General → Keyboard → Keyboards → Add New Keyboard.</li><li>Add #tiny-gifs. It types without Full Access.</li><li>Turn on Full Access to search KLIPY, tap a GIF to copy it, then paste it into a supported chat field.</li></ol>
     <p>Messaging apps control final attachment rendering. The compact GIF assets are designed for large-emoji scale, but exact display size varies by app.</p>
   </div>
 }

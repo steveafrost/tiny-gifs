@@ -1,4 +1,4 @@
-import { GiphyExplorer } from './components/GiphyExplorer'
+import { KlipyExplorer } from './components/KlipyExplorer'
 import { InfoPage } from './components/InfoPages'
 import { InstallCta } from './components/InstallCta'
 import { MessagesExperience } from './components/MessagesExperience'
@@ -28,7 +28,7 @@ function Hero() {
     <div className="hero__copy">
       <p className="eyebrow"><SignalMark /> SMALL SIGNALS. BIG TIMING.</p>
       <h1 id="hero-title">The smallest thing<br /><em>that says a lot.</em></h1>
-      <p className="hero__lede">Tiny GIFs brings the real GIPHY library into Messages, so the feeling lands before you have to find the words.</p>
+      <p className="hero__lede">Tiny GIFs brings the real KLIPY library into Messages, so the feeling lands before you have to find the words.</p>
       <div className="hero__actions"><InstallCta className="button button--primary">Get Tiny GIFs <Arrow /></InstallCta><a className="text-link" href="#library">Find your signal <Arrow /></a></div>
       <p className="hero__note">Made for Messages. One tap sends; the optional keyboard is only for supported copy-and-paste chats.</p>
     </div>
@@ -41,7 +41,7 @@ function HowItWorks() {
     <div><p className="eyebrow">The tiny gifs rhythm</p><h2 id="how-title">Less explaining.<br />More <em>exactly.</em></h2></div>
     <ol>
       <li><span>01</span><div><strong>Catch the moment</strong><p>Open Tiny GIFs beside the message field—right where the conversation is happening.</p></div></li>
-      <li><span>02</span><div><strong>Find the feeling</strong><p>Search GIPHY or browse what is moving now. The full library is already in the drawer.</p></div></li>
+      <li><span>02</span><div><strong>Find the feeling</strong><p>Search KLIPY or browse what is moving now. The full library is already in the drawer.</p></div></li>
       <li><span>03</span><div><strong>Keep the beat</strong><p>Tap once to send a compact animated attachment, then carry on talking.</p></div></li>
     </ol>
   </section>
@@ -52,7 +52,7 @@ function CompanionApp() {
     <div className="app-guide__copy"><p className="eyebrow"><SignalMark /> The downloaded app</p><h2 id="app-title">Open once.<br />Make it <em>yours.</em></h2><p>The downloaded app gives the Tiny GIFs signal its home: a quick orientation to the one-tap Messages path, with the keyboard kept clearly secondary.</p><InstallCta className="button button--light">Get Tiny GIFs <Arrow /></InstallCta></div>
     <div className="app-guide__screen" aria-label="A preview of the Tiny GIFs first-launch app">
       <div className="app-guide__status"><span>9:41</span><span>◒ ◔ ◼</span></div>
-      <div className="app-guide__content"><p><span className="app-guide__mini-mark" aria-hidden="true">•••</span> tiny gifs <b>SMALL SIGNALS</b></p><h3>A little more you,<br />in Messages.</h3><span>The real GIPHY library is right beside the message field.</span><div className="app-guide__message-preview"><div>Need a reaction for that.</div><p><span>⌕</span> Search GIPHY <b>tiny gifs</b></p><small>Open the drawer. Find the feeling. Send it.</small></div><div className="app-guide__action">Open Messages</div><div className="app-guide__optional"><strong>Optional keyboard</strong><span>Only for copy-and-paste in supported chats.</span></div></div>
+      <div className="app-guide__content"><p><span className="app-guide__mini-mark" aria-hidden="true">•••</span> tiny gifs <b>SMALL SIGNALS</b></p><h3>A little more you,<br />in Messages.</h3><span>The real KLIPY library is right beside the message field.</span><div className="app-guide__message-preview"><div>Need a reaction for that.</div><p><span>⌕</span> Search KLIPY <b>tiny gifs</b></p><small>Open the drawer. Find the feeling. Send it.</small></div><div className="app-guide__action">Open Messages</div><div className="app-guide__optional"><strong>Optional keyboard</strong><span>Only for copy-and-paste in supported chats.</span></div></div>
     </div>
   </section>
 }
@@ -72,5 +72,5 @@ function Footer() {
 export default function App() {
   if (window.location.pathname === '/privacy') return <InfoPage page="privacy" />
   if (window.location.pathname === '/support') return <InfoPage page="support" />
-  return <><Header /><main><Hero /><GiphyExplorer /><HowItWorks /><CompanionApp /><ProductNotes /></main><Footer /></>
+  return <><Header /><main><Hero /><KlipyExplorer /><HowItWorks /><CompanionApp /><ProductNotes /></main><Footer /></>
 }

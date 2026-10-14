@@ -17,7 +17,7 @@ test('product site carries Tiny GIFs’ small-signal brand while keeping the con
 
 test('brand small text preserves AA contrast on its paper and signal surfaces', () => {
   assert.match(styles, /hero__note \{[^}]*color: #665951/)
-  assert.match(styles, /giphy-explorer__meta \{[^}]*color: #665951/)
+  assert.match(styles, /klipy-explorer__meta \{[^}]*color: #665951/)
   assert.match(styles, /app-guide \.eyebrow \{ color: #38120e/)
   assert.match(styles, /app-guide__copy > p:not\(\.eyebrow\) \{[^}]*color: #38120e/)
 })
@@ -27,11 +27,11 @@ test('first-launch app applies the brand while keeping Messages primary and the 
   assert.match(app, /Your three-second tour/)
   assert.match(app, /Open Messages/)
   assert.match(app, /Optional keyboard/)
-  assert.match(app, /Search GIPHY in the drawer/)
+  assert.match(app, /Search KLIPY in the drawer/)
   assert.match(app, /brandAccent/)
   assert.match(app, /static let brandAccent = Color\(uiColor: UIColor \{ traits in/)
   assert.match(app, /traits\.userInterfaceStyle == \.dark/)
   assert.match(app, /openURL\(URL\(string: "sms:"\)!\)/)
   assert.doesNotMatch(app, /\.preferredColorScheme\(\.light\)/)
-  assert.doesNotMatch(app, /GIPHY SEARCH/)
+  assert.doesNotMatch(app, /KLIPY SEARCH/)
 })

@@ -5,6 +5,37 @@ import Messages
 import UniformTypeIdentifiers
 
 final class CatalogIntegrityTests: XCTestCase {
+    func testKlipyDecodesProviderPagingAndPreservesDeliveryURLs() throws {
+        let data = Data(#"{"result":true,"data":{"has_next":true,"data":[{"id":6914457558367152,"slug":"hello","type":"gif","title":"Hello","file":{"sm":{"gif":{"url":"https://static.klipy.com/preview.gif?delivery=keep"}},"hd":{"gif":{"url":"https://static.klipy.com/full.gif?delivery=keep"}}}}]}}"#.utf8)
+        let page = try JSONDecoder().decode(KlipyPage.self, from: data)
+        XCTAssertTrue(page.hasNext)
+        XCTAssertEqual(page.items.first?.id, "6914457558367152")
+        XCTAssertEqual(page.items.first?.tinyPreviewURL.absoluteString, "https://static.klipy.com/preview.gif?delivery=keep")
+        XCTAssertEqual(page.items.first?.tinyGIFURL.absoluteString, "https://static.klipy.com/full.gif?delivery=keep")
+        XCTAssertThrowsError(try JSONDecoder().decode(KlipyPage.self, from: Data(#"{"result":false,"data":{"has_next":false,"data":[]}}"#.utf8)))
+    }
+
+    func testKlipyDoesNotProcessMediaBeforeApproval() async throws {
+        XCTAssertFalse(KlipyService.isMediaProcessingApproved)
+        let data = Data(#"{"id":"1","slug":"hello","file":{"hd":{"gif":{"url":"https://static.klipy.com/full.gif"}}}}"#.utf8)
+        let gif = try JSONDecoder().decode(KlipyGIF.self, from: data)
+        do {
+            _ = try await KlipyService.localGIFURL(for: gif)
+            XCTFail("Unapproved media processing must not start a download")
+        } catch KlipyServiceError.sharingUnavailable {
+            // Expected: the approval gate rejects before making a network request.
+        }
+    }
+
+    func testKlipyRequestPreservesSearchAndUsesProviderPageNumbers() throws {
+        let url = KlipyService.requestURL(apiKey: "test-key", query: " hello & bye! ", limit: 24, page: 2)
+        let query = try XCTUnwrap(URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems)
+        XCTAssertEqual(url.path, "/api/v1/test-key/gifs/search")
+        XCTAssertEqual(query.first { $0.name == "q" }?.value, " hello & bye! ")
+        XCTAssertEqual(query.first { $0.name == "page" }?.value, "2")
+        XCTAssertEqual(query.first { $0.name == "content_filter" }?.value, "high")
+    }
+
     func testStarterCatalogHasExactlyEightUniqueOwnedReactions() {
         XCTAssertEqual(ReactionCatalog.all.count, 8)
         XCTAssertEqual(Set(ReactionCatalog.all.map(\.id)).count, 8)

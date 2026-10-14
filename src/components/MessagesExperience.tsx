@@ -1,19 +1,19 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { toGifItems } from '../lib/giphy.js'
+import { klipyRequestURL, toGifItems } from '../lib/klipy.js'
 
-type GiphyItem = { id: string; title: string; previewUrl: string; gifUrl: string; sourceUrl: string }
-type GiphyResponse = { data: Array<{ id: string; title: string; url?: string; images?: { fixed_width_small?: { webp?: string; url?: string }; fixed_height?: { url?: string } } }> }
+type KlipyItem = { id: string; title: string; previewUrl: string; gifUrl: string; slug: string }
+
 type SendState = 'browsing' | 'sending' | 'sent'
 type GifStatus = 'loading' | 'ready' | 'empty' | 'error'
 
-const apiKey = import.meta.env.VITE_GIPHY_API_KEY?.trim()
+const apiKey = import.meta.env.VITE_KLIPY_API_KEY?.trim()
 
 export function MessagesExperience() {
   const [query, setQuery] = useState('')
-  const [gifs, setGifs] = useState<GiphyItem[]>([])
+  const [gifs, setGifs] = useState<KlipyItem[]>([])
   const [status, setStatus] = useState<GifStatus>('loading')
   const [requestVersion, setRequestVersion] = useState(0)
-  const [selected, setSelected] = useState<GiphyItem | null>(null)
+  const [selected, setSelected] = useState<KlipyItem | null>(null)
   const [state, setState] = useState<SendState>('browsing')
 
   useEffect(() => {
@@ -22,17 +22,15 @@ export function MessagesExperience() {
     const timeout = window.setTimeout(async () => {
       setStatus('loading')
       try {
-        const params = new URLSearchParams({ api_key: apiKey, limit: '6', rating: 'g', bundle: 'messaging_non_clips' })
-        const term = query.trim()
-        if (term) params.set('q', term)
-        const response = await fetch(`https://api.giphy.com/v1/gifs/${term ? 'search' : 'trending'}?${params}`, { signal: controller.signal })
-        if (!response.ok) throw new Error('GIPHY request failed')
-        const payload = await response.json() as GiphyResponse
-        const nextGifs = toGifItems(payload.data) as GiphyItem[]
+        const response = await fetch(klipyRequestURL(apiKey, { query, limit: 8 }), { signal: controller.signal })
+        if (!response.ok) throw new Error('KLIPY request failed')
+        const payload = await response.json()
+        const nextGifs = toGifItems(payload) as KlipyItem[]
+        if (controller.signal.aborted) return
         setGifs(nextGifs)
         setStatus(nextGifs.length ? 'ready' : 'empty')
       } catch (error) {
-        if ((error as Error).name !== 'AbortError') {
+        if (!controller.signal.aborted && (error as Error).name !== 'AbortError') {
           setGifs([])
           setStatus('error')
         }
@@ -41,14 +39,14 @@ export function MessagesExperience() {
     return () => { controller.abort(); window.clearTimeout(timeout) }
   }, [query, requestVersion])
 
-  function sendGif(gif: GiphyItem) {
+  function sendGif(gif: KlipyItem) {
     if (state !== 'browsing') return
     setSelected(gif)
     setState('sending')
     window.setTimeout(() => setState('sent'), 350)
   }
 
-  const drawerHint = status === 'ready' ? 'Tap a GIF once to send it.' : status === 'loading' ? 'Loading GIFs…' : 'Search GIPHY for a reaction.'
+  const drawerHint = status === 'ready' ? 'Tap a GIF once to send it.' : status === 'loading' ? 'Loading GIFs…' : 'Search KLIPY for a reaction.'
 
   return <section className="messages-experience" aria-label="Interactive Messages drawer walkthrough">
     <div className="messages-experience__chrome"><span>‹</span><b>Messages</b><i /></div>
@@ -59,18 +57,18 @@ export function MessagesExperience() {
     <div className="messages-experience__composer"><b>+</b><span>iMessage</span><i>↑</i></div>
     {state === 'sent' ? <div className="messages-experience__complete" aria-live="polite"><div><strong>Sent with one tap.</strong><span>The drawer closes after a successful send.</span></div><button type="button" onClick={() => { setQuery(''); setState('browsing') }}>Try another</button></div> : <div className="messages-experience__drawer">
       <div className="messages-experience__handle" />
-      <div className="messages-experience__drawer-header"><strong>tiny gifs</strong><span>Powered by GIPHY</span></div>
-      <label className="messages-experience__search"><span className="visually-hidden">Search GIFs in the walkthrough</span><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="4.8" fill="none" stroke="currentColor" strokeWidth="1.6" /><path d="m12 12 4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search GIFs" /></label>
+      <div className="messages-experience__drawer-header"><strong>tiny gifs</strong><span>Powered by KLIPY</span></div>
+      <label className="messages-experience__search"><span className="visually-hidden">Search GIFs in the walkthrough</span><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="4.8" fill="none" stroke="currentColor" strokeWidth="1.6" /><path d="m12 12 4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search KLIPY" /></label>
       <p>{drawerHint}</p>
       <div className="messages-experience__grid" aria-live="polite">
-        {!apiKey && <DrawerState><strong>Real GIPHY GIFs load here.</strong><span>This local preview does not include the production API key.</span></DrawerState>}
+        {!apiKey && <DrawerState><strong>Real KLIPY GIFs load here.</strong><span>This local preview does not include the production API key.</span></DrawerState>}
         {apiKey && status === 'loading' && <DrawerState>Loading GIFs…</DrawerState>}
         {apiKey && status === 'ready' && gifs.map((gif) => <button key={gif.id} type="button" onClick={() => sendGif(gif)} disabled={state !== 'browsing'} aria-label={`Send ${gif.title} GIF`}><img src={gif.previewUrl} alt="" /></button>)}
         {apiKey && status === 'empty' && <DrawerState><strong>No GIFs found.</strong><span>Try another search.</span></DrawerState>}
         {apiKey && status === 'error' && <DrawerState><strong>We couldn't load GIFs.</strong><button className="messages-experience__retry" type="button" onClick={() => setRequestVersion((value) => value + 1)}>Try again</button></DrawerState>}
       </div>
     </div>}
-    <p className="messages-experience__caption">A faithful walkthrough of the native flow — search GIPHY in the drawer, tap one GIF, then return to the conversation.</p>
+    <p className="messages-experience__caption">A faithful walkthrough of the native flow — search KLIPY in the drawer, tap one GIF, then return to the conversation.</p>
   </section>
 }
 

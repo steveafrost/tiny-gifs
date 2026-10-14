@@ -20,8 +20,10 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>GIPHY_API_KEY</key>
-	<string>$(GIPHY_API_KEY)</string>
+	<key>KLIPY_MEDIA_PROCESSING_APPROVED</key>
+	<string>$(KLIPY_MEDIA_PROCESSING_APPROVED)</string>
+	<key>KLIPY_API_KEY</key>
+	<string>$(KLIPY_API_KEY)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>

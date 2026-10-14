@@ -5,18 +5,18 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 project="$root/ios/TinyGIFs.xcodeproj"
 scheme="TinyGIFs"
 export_options="$root/ios/ExportOptions.plist"
-keychain_service="${TINY_GIFS_GIPHY_KEYCHAIN_SERVICE:-tiny-gifs-giphy-api-key}"
+keychain_service="${TINY_GIFS_KLIPY_KEYCHAIN_SERVICE:-tiny-gifs-klipy-api-key}"
 
 usage() {
   cat <<'USAGE'
 Usage: scripts/release-testflight.sh <build-number> [--validate|--archive|--upload]
 
-Reads the GIPHY key (beta or production) from GIPHY_API_KEY or the macOS Keychain item
-"tiny-gifs-giphy-api-key". The key is placed only in a temporary build config,
+Reads the KLIPY key (beta or production) from KLIPY_API_KEY or the macOS Keychain item
+"tiny-gifs-klipy-api-key". The key is placed only in a temporary build config,
 never written into the repository or printed in logs.
 
 Modes:
-  --validate  Verify that a GIPHY key is available and accepted.
+  --validate  Verify that a KLIPY key is available and accepted.
   --archive   Create and inspect a signed archive with the supplied build number.
   --upload    Archive, inspect, and upload to App Store Connect.
 USAGE
@@ -38,12 +38,12 @@ case "$mode" in
   *) usage >&2; exit 64 ;;
 esac
 
-api_key="${GIPHY_API_KEY:-}"
+api_key="${KLIPY_API_KEY:-}"
 if [[ -z "$api_key" ]]; then
   api_key="$(security find-generic-password -s "$keychain_service" -w 2>/dev/null || true)"
 fi
 if [[ -z "$api_key" ]]; then
-  echo "A GIPHY key is required. Set GIPHY_API_KEY or add the Keychain item '$keychain_service'." >&2
+  echo "A KLIPY key is required. Set KLIPY_API_KEY or add the Keychain item '$keychain_service'." >&2
   exit 65
 fi
 
@@ -57,10 +57,10 @@ chmod 700 "$workdir"
 report_build_failure() {
   local saved_log
   saved_log="$(mktemp "${TMPDIR:-/tmp}/tiny-gifs-release-failure.XXXXXX")"
-  GIPHY_API_KEY="$api_key" node --input-type=module - "$log" "$saved_log" <<'JS'
+  KLIPY_API_KEY="$api_key" node --input-type=module - "$log" "$saved_log" <<'JS'
 import { readFileSync, writeFileSync } from 'node:fs'
 const sanitized = readFileSync(process.argv[2], 'utf8')
-  .split(process.env.GIPHY_API_KEY).join('[redacted]')
+  .split(process.env.KLIPY_API_KEY).join('[redacted]')
 writeFileSync(process.argv[3], sanitized, { mode: 0o600 })
 const lines = sanitized.split('\n').filter(line => /error:|Error|failed|errSec|not allowed|not permitted|Authentication/.test(line))
 console.error(lines.slice(-20).map(line => line.slice(0, 1000)).join('\n'))
@@ -69,17 +69,22 @@ JS
 }
 
 # Pass the credential through the child environment, never process arguments.
-GIPHY_API_KEY="$api_key" node "$root/scripts/validate-giphy-key.mjs"
+KLIPY_API_KEY="$api_key" node "$root/scripts/validate-klipy-key.mjs"
 
 if [[ "$mode" == "--validate" ]]; then
   exit 0
+fi
+
+if [[ "${KLIPY_MEDIA_PROCESSING_APPROVED:-NO}" != "YES" ]]; then
+  echo "Compact KLIPY sharing requires written KLIPY approval for local media processing. Set KLIPY_MEDIA_PROCESSING_APPROVED=YES only after approval." >&2
+  exit 65
 fi
 
 build_config="$workdir/ReleaseOverrides.xcconfig"
 # Keep this file private: Info.plist variable substitution embeds the API key in the
 # product, but it must not land in source control or command-line build logs.
 umask 077
-printf 'GIPHY_API_KEY = %s\nCURRENT_PROJECT_VERSION = %s\n' "$api_key" "$build_number" > "$build_config"
+printf 'KLIPY_API_KEY = %s\nCURRENT_PROJECT_VERSION = %s\nKLIPY_MEDIA_PROCESSING_APPROVED = YES\n' "$api_key" "$build_number" > "$build_config"
 
 archive="$root/build/TinyGIFs-${build_number}.xcarchive"
 log="$workdir/xcodebuild.log"
@@ -111,13 +116,13 @@ for plist in "${expected_plists[@]}"; do
     exit 1
   fi
   archived_build="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$plist" 2>/dev/null || true)"
-  archived_key="$(/usr/libexec/PlistBuddy -c 'Print :GIPHY_API_KEY' "$plist" 2>/dev/null || true)"
+  archived_key="$(/usr/libexec/PlistBuddy -c 'Print :KLIPY_API_KEY' "$plist" 2>/dev/null || true)"
   if [[ "$archived_build" != "$build_number" ]]; then
     echo "Archive bundle version mismatch in ${plist#$archive/}: expected $build_number." >&2
     exit 1
   fi
-  if [[ -z "$archived_key" || "$archived_key" == *'$(GIPHY_API_KEY)'* ]]; then
-    echo "Archive is missing a resolved GIPHY key in ${plist#$archive/}." >&2
+  if [[ -z "$archived_key" || "$archived_key" == *'$(KLIPY_API_KEY)'* ]]; then
+    echo "Archive is missing a resolved KLIPY key in ${plist#$archive/}." >&2
     exit 1
   fi
 done
@@ -133,7 +138,7 @@ if [[ "$uses_non_exempt_encryption" != "false" ]]; then
   echo "Archive does not declare that Tiny GIFs uses no non-exempt encryption." >&2
   exit 1
 fi
-echo "Verified build $build_number, resolved GIPHY configuration, export compliance, and keyboard Open Access in app and extensions."
+echo "Verified build $build_number, resolved KLIPY configuration, export compliance, and keyboard Open Access in app and extensions."
 
 if [[ "$mode" == "--upload" ]]; then
   if ! xcodebuild \

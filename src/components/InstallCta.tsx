@@ -42,7 +42,7 @@ export function InstallCta({ children, className = '' }: InstallCtaProps) {
         <button ref={closeButtonRef} className="install-sheet__close" type="button" onClick={() => setIsOpen(false)} aria-label="Close install information">×</button>
         <p className="install-sheet__label">#tiny-gifs</p>
         <h2 id="install-sheet-title">Your install link is not configured here.</h2>
-        <p>#tiny-gifs comes through an iPhone app. Its GIPHY-powered Messages drawer is the primary path; the keyboard is optional for supported apps elsewhere.</p>
+        <p>#tiny-gifs comes through an iPhone app. Its KLIPY-powered Messages drawer is the primary path; the keyboard is optional for supported apps elsewhere.</p>
         <ol>
           <li>Install the app from its App Store or beta link.</li>
           <li>Open #tiny-gifs in the Messages app drawer, then tap a GIF to send it immediately.</li>
