@@ -74,13 +74,14 @@ enum KlipyService {
         Bundle.main.object(forInfoDictionaryKey: "KLIPY_MEDIA_PROCESSING_APPROVED") as? String == "YES"
     }
 
-    static func mediaProcessingEnabled(approved: Bool, internalTesting: Bool) -> Bool {
-        approved || internalTesting
+    static func mediaProcessingEnabled(approved: Bool, internalTesting: Bool, reviewPending: Bool = false) -> Bool {
+        approved || internalTesting || reviewPending
     }
     static var isMediaProcessingEnabled: Bool {
         mediaProcessingEnabled(
             approved: isMediaProcessingApproved,
-            internalTesting: Bundle.main.object(forInfoDictionaryKey: "KLIPY_INTERNAL_TESTING") as? String == "YES"
+            internalTesting: Bundle.main.object(forInfoDictionaryKey: "KLIPY_INTERNAL_TESTING") as? String == "YES",
+            reviewPending: Bundle.main.object(forInfoDictionaryKey: "KLIPY_REVIEW_PENDING") as? String == "YES"
         )
     }
 
