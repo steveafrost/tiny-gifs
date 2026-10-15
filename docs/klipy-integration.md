@@ -35,4 +35,4 @@ The owner reproduced staging on iOS 27.0.1 in a blue iMessage conversation with 
 
 ## Owner-requested App Store review while approval is pending
 
-`KLIPY_REVIEW_PENDING=YES` enables the tested sharing path for an App Store review build without asserting provider approval. `KLIPY_MEDIA_PROCESSING_APPROVED` remains `NO` and `KLIPY_INTERNAL_TESTING` remains `NO`. The release helper requires `APP_STORE_MANUAL_RELEASE=YES`; set App Store Connect to manually release the version before submission and keep the approved app on hold while awaiting KLIPY’s response. This mode does not grant provider approval.
+`KLIPY_REVIEW_PENDING=YES` enables the tested sharing path for an App Store review build without asserting provider approval. `KLIPY_MEDIA_PROCESSING_APPROVED` remains `NO` and `KLIPY_INTERNAL_TESTING` remains `NO`. The owner explicitly selected automatic App Store release while KLIPY’s reply is pending. App Store approval may therefore publish this build before provider approval arrives. This mode does not grant provider approval.

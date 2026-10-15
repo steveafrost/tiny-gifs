@@ -78,10 +78,6 @@ fi
 media_approved="${KLIPY_MEDIA_PROCESSING_APPROVED:-NO}"
 internal_testing="${KLIPY_INTERNAL_TESTING:-NO}"
 review_pending="${KLIPY_REVIEW_PENDING:-NO}"
-if [[ "$review_pending" == "YES" && "${APP_STORE_MANUAL_RELEASE:-NO}" != "YES" ]]; then
-  echo "Pending-approval review builds require APP_STORE_MANUAL_RELEASE=YES. Keep Apple release on manual hold." >&2
-  exit 65
-fi
 if [[ "$media_approved" != "YES" && "$internal_testing" != "YES" && "$review_pending" != "YES" ]]; then
   echo "Compact KLIPY sharing requires written KLIPY approval for local media processing. Set KLIPY_MEDIA_PROCESSING_APPROVED=YES only after approval." >&2
   exit 65
@@ -101,7 +97,7 @@ if [[ "$internal_testing" == "YES" ]]; then
 fi
 
 if [[ "$review_pending" == "YES" ]]; then
-  echo "App Store review build: KLIPY approval remains pending. Manual release hold required."
+  echo "App Store review build: KLIPY approval remains pending. App Store release follows the owner-selected setting."
 fi
 
 archive="$root/build/TinyGIFs-${build_number}.xcarchive"
