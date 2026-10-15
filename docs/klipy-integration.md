@@ -32,3 +32,7 @@ See [KLIPY API documentation](https://docs.klipy.com/), [API terms](https://klip
 Cache version 16 regenerates attachments at the 50% larger dimensions. Build 50’s preloading and “Preparing…” tile treatment did not resolve the physical-device staging issue and have been removed. The app calls Apple’s direct-send API, but automatic sending remains unverified and reported not working on the owner’s phone.
 
 The owner reproduced staging on iOS 27.0.1 in a blue iMessage conversation with an empty compose box. The simulator did not reproduce the interaction, and protocol-double tests verify API invocation only; they do not establish automatic sending in Messages.
+
+## Owner-requested App Store review while approval is pending
+
+`KLIPY_REVIEW_PENDING=YES` enables the tested sharing path for an App Store review build without asserting provider approval. `KLIPY_MEDIA_PROCESSING_APPROVED` remains `NO` and `KLIPY_INTERNAL_TESTING` remains `NO`. The owner explicitly selected automatic App Store release while KLIPY’s reply is pending. App Store approval may therefore publish this build before provider approval arrives. This mode does not grant provider approval.

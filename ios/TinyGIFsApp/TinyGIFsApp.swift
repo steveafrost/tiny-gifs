@@ -54,7 +54,7 @@ private struct TinyGIFsSetupView: View {
                 .foregroundStyle(Color.ink)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text("The real KLIPY library lives beside the message field. Find the feeling, tap once, and keep the conversation moving.")
+            Text("The real KLIPY library lives beside the message field. Find the feeling, choose a GIF, then tap Send.")
                 .font(.body)
                 .foregroundStyle(Color.muted)
                 .fixedSize(horizontal: false, vertical: true)
@@ -68,7 +68,7 @@ private struct TinyGIFsSetupView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Your tiny signal is ready")
                         .font(.headline.weight(.semibold))
-                    Text("No setup is required for the one-tap Messages path.")
+                    Text("No setup is required to use the Messages drawer.")
                         .font(.subheadline)
                         .foregroundStyle(Color.mutedOnDark)
                 }
@@ -108,7 +108,7 @@ private struct TinyGIFsSetupView: View {
 
             SetupStep(number: "01", title: "Open a conversation", detail: "Tap the plus button, then choose tiny gifs from the app drawer.")
             SetupStep(number: "02", title: "Search KLIPY in the drawer", detail: "Browse trending GIFs or ask for the reaction you actually mean.")
-            SetupStep(number: "03", title: "Tap once to send", detail: "Tiny GIFs prepares a compact animated attachment and puts it in the thread.")
+            SetupStep(number: "03", title: "Choose a GIF, then Send", detail: "Choose a compact animated attachment, then tap the Messages Send button.")
         }
         .padding(16)
         .background(Color.cardSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
@@ -130,7 +130,7 @@ private struct TinyGIFsSetupView: View {
                     .foregroundStyle(Color.brandAccent)
             }
 
-            Text("Add it only when you want to search KLIPY, copy a GIF, and paste it yourself. It is never needed for the one-tap Messages path.")
+            Text("Add it only when you want to search KLIPY, copy a GIF, and paste it yourself. It is never needed for the Messages drawer.")
                 .font(.footnote)
                 .foregroundStyle(Color.muted)
                 .fixedSize(horizontal: false, vertical: true)
@@ -238,7 +238,7 @@ private struct MessagesPathPreview: View {
                 .frame(height: 36)
                 .background(Color.previewDrawer, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
 
-                Text("Real GIF results load in the drawer. Tap one to send.")
+                Text("Real GIF results load in the drawer. Choose one, then tap Send.")
                     .font(.caption2)
                     .foregroundStyle(Color.white.opacity(0.62))
             }
@@ -248,7 +248,7 @@ private struct MessagesPathPreview: View {
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Color.white.opacity(0.16), lineWidth: 1))
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Messages preview. Tiny GIFs searches real KLIPY GIFs in the app drawer and sends a selection with one tap.")
+        .accessibilityLabel("Messages preview. Tiny GIFs searches real KLIPY GIFs in the app drawer for choosing a GIF and sharing with the Send button.")
     }
 }
 

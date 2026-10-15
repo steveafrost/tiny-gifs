@@ -19,6 +19,7 @@ final class CatalogIntegrityTests: XCTestCase {
         XCTAssertFalse(KlipyService.mediaProcessingEnabled(approved: false, internalTesting: false))
         XCTAssertTrue(KlipyService.mediaProcessingEnabled(approved: false, internalTesting: true))
         XCTAssertTrue(KlipyService.mediaProcessingEnabled(approved: true, internalTesting: false))
+        XCTAssertTrue(KlipyService.mediaProcessingEnabled(approved: false, internalTesting: false, reviewPending: true))
     }
 
     func testKlipyDoesNotProcessMediaBeforeApproval() async throws {

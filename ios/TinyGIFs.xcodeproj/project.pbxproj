@@ -610,6 +610,7 @@
 				KLIPY_API_KEY = "";
 				KLIPY_MEDIA_PROCESSING_APPROVED = NO;
 				KLIPY_INTERNAL_TESTING = NO;
+				KLIPY_REVIEW_PENDING = NO;
 				INFOPLIST_FILE = messages/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "#tiny-gifs";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -688,6 +689,7 @@
 				KLIPY_API_KEY = "";
 				KLIPY_MEDIA_PROCESSING_APPROVED = NO;
 				KLIPY_INTERNAL_TESTING = NO;
+				KLIPY_REVIEW_PENDING = NO;
 				INFOPLIST_FILE = messages/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "#tiny-gifs";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -755,6 +757,7 @@
 				KLIPY_API_KEY = "";
 				KLIPY_MEDIA_PROCESSING_APPROVED = NO;
 				KLIPY_INTERNAL_TESTING = NO;
+				KLIPY_REVIEW_PENDING = NO;
 				INFOPLIST_FILE = TinyGIFsApp/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tinygifs.app;
 				PRODUCT_NAME = TinyGIFs;
@@ -773,6 +776,7 @@
 				KLIPY_API_KEY = "";
 				KLIPY_MEDIA_PROCESSING_APPROVED = NO;
 				KLIPY_INTERNAL_TESTING = NO;
+				KLIPY_REVIEW_PENDING = NO;
 				INFOPLIST_FILE = TinyGIFsApp/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tinygifs.app;
 				PRODUCT_NAME = TinyGIFs;
@@ -791,6 +795,7 @@
 				KLIPY_API_KEY = "";
 				KLIPY_MEDIA_PROCESSING_APPROVED = NO;
 				KLIPY_INTERNAL_TESTING = NO;
+				KLIPY_REVIEW_PENDING = NO;
 				INFOPLIST_FILE = TinyGIFsKeyboard/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tinygifs.app.keyboard;
 				PRODUCT_NAME = TinyGIFsKeyboard;
@@ -809,6 +814,7 @@
 				KLIPY_API_KEY = "";
 				KLIPY_MEDIA_PROCESSING_APPROVED = NO;
 				KLIPY_INTERNAL_TESTING = NO;
+				KLIPY_REVIEW_PENDING = NO;
 				INFOPLIST_FILE = TinyGIFsKeyboard/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tinygifs.app.keyboard;
 				PRODUCT_NAME = TinyGIFsKeyboard;
