@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react'
 import { KlipyExplorer } from './components/KlipyExplorer'
 import { InfoPage } from './components/InfoPages'
 import { InstallCta } from './components/InstallCta'
@@ -70,7 +71,7 @@ function Footer() {
 }
 
 export default function App() {
-  if (window.location.pathname === '/privacy') return <InfoPage page="privacy" />
-  if (window.location.pathname === '/support') return <InfoPage page="support" />
-  return <><Header /><main><Hero /><KlipyExplorer /><HowItWorks /><CompanionApp /><ProductNotes /></main><Footer /></>
+  if (window.location.pathname === '/privacy') return <><InfoPage page="privacy" /><Analytics /></>
+  if (window.location.pathname === '/support') return <><InfoPage page="support" /><Analytics /></>
+  return <><Header /><main><Hero /><KlipyExplorer /><HowItWorks /><CompanionApp /><ProductNotes /></main><Footer /><Analytics /></>
 }
