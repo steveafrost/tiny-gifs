@@ -82,6 +82,51 @@ final class CatalogIntegrityTests: XCTestCase {
         XCTAssertTrue(searches.isCurrent(secondSearch))
     }
 
+    func testKeyboardLayersProvideBasicTypingCharacters() {
+        XCTAssertEqual(KeyboardLayer.letters.next, .numbers)
+        XCTAssertEqual(KeyboardLayer.numbers.next, .symbols)
+        XCTAssertEqual(KeyboardLayer.symbols.next, .letters)
+
+        XCTAssertEqual(KeyboardLayout.rows(for: .letters).count, 3)
+        XCTAssertEqual(KeyboardLayout.rows(for: .numbers).count, 3)
+        XCTAssertEqual(KeyboardLayout.rows(for: .symbols).count, 3)
+        XCTAssertTrue(KeyboardLayout.rows(for: .numbers).joined().contains("1"))
+        XCTAssertTrue(KeyboardLayout.rows(for: .symbols).joined().contains("?"))
+        XCTAssertEqual(KeyboardLayout.character(for: "a", layer: .letters, shifted: false), "a")
+        XCTAssertEqual(KeyboardLayout.character(for: "a", layer: .letters, shifted: true), "A")
+        XCTAssertEqual(KeyboardLayout.character(for: "1", layer: .numbers, shifted: true), "1")
+        XCTAssertEqual(KeyboardLayer.letters.switchKeyTitle, "123")
+        XCTAssertEqual(KeyboardLayer.symbols.switchKeyTitle, "ABC")
+    }
+
+    @MainActor
+    func testKeyboardContentFitsCompactKeyboardHeights() throws {
+        for height in [291.0, 260.0, 240.0, 216.0] {
+            let controller = KeyboardViewController()
+            controller.loadViewIfNeeded()
+            controller.view.frame = CGRect(x: 0, y: 0, width: 390, height: height)
+            controller.view.setNeedsLayout()
+            controller.view.layoutIfNeeded()
+            controller.view.layoutIfNeeded()
+
+            let root = try XCTUnwrap(controller.view.subviews.compactMap { $0 as? UIStackView }.first)
+            let visibleRows = root.arrangedSubviews.filter { !$0.isHidden }
+            let contentBottom = visibleRows.map(\.frame.maxY).max() ?? 0
+            XCTAssertLessThanOrEqual(contentBottom, root.bounds.maxY + 0.5, "Keyboard rows must fit at height \(height)")
+
+            if height >= 260 {
+                XCTAssertEqual(visibleRows.count, 5)
+                XCTAssertGreaterThanOrEqual(visibleRows[2].frame.height, 42, "The reaction/KLIPY strip must keep its height at \(height)")
+                XCTAssertGreaterThanOrEqual(visibleRows[3].frame.height, 112, "The three character rows must not compress at \(height)")
+                XCTAssertGreaterThanOrEqual(visibleRows[4].frame.height, 34, "The command row must remain usable at \(height)")
+            } else {
+                XCTAssertEqual(visibleRows.count, 3, "Compact height should hide the search and GIF strip at \(height)")
+                XCTAssertGreaterThanOrEqual(visibleRows[1].frame.height, 112, "The three character rows must not compress in compact mode at \(height)")
+                XCTAssertGreaterThanOrEqual(visibleRows[2].frame.height, 34, "The command row must remain usable in compact mode at \(height)")
+            }
+        }
+    }
+
     func testMessagesDrawerRequestsExpandedPresentationWithoutAPartialRowLimit() {
         XCTAssertEqual(TinyGIFDrawerLayout.presentationStyle, .expanded)
     }

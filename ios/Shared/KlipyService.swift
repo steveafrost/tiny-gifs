@@ -65,6 +65,13 @@ enum KlipyServiceError: LocalizedError {
 }
 
 enum KlipyService {
+    private static let session: URLSession = {
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 20
+        configuration.timeoutIntervalForResource = 30
+        return URLSession(configuration: configuration)
+    }()
+
     private static var apiKey: String? {
         let key = (Bundle.main.object(forInfoDictionaryKey: "KLIPY_API_KEY") as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let key, !key.isEmpty, key != "$(KLIPY_API_KEY)" else { return nil }
@@ -113,7 +120,7 @@ enum KlipyService {
     // Only the selected GIF is downloaded. Previews use provider URLs directly.
     static func localGIFURL(for gif: KlipyGIF) async throws -> URL {
         guard isMediaProcessingEnabled else { throw KlipyServiceError.sharingUnavailable }
-        let (data, response) = try await URLSession.shared.data(from: gif.tinyGIFURL)
+        let (data, response) = try await session.data(from: gif.tinyGIFURL)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else { throw KlipyServiceError.unavailable }
         let destination = FileManager.default.temporaryDirectory.appendingPathComponent("klipy-\(UUID().uuidString).gif")
         try data.write(to: destination, options: .atomic)
@@ -123,7 +130,7 @@ enum KlipyService {
     private static func load(query: String?, limit: Int, page: Int) async throws -> KlipyPage {
         guard let apiKey else { throw KlipyServiceError.missingKey }
         do {
-            let (data, response) = try await URLSession.shared.data(from: requestURL(apiKey: apiKey, query: query, limit: limit, page: page))
+            let (data, response) = try await session.data(from: requestURL(apiKey: apiKey, query: query, limit: limit, page: page))
             guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else { throw KlipyServiceError.unavailable }
             guard let decoded = try? JSONDecoder().decode(KlipyPage.self, from: data) else { throw KlipyServiceError.invalidResponse }
             return decoded

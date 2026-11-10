@@ -27,6 +27,7 @@
 		1A00000000000000000000BD /* CatalogIntegrityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000022 /* CatalogIntegrityTests.swift */; };
 		1A00000000000000000000BE /* ReactionCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000020 /* ReactionCatalog.swift */; };
 		1A00000000000000000000BF /* KeyboardState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000014 /* KeyboardState.swift */; };
+		1A00000000000000000000F1 /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000013 /* KeyboardViewController.swift */; };
 		1A00000000000000000000E1 /* TinyGIFsKeyboard.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000016 /* TinyGIFsKeyboard.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1A00000000000000000000F0 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000053 /* XCTest.framework */; };
 		1A00000000000000000000IC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000I0 /* Assets.xcassets */; };
@@ -531,6 +532,7 @@
 				1A00000000000000000000B31 /* KlipyService.swift in Sources */,
 				1A00000000000000000000BE /* ReactionCatalog.swift in Sources */,
 				1A00000000000000000000BF /* KeyboardState.swift in Sources */,
+				1A00000000000000000000F1 /* KeyboardViewController.swift in Sources */,
 				1A00000000000000000000B23 /* TinyGIFAttachmentRenderer.swift in Sources */,
 				1A00000000000000000000B24 /* TinyGIFDrawerLayout.swift in Sources */,
 			);

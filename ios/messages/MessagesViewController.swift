@@ -342,20 +342,49 @@ private final class GIFPickerCell: UICollectionViewCell {
 }
 
 private enum AnimatedGIFImage {
+    private static let maximumPreviewFrames = 24
+    private static let maximumPreviewPixels: CGFloat = 220
+
     static func load(data: Data) -> UIImage? {
         guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
         let frameCount = CGImageSourceGetCount(source)
         guard frameCount > 0 else { return nil }
 
+        let indices = TinyGIFAttachmentRenderer.sampledFrameIndices(
+            frameCount: frameCount,
+            maximumFrames: min(maximumPreviewFrames, frameCount)
+        )
         var frames: [UIImage] = []
         var duration: TimeInterval = 0
-        for index in 0..<frameCount {
-            guard let image = CGImageSourceCreateImageAtIndex(source, index, nil) else { continue }
-            frames.append(UIImage(cgImage: image))
-            duration += frameDuration(source: source, at: index)
+        for (outputIndex, index) in indices.enumerated() {
+            guard let image = CGImageSourceCreateImageAtIndex(
+                source,
+                index,
+                [kCGImageSourceShouldCache: false] as CFDictionary
+            ) else { continue }
+            frames.append(downsampled(UIImage(cgImage: image)))
+            let nextIndex = outputIndex + 1 < indices.count ? indices[outputIndex + 1] : frameCount
+            duration += (index..<nextIndex).reduce(0.0) { $0 + frameDuration(source: source, at: $1) }
         }
         let result = frames.count == 1 ? frames.first : UIImage.animatedImage(with: frames, duration: max(duration, 0.1))
         return result
+    }
+
+    private static func downsampled(_ image: UIImage) -> UIImage {
+        guard let cgImage = image.cgImage else { return image }
+        let longestSide = max(cgImage.width, cgImage.height)
+        guard CGFloat(longestSide) > maximumPreviewPixels else { return image }
+        let scale = maximumPreviewPixels / CGFloat(longestSide)
+        let size = CGSize(
+            width: max(1, floor(CGFloat(cgImage.width) * scale)),
+            height: max(1, floor(CGFloat(cgImage.height) * scale))
+        )
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        format.opaque = false
+        return UIGraphicsImageRenderer(size: size, format: format).image { _ in
+            UIImage(cgImage: cgImage).draw(in: CGRect(origin: .zero, size: size))
+        }
     }
 
     private static func frameDuration(source: CGImageSource, at index: Int) -> TimeInterval {

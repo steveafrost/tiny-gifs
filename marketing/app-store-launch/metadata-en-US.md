@@ -14,7 +14,7 @@
 
 ### Current description
 
-> #tiny-gifs is a compact GIF reaction app built for the size of a large emoji. Start in Messages for the fastest sharing path: choose a tiny animated reaction and send it with one tap. Add the optional keyboard for supported chat apps: it types normally without Full Access, and with Full Access it can search GIPHY and copy a GIF for you to paste into a supported chat field. The keyboard never records, stores, or transmits what you type.
+> #tiny-gifs is a compact GIF reaction app built for the size of a large emoji. Start in Messages for the fastest sharing path: choose a tiny animated reaction, then tap the Messages Send button if it stages in the compose field. Add the optional keyboard for supported chat apps: it types normally without Full Access, and with Full Access it can search KLIPY and copy a GIF for you to paste into a supported chat field. The keyboard never records, stores, or transmits what you type.
 
 ## Proposed metadata for owner approval
 
@@ -33,17 +33,17 @@ reaction,emoji,sticker,messages,keyboard,imessage,chat,funny,animation,meme,repl
 
 **Length:** 92 characters (within Apple’s 100-character limit).
 
-Rationale: removes `gif`, which is already represented in the app name, and uses the recovered space for product-relevant discovery terms. This is an ASO recommendation, not a measured ranking claim.
+Rationale: removes `gif`, which is already represented in the app name, and uses the recovered space for product-relevant discovery terms. This is an ASO recommendation, not a measured ranking claim. The library is KLIPY, not GIPHY; do not submit any GIPHY wording.
 
 ### Promotional text draft
 
-> Compact GIF reactions for Messages, with an optional keyboard for supported chat apps.
+> Compact GIF reactions for Messages, powered by KLIPY, with an optional keyboard for supported chat apps.
 
 Use only after confirming the optional-keyboard wording matches the final App Store positioning. Promotional text may be changed without a version release, subject to Apple’s current rules.
 
 ### Description recommendation
 
-Keep the current description for build 1.0. It accurately distinguishes the Messages path from the optional keyboard path and states the Full Access boundary. Do not add claims such as “works everywhere,” “private,” “secure,” or a universal fixed display size; the source and support page only support the narrower behavior already described.
+Use the corrected description above for the KLIPY build. It distinguishes the Messages path from the optional keyboard path, states the Full Access boundary, and does not promise automatic sending. Do not add claims such as “works everywhere,” “private,” “secure,” or a universal fixed display size; the source and support page only support the narrower behavior already described. Add “Powered by KLIPY” attribution in the app and on the website; do not imply KLIPY endorses the app.
 
 ## Screenshot order
 

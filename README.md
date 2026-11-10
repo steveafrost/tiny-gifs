@@ -29,7 +29,7 @@ Open [ios/TinyGIFs.xcodeproj](ios/TinyGIFs.xcodeproj) in Xcode 26.5. The `TinyGI
 
 - `TinyGIFs` — iOS 17+ SwiftUI containing app that exists to install and explain the custom keyboard. It clearly distinguishes keyboard KLIPY search from the companion app and explains Full Access.
 - `messages` — custom Messages app-drawer GIF picker. It browses and searches KLIPY, normalizes the selected animation to a 288×288 `MSSticker`, and requests direct sending through Apple’s API. On the current device test, Messages stages the GIF in the compose field and requires Send; automatic delivery remains unresolved.
-- `TinyGIFsKeyboard` — `UIInputViewController` with letter input, delete, space, return, next-keyboard/globe action, bundled fallback reactions, and Full Access KLIPY search + GIF pasteboard copying.
+- `TinyGIFsKeyboard` — `UIInputViewController` with letter, number, and symbol layers; shift, delete, space, return, next-keyboard/globe action; bundled fallback reactions; and Full Access KLIPY search + GIF pasteboard copying.
 - `TinyGIFsTests` — catalog, media budget/dimension, and keyboard Full Access decision tests.
 
 To compile without signing, select an installed iPhone Simulator destination in Xcode or run:
@@ -54,7 +54,7 @@ The keyboard only performs KLIPY search or media download with Full Access. With
 
 ### TestFlight release
 
-The KLIPY key can be supplied through `KLIPY_API_KEY` or stored in the macOS Keychain as `tiny-gifs-klipy-api-key`; it is never committed. Testing keys are limited to 100 API calls per hour; request production access in the KLIPY Partner Panel. The preflight validates access, not the key's pricing tier. Run it before archiving. Compact sharing is gated until KLIPY grants written approval for local media resizing/caching; see [integration requirements](docs/klipy-integration.md).
+The KLIPY key can be supplied through `KLIPY_API_KEY` or stored in the macOS Keychain as `tiny-gifs-klipy-api-key`; it is never committed. Testing keys are limited to 100 API calls per hour; request production access in the KLIPY Partner Panel. The preflight validates access, not the key's pricing tier. Run it before archiving. Compact sharing is gated until KLIPY grants written approval for local media resizing/caching. The script also supports `KLIPY_INTERNAL_TESTING=YES` for internal-only TestFlight and `KLIPY_REVIEW_PENDING=YES` for an App Store review build without claiming provider approval; neither mode grants approval. See [integration requirements](docs/klipy-integration.md).
 
 ```bash
 scripts/test-release-testflight.sh

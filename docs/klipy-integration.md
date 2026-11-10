@@ -1,6 +1,6 @@
 # KLIPY integration
 
-The migration uses KLIPY GIF API v1 for native and website search and trending. Production build 48 still uses GIPHY and remains in Apple's review queue.
+The migration uses KLIPY GIF API v1 for native and website search and trending. Build 52 is the current KLIPY review build; its App Store Connect/TestFlight state is not verified in this repository.
 
 ## Configuration
 
@@ -16,12 +16,16 @@ The migration uses KLIPY GIF API v1 for native and website search and trending. 
 - Search queries preserve submitted text. Requests use `content_filter=high`, `locale=us`, and `format_filter=gif`.
 - Result order is preserved. Unsupported ads or incomplete records fail the page instead of silently removing results. Configure a GIF-only, non-ad integration in the Partner Panel; ad rendering is not implemented.
 - The grid loads the provider's small GIF previews directly. Only the selected full GIF is downloaded into a temporary local file, which is removed after processing.
-- Attribution is visible as “Powered by KLIPY”; search placeholders say “Search KLIPY”. No persistent customer identifier is introduced.
+- Attribution is visible as “Powered by KLIPY”; search placeholders say “Search KLIPY”. The app itself does not create a customer account or send typed text, but KLIPY receives search terms, media requests, IP address, and request metadata under its own privacy policy.
 - The existing 288×288 encoder preserves all frames where possible, reduces palette detail before frames, and retains both endpoints and full duration when reduction is necessary.
 
 ## Release
 
 Run `scripts/release-testflight.sh <number> --validate` to verify API access without accepting an unresolved media-processing approval. Archive/upload requires approval as described above. Review App Store privacy and metadata before a KLIPY release.
+
+## Current terms and privacy review
+
+The KLIPY API Terms (last updated 2026-06-23) allow users to access, select, and post KLIPY content but say: “You may not cache or store KLIPY Content [other than the search results thumbnails stored within a user’s copy of your Application.]” They also require visible KLIPY attribution, prohibit KLIPY marks in the app name/branding, and require the app to make clear it is independently developed and not a KLIPY product. The KLIPY Privacy Policy (last updated 2026-06-23) says KLIPY may collect search-term history, content-viewed history, IP address, an app/device identifier, usage and diagnostic information, and may use it for analytics and advertising. These are the reasons written approval and a deliberate App Privacy label are required; neither is inferred by the review-pending build flag.
 
 See [KLIPY API documentation](https://docs.klipy.com/), [API terms](https://klipy.com/support/api-terms), and [privacy policy](https://klipy.com/support/privacy-policy).
 
