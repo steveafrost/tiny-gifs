@@ -22,6 +22,8 @@ grep -Fq 'PlugIns/TinyGIFsKeyboard.appex/Info.plist' "$release_script"
 grep -Fq 'Print :ITSAppUsesNonExemptEncryption' "$release_script"
 
 grep -Fq 'Add :testFlightInternalTestingOnly bool true' "$release_script"
+grep -Fq 'asc builds upload' "$release_script"
+grep -Fq 'Set :destination export' "$release_script"
 
 # A TestFlight release must never silently proceed without a KLIPY key.
 if KLIPY_API_KEY='' TINY_GIFS_KLIPY_KEYCHAIN_SERVICE='missing-test-key' "$release_script" 23 --validate; then

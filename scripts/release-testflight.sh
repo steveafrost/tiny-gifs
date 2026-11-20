@@ -6,6 +6,7 @@ project="$root/ios/TinyGIFs.xcodeproj"
 scheme="TinyGIFs"
 export_options="$root/ios/ExportOptions.plist"
 keychain_service="${TINY_GIFS_KLIPY_KEYCHAIN_SERVICE:-tiny-gifs-klipy-api-key}"
+app_id="${APP_STORE_CONNECT_APP_ID:-6789700899}"
 
 usage() {
   cat <<'USAGE'
@@ -75,6 +76,11 @@ if [[ "$mode" == "--validate" ]]; then
   exit 0
 fi
 
+if [[ "$mode" == "--upload" ]] && ! command -v asc >/dev/null 2>&1; then
+  echo "The 'asc' CLI is required for --upload. Install it and run 'asc auth login'." >&2
+  exit 69
+fi
+
 media_approved="${KLIPY_MEDIA_PROCESSING_APPROVED:-NO}"
 internal_testing="${KLIPY_INTERNAL_TESTING:-NO}"
 review_pending="${KLIPY_REVIEW_PENDING:-NO}"
@@ -89,9 +95,14 @@ build_config="$workdir/ReleaseOverrides.xcconfig"
 umask 077
 printf 'KLIPY_API_KEY = %s\nCURRENT_PROJECT_VERSION = %s\nKLIPY_MEDIA_PROCESSING_APPROVED = %s\nKLIPY_INTERNAL_TESTING = %s\nKLIPY_REVIEW_PENDING = %s\n' "$api_key" "$build_number" "$media_approved" "$internal_testing" "$review_pending" > "$build_config"
 
+export_options="$workdir/ExportOptions.plist"
+cp "$root/ios/ExportOptions.plist" "$export_options"
+if [[ "$mode" == "--upload" ]]; then
+  /usr/libexec/PlistBuddy -c 'Set :destination export' "$export_options" 2>/dev/null || \
+    /usr/libexec/PlistBuddy -c 'Add :destination string export' "$export_options"
+fi
+
 if [[ "$internal_testing" == "YES" ]]; then
-  export_options="$workdir/InternalTestingExport.plist"
-  cp "$root/ios/ExportOptions.plist" "$export_options"
   /usr/libexec/PlistBuddy -c 'Add :testFlightInternalTestingOnly bool true' "$export_options"
   echo "This upload is restricted to internal TestFlight testing."
 fi
@@ -104,6 +115,52 @@ archive="$root/build/TinyGIFs-${build_number}.xcarchive"
 log="$workdir/xcodebuild.log"
 rm -rf "$archive"
 
+# Sign with an App Store Connect API key when one is configured, so releases do not
+# depend on a developer account being signed in to Xcode's Accounts settings.
+key_id="${APP_STORE_CONNECT_KEY_ID:-}"
+issuer_id="${APP_STORE_CONNECT_ISSUER_ID:-}"
+if [[ ( -z "$key_id" || -z "$issuer_id" ) ]] && command -v asc >/dev/null 2>&1; then
+  asc_accounts="$workdir/asc-accounts.json"
+  if asc auth list >"$asc_accounts" 2>/dev/null; then
+    read -r asc_key_id asc_issuer_id < <(
+      node --input-type=module - "$asc_accounts" <<'JS'
+import { readFileSync } from 'node:fs'
+try {
+  const parsed = JSON.parse(readFileSync(process.argv[2], 'utf8'))
+  const accounts = parsed.data || []
+  const active = accounts.find(account => account.isActive) || accounts[0]
+  if (active?.keyID && active?.issuerID) {
+    console.log(`${active.keyID} ${active.issuerID}`)
+  }
+} catch {}
+JS
+    ) || true
+    key_id="${key_id:-${asc_key_id:-}}"
+    issuer_id="${issuer_id:-${asc_issuer_id:-}}"
+  fi
+fi
+key_path=""
+if [[ -n "$key_id" ]]; then
+  for candidate in \
+    "${APP_STORE_CONNECT_KEY_PATH:-}" \
+    "$HOME/.appstoreconnect/private_keys/AuthKey_${key_id}.p8" \
+    "$HOME/private_keys/AuthKey_${key_id}.p8"; do
+    if [[ -n "$candidate" && -f "$candidate" ]]; then
+      key_path="$candidate"
+      break
+    fi
+  done
+fi
+auth_args=()
+if [[ -n "$key_path" && -n "$issuer_id" ]]; then
+  auth_args=(
+    -authenticationKeyPath "$key_path"
+    -authenticationKeyID "$key_id"
+    -authenticationKeyIssuerID "$issuer_id"
+  )
+  echo "Signing with App Store Connect API key $key_id."
+fi
+
 if ! xcodebuild \
   -project "$project" \
   -scheme "$scheme" \
@@ -112,6 +169,7 @@ if ! xcodebuild \
   -archivePath "$archive" \
   -xcconfig "$build_config" \
   -allowProvisioningUpdates \
+  ${auth_args[@]+"${auth_args[@]}"} \
   archive >"$log" 2>&1; then
   report_build_failure
   echo "Archive failed." >&2
@@ -167,11 +225,34 @@ fi
 echo "Verified build $build_number, resolved KLIPY configuration, export compliance, and keyboard Open Access in app and extensions."
 
 if [[ "$mode" == "--upload" ]]; then
+  app_version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Info.plist" 2>/dev/null || true)"
+  if [[ -z "$app_version" ]]; then
+    echo "Archive is missing CFBundleShortVersionString in TinyGIFs.app/Info.plist." >&2
+    exit 1
+  fi
+  export_dir="$workdir/export"
   if ! xcodebuild \
     -exportArchive \
     -archivePath "$archive" \
+    -exportPath "$export_dir" \
     -exportOptionsPlist "$export_options" \
-    -allowProvisioningUpdates >"$log" 2>&1; then
+    -allowProvisioningUpdates \
+    ${auth_args[@]+"${auth_args[@]}"} >"$log" 2>&1; then
+    report_build_failure
+    echo "IPA export failed." >&2
+    exit 1
+  fi
+  ipa="$export_dir/TinyGIFs.ipa"
+  if [[ ! -f "$ipa" ]]; then
+    echo "Expected exported IPA at $ipa, but it was not created." >&2
+    exit 1
+  fi
+  if ! asc builds upload \
+    --app-id "$app_id" \
+    --file "$ipa" \
+    --version "$app_version" \
+    --build-number "$build_number" \
+    --platform ios >"$log" 2>&1; then
     report_build_failure
     echo "App Store Connect upload failed." >&2
     exit 1

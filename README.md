@@ -61,7 +61,7 @@ scripts/test-release-testflight.sh
 scripts/release-testflight.sh <next-build-number> --upload
 ```
 
-The release script validates the key against KLIPY, injects it only through a private temporary build configuration, and verifies that the containing app plus both embedded extensions have the requested build number and a resolved key before upload. Because KLIPY search runs from the iOS client, its API key is embedded in the shipped app; protect it with KLIPY's applicable app/domain restrictions and rotate it if it is abused.
+The release script validates the key against KLIPY, injects it only through a private temporary build configuration, and verifies that the containing app plus both embedded extensions have the requested build number and a resolved key before upload. `--upload` exports the IPA locally and sends it with the `asc` CLI (`asc auth login` once, plus the app ID in `APP_STORE_CONNECT_APP_ID`, default `6789700899`), because Xcode's own upload step needs a developer account signed in to Xcode. Archiving and export sign with the App Store Connect API key from `APP_STORE_CONNECT_KEY_ID`/`APP_STORE_CONNECT_ISSUER_ID`, falling back to the active `asc auth` account when those are unset. Because KLIPY search runs from the iOS client, its API key is embedded in the shipped app; protect it with KLIPY's applicable app/domain restrictions and rotate it if it is abused.
 
 The eight owned starter reactions are `lol`, `nope`, `omg`, `brb`, `perfect`, `yes`, `yikes`, and `tiny clap`. Their deterministic vector sources live in `ios/Shared/ArtworkSources`; matching 300×300 PNG and GIF exports live in `ios/Shared/Resources/GIFs` and are included in the native targets. The test suite enforces the 500 KB per-file cap and PNG dimensions.
 
